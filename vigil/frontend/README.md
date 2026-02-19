@@ -15,6 +15,10 @@ frontend/
 ├── public/
 │   └── vite.svg                  # Static assets served as-is (favicon placeholder) <- adjust for future logo revisions
 │
+├── archive/                      # Outline files made by @thangsauce
+│   ├── outline_index.html        # Original HTML outline for dashboard
+│   └── rules_filter.js           # Original JS filter rules 
+│
 ├── src/
 │   ├── components/
 │   │   ├── Header.tsx            # Header for logo, nav links, etc.
