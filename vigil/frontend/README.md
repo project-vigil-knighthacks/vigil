@@ -54,6 +54,7 @@ frontend/
 
 ## Local Environment
 
+Ensure you have [Node.js](https://nodejs.org/en/download) installed on your machine
 ```bash
 cd vigil\frontend
 npm install
