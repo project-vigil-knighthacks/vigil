@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vigil SIEM</title>
+</head>
+
+<body>
+
+  <!-- Header -->
+  <header>
+    <h1>Vigil</h1>
+    <p>Centralized Security Monitoring & Incident Detection (Small Org / Student Lab)</p>
+
+    <nav aria-label="Primary navigation">
+      <a href="#overview">Overview</a> |
+      <a href="#live">Live Monitoring</a> |
+      <a href="#alerts">Alerts</a> |
+      <a href="#dashboards">Dashboards</a> |
+      <a href="#rules">Correlation Rules</a> |
+      <a href="#incidents">Incident Response</a> |
+      <a href="#testing">Testing</a> |
+      <a href="#reports">Reports</a> |
+      <a href="#settings">Settings</a>
+    </nav>
+
+    <hr />
+  </header>
+
+  <!-- Main content -->
+  <main>
+
+    <!-- Overview -->
+    <section id="overview">
+      <h2>Overview</h2>
+
+      <article>
+        <h3>System Status</h3>
+        <ul>
+          <li><strong>SIEM Server:</strong> <span id="siemServerStatus">Online (placeholder)</span></li>
+          <li><strong>Log Ingestion:</strong> <span id="ingestionStatus">Active (placeholder)</span></li>
+          <li><strong>Agents Connected:</strong> <span id="agentsConnected">2 (placeholder)</span></li>
+          <li><strong>Last Data Update:</strong> <time id="lastUpdate" datetime="">--</time></li>
+        </ul>
+      </article>
+
+      <article>
+        <h3>Quick Metrics</h3>
+        <ul>
+          <li><strong>Events (Last 15 min):</strong> <span id="events15m">--</span></li>
+          <li><strong>Alerts (Last 24 hrs):</strong> <span id="alerts24h">--</span></li>
+          <li><strong>Critical Alerts:</strong> <span id="criticalAlerts">--</span></li>
+          <li><strong>Top Source:</strong> <span id="topSource">Windows (placeholder)</span></li>
+        </ul>
+      </article>
+
+      <hr />
+    </section>
+
+    <!-- Live Monitoring -->
+    <section id="live">
+      <h2>Live Monitoring</h2>
+
+      <article>
+        <h3>Live Event Stream</h3>
+        <p>Latest security events arriving from Windows, Linux, and optional web/firewall sources.</p>
+
+        <label for="liveFilter">Filter:</label>
+        <select id="liveFilter" name="liveFilter">
+          <option value="all">All</option>
+          <option value="auth">Authentication</option>
+          <option value="malware">Malware</option>
+          <option value="network">Network</option>
+          <option value="system">System</option>
+        </select>
+
+        <button type="button" id="refreshLive">Refresh</button>
+
+        <table border="1" width="100%">
+          <caption>Live Events (placeholder)</caption>
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>Host</th>
+              <th>Source</th>
+              <th>Event Type</th>
+              <th>Severity</th>
+              <th>Summary</th>
+            </tr>
+          </thead>
+          <tbody id="liveEvents">
+            <tr>
+              <td>--</td>
+              <td>WIN10-LAB</td>
+              <td>Windows Event Log</td>
+              <td>Authentication</td>
+              <td>Medium</td>
+              <td>Failed login attempt (placeholder)</td>
+            </tr>
+            <tr>
+              <td>--</td>
+              <td>UBU-SERVER</td>
+              <td>/var/log/auth.log</td>
+              <td>Privilege</td>
+              <td>High</td>
+              <td>sudo attempt by user “student” (placeholder)</td>
+            </tr>
+          </tbody>
+        </table>
+      </article>
+
+      <hr />
+    </section>
+
+    <!-- Alerts -->
+    <section id="alerts">
+      <h2>Alerts</h2>
+
+      <article>
+        <h3>Active Alerts Queue</h3>
+        <p>Alerts triggered by correlation rules and thresholds.</p>
+
+        <button type="button" id="ackSelected">Acknowledge Selected</button>
+        <button type="button" id="exportAlerts">Export</button>
+
+        <table border="1" width="100%">
+          <caption>Active Alerts (placeholder)</caption>
+          <thead>
+            <tr>
+              <th>Select</th>
+              <th>Alert ID</th>
+              <th>Time</th>
+              <th>Severity</th>
+              <th>Rule</th>
+              <th>Affected Host/User</th>
+              <th>Details</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="alertsTable">
+            <tr>
+              <td><input type="checkbox" name="alertSelect" value="ALRT-0001"></td>
+              <td>ALRT-0001</td>
+              <td>--</td>
+              <td>Critical</td>
+              <td>Brute Force Threshold</td>
+              <td>WIN10-LAB / user: admin</td>
+              <td>10+ failed logins in 1 minute (placeholder)</td>
+              <td>Open</td>
+            </tr>
+            <tr>
+              <td><input type="checkbox" name="alertSelect" value="ALRT-0002"></td>
+              <td>ALRT-0002</td>
+              <td>--</td>
+              <td>High</td>
+              <td>New Admin Account Created</td>
+              <td>WIN10-LAB</td>
+              <td>Local admin account “tempadmin” created (placeholder)</td>
+              <td>Open</td>
+            </tr>
+          </tbody>
+        </table>
+      </article>
+
+      <hr />
+    </section>
+
+    <!-- Dashboards -->
+    <section id="dashboards">
+      <h2>Dashboards</h2>
+
+      <article>
+        <h3>Dashboard: Authentication Activity</h3>
+        <ul>
+          <li>Total logins (24h): <span id="authTotal">--</span></li>
+          <li>Failed logins (24h): <span id="authFailed">--</span></li>
+          <li>Top users by failures: <span id="authTopUsers">--</span></li>
+          <li>Unusual login detections: <span id="authAnomalies">--</span></li>
+        </ul>
+      </article>
+
+      <article>
+        <h3>Dashboard: Top Alerts</h3>
+        <ol>
+          <li><span id="topAlert1">Brute force (placeholder)</span></li>
+          <li><span id="topAlert2">Privilege escalation (placeholder)</span></li>
+          <li><span id="topAlert3">Port scanning (placeholder)</span></li>
+        </ol>
+      </article>
+
+      <article>
+        <h3>Dashboard: System Health</h3>
+        <ul>
+          <li>CPU: <span id="healthCpu">--</span></li>
+          <li>RAM: <span id="healthRam">--</span></li>
+          <li>Disk: <span id="healthDisk">--</span></li>
+          <li>Ingestion latency: <span id="healthLatency">--</span></li>
+        </ul>
+      </article>
+
+      <hr />
+    </section>
+
+    <!-- Correlation Rules -->
+    <section id="rules">
+      <h2>Correlation Rules</h2>
+
+      <!-- Filter -->
+      <article>
+        <h3>Filter Rules</h3>
+
+        <label for="ruleSearch">Search:</label>
+        <input
+          type="text"
+          id="ruleSearch"
+          placeholder="Search by rule name, description, threshold, severity, status..."
+        />
+
+        <br /><br />
+
+        <label for="ruleSeverityFilter">Severity:</label>
+        <select id="ruleSeverityFilter">
+          <option value="all">All</option>
+          <option value="low">Low</option>
+          <option value="medium">Medium</option>
+          <option value="high">High</option>
+          <option value="critical">Critical</option>
+        </select>
+
+        <label for="ruleStatusFilter">Status:</label>
+        <select id="ruleStatusFilter">
+          <option value="all">All</option>
+          <option value="enabled">Enabled</option>
+          <option value="disabled">Disabled</option>
+        </select>
+
+        <button type="button" id="clearRuleFilters">Clear</button>
+        <p id="rulesCounter">Showing 0 of 0 rules</p>
+      </article>
+
+      <br />
+
+      <article>
+        <h3>Enabled Rules</h3>
+
+        <table border="1" width="100%">
+          <caption>Correlation Rules (3–5 target)</caption>
+          <thead>
+            <tr>
+              <th>Rule Name</th>
+              <th>Description</th>
+              <th>Threshold</th>
+              <th>Severity</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+
+          <tbody id="rulesTableBody">
+            <tr data-severity="critical" data-status="enabled">
+              <td>Brute Force Threshold</td>
+              <td>Trigger if 10+ failed logins occur in 1 minute</td>
+              <td>10 / 1 min</td>
+              <td>Critical</td>
+              <td>Enabled</td>
+            </tr>
+
+            <tr data-severity="high" data-status="enabled">
+              <td>Privilege Escalation Attempt</td>
+              <td>Detect suspicious sudo / admin group changes</td>
+              <td>Any</td>
+              <td>High</td>
+              <td>Enabled</td>
+            </tr>
+
+            <tr data-severity="medium" data-status="enabled">
+              <td>Network Scan Detection</td>
+              <td>Detect port scanning patterns (e.g., nmap)</td>
+              <td>20+ ports / short window</td>
+              <td>Medium</td>
+              <td>Enabled</td>
+            </tr>
+
+            <tr data-severity="high" data-status="enabled">
+              <td>Suspicious Process Execution</td>
+              <td>Flag known “test malware” indicators or suspicious binaries</td>
+              <td>Any</td>
+              <td>High</td>
+              <td>Enabled</td>
+            </tr>
+
+            <!-- Example Disabled Rule -->
+            <tr data-severity="low" data-status="disabled">
+              <td>Test Rule (Disabled Example)</td>
+              <td>Example disabled rule for filtering demo</td>
+              <td>--</td>
+              <td>Low</td>
+              <td>Disabled</td>
+            </tr>
+          </tbody>
+        </table>
+      </article>
+
+      <br />
+
+      <article>
+        <h3>Add / Tune Rule</h3>
+
+        <form id="ruleForm">
+          <p>
+            <label for="ruleName">Rule Name:</label><br />
+            <input type="text" id="ruleName" name="ruleName" placeholder="e.g., Unusual Login Location" />
+          </p>
+
+          <p>
+            <label for="ruleDesc">Description:</label><br />
+            <textarea id="ruleDesc" name="ruleDesc" rows="4" cols="60"
+              placeholder="What does this rule detect?"></textarea>
+          </p>
+
+          <p>
+            <label for="ruleThreshold">Threshold:</label><br />
+            <input type="text" id="ruleThreshold" name="ruleThreshold" placeholder="e.g., 5 events / 2 minutes" />
+          </p>
+
+          <p>
+            <label for="ruleSeverity">Severity:</label><br />
+            <select id="ruleSeverity" name="ruleSeverity">
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+              <option value="critical">Critical</option>
+            </select>
+          </p>
+
+          <p>
+            <label for="ruleStatus">Status:</label><br />
+            <select id="ruleStatus" name="ruleStatus">
+              <option value="enabled">Enabled</option>
+              <option value="disabled">Disabled</option>
+            </select>
+          </p>
+
+          <p>
+            <button type="button" id="addRuleBtn">Add Rule</button>
+            <button type="reset">Clear</button>
+          </p>
+        </form>
+      </article>
+
+      <hr />
+    </section>
+
+    <!-- Incident Response -->
+    <section id="incidents">
+      <h2>Incident Response</h2>
+
+      <article>
+        <h3>Playbooks</h3>
+
+        <details>
+          <summary><strong>Brute Force Attack (Failed Login Storm)</strong></summary>
+          <ol>
+            <li>Confirm alert source and timeframe in the event stream.</li>
+            <li>Identify targeted account(s) and impacted host(s).</li>
+            <li>Block source IP (if firewall logs available) or isolate host if needed.</li>
+            <li>Force password reset / disable account temporarily.</li>
+            <li>Review successful logins around the same period.</li>
+            <li>Document incident and tune thresholds if needed.</li>
+          </ol>
+        </details>
+
+        <details>
+          <summary><strong>Privilege Escalation Attempt</strong></summary>
+          <ol>
+            <li>Verify command executed (sudo logs / Windows security logs).</li>
+            <li>Check if escalation succeeded.</li>
+            <li>Isolate endpoint if suspicious.</li>
+            <li>Collect artifacts: logs, process list, user sessions.</li>
+            <li>Remove unauthorized accounts/permissions and rotate credentials.</li>
+          </ol>
+        </details>
+
+        <details>
+          <summary><strong>Malware Execution Simulation</strong></summary>
+          <ol>
+            <li>Confirm file hash/path/process name.</li>
+            <li>Quarantine file or remove manually in lab.</li>
+            <li>Check persistence indicators.</li>
+            <li>Scan system and validate no additional payloads executed.</li>
+            <li>Update detection logic if needed.</li>
+          </ol>
+        </details>
+      </article>
+
+      <hr />
+    </section>
+
+    <!-- Testing -->
+    <section id="testing">
+      <h2>Testing Plan</h2>
+
+      <article>
+        <h3>Attack Simulation Checklist</h3>
+        <ul>
+          <li>10+ failed login attempts in 1 minute</li>
+          <li>Login from unusual user account</li>
+          <li>New admin account creation</li>
+          <li>Linux sudo escalation attempt</li>
+          <li>Port scan simulation</li>
+          <li>Suspicious process execution</li>
+        </ul>
+      </article>
+
+      <hr />
+    </section>
+
+    <!-- Reports -->
+    <section id="reports">
+      <h2>Reports</h2>
+
+      <article>
+        <h3>Generate Report (Draft)</h3>
+        <form id="reportForm">
+          <p>
+            <label for="reportRange">Time Range:</label><br />
+            <select id="reportRange" name="reportRange">
+              <option value="24h">Last 24 hours</option>
+              <option value="7d">Last 7 days</option>
+              <option value="30d">Last 30 days</option>
+              <option value="custom">Custom</option>
+            </select>
+          </p>
+
+          <p>
+            <label for="reportType">Report Type:</label><br />
+            <select id="reportType" name="reportType">
+              <option value="summary">Executive Summary</option>
+              <option value="alerts">Alert Breakdown</option>
+              <option value="auth">Authentication Report</option>
+              <option value="systems">Systems / Health Report</option>
+            </select>
+          </p>
+
+          <p>
+            <button type="button" id="generateReport">Generate</button>
+          </p>
+        </form>
+
+        <div id="reportOutput">
+          <p><em>Report output will appear here (placeholder).</em></p>
+        </div>
+      </article>
+
+      <hr />
+    </section>
+
+    <!-- Settings -->
+    <section id="settings">
+      <h2>Settings</h2>
+
+      <article>
+        <h3>Log Sources</h3>
+        <form id="sourcesForm">
+          <p>
+            <input type="checkbox" id="srcWindows" checked />
+            <label for="srcWindows">Windows Event Logs</label>
+          </p>
+          <p>
+            <input type="checkbox" id="srcLinux" checked />
+            <label for="srcLinux">Linux auth.log / syslog</label>
+          </p>
+          <p>
+            <input type="checkbox" id="srcFirewall" />
+            <label for="srcFirewall">Firewall Logs (Optional)</label>
+          </p>
+          <p>
+            <input type="checkbox" id="srcWeb" />
+            <label for="srcWeb">Web Server Logs (Optional)</label>
+          </p>
+
+          <p>
+            <button type="button" id="saveSources">Save Sources</button>
+          </p>
+        </form>
+      </article>
+
+      <hr />
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <p><strong>CampusLab SIEM</strong> — Student Lab / Small Organization Monitoring Demo</p>
+    <p><small>Data shown is placeholder. Connect this UI to Wazuh / Elastic / Splunk later.</small></p>
+  </footer>
+
+  <!-- JS FILE LINK -->
+  <script src="rules_filter.js"></script>
+</body>
+</html>
