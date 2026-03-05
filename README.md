@@ -36,7 +36,80 @@ An open-source, deployable SIEM with real-time threat detection, Sigma rule supp
                   ───────────── All services run in Docker on Azure Container Apps ─────────────
 ```
 
-## Quick Start (draft)
+## Development Setup (Current, Pre-Docker*)
+<h5>*setup for early stages -- Docker not setup yet</h5>
+
+### Prerequisites
+
+| Dependency | Version | Install |
+|------------|---------|---------|
+| Python | 3.12+ | [python.org](https://www.python.org/downloads/) |
+| Node.js | 18+ | [nodejs.org](https://nodejs.org/) |
+| npm | 9+ | bundled with Node.js |
+
+---
+
+### Backend
+
+**Directory:** `vigil/vigil/backend/api`
+
+```bash
+cd vigil/vigil/backend/api
+
+# Install Python dependencies
+pip install fastapi uvicorn
+
+# Start the API server (hot-reload enabled)
+python -m uvicorn api_endpoint:app --reload --port 8000
+```
+
+API will be available at `http://localhost:8000`
+Interactive docs at `http://localhost:8000/docs`
+
+---
+
+### Frontend
+
+**Directory:** `vigil/vigil/frontend`
+
+```bash
+cd vigil/vigil/frontend
+
+# Install Node dependencies (first time only)
+npm install
+
+# Start the dev server
+npm run dev
+```
+
+Dashboard will be available at `http://localhost:3000`
+
+Health check page (verifies backend connection): `http://localhost:3000/health`
+
+---
+
+### Environment Variables
+
+Copy `.env.local` is already present in `vigil/vigil/frontend/`. No changes needed for local dev.
+
+```
+NEXT_PUBLIC_API_BASE_URL=http://localhost:8000
+```
+
+---
+
+### Run Order
+
+Start backend first, then frontend:
+
+```
+1. python -m uvicorn api_endpoint:app --reload --port 8000   ← terminal 1
+2. npm run dev                                                ← terminal 2
+```
+
+---
+
+## Quick Start (Docker, draft)
 
 ```bash
 docker compose up --build
