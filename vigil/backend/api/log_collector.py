@@ -14,31 +14,27 @@ POLL_INTERVAL = 1
 def send_to_api(events: list):
         requests.post(FASTAPI_SERVER_URL, json=events )
 
+# uses watchdog class to seperate logic in files for better architecture -nick
 class eventHandler(FileSystemEventHandler):
     def __init__(self, log: str):
         self.log = log
-
         with open(self.log, 'r') as f:
-            self.pre = [line.rstrip() for line in f] # maybe handling for very large logs
-
+            f.seek(0, 2)  # go to end of file
+            self.position = f.tell()  # remember the position
         print('waiting for event...')
     
-    # grabbed from mikes parser and has  been edited to seperate logic in files for better architecture -nick
     def on_modified(self, event) -> None:
-        if event.src_path == f'./{self.log}':
+        print(f"detected: {event.src_path}")
+        if event.src_path == f'.\\{self.log}':
             with open(self.log, 'r') as f:
-                now = [line.rstrip() for line in f]
-                now = now[-250:]
-                if now == self.pre:
-                    return
-                now = set(now) - set(self.pre)
-                now = list(now)
-                # this process will no longer call itself instead it will call the parser function using parser import
-                events = parse_logs_by_excerpt(now)
-                pre = [line.rstrip() for line in f]
-                self.pre = pre[-250:] # hold last 250 lines
+                f.seek(self.position)  # start from where we left off
+                new_lines = f.readlines()
+                self.position = f.tell()  # update position
+                print(f"new lines detected: {len(new_lines)}")
+            if new_lines:
+                events = parse_logs_by_excerpt(new_lines)
+                print(f"new lines detected: {len(new_lines)}")
                 print(events)
-                send_to_api(events)
 
 
 
