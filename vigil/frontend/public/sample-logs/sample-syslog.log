@@ -1,0 +1,10 @@
+Mar 06 10:00:01 firewall-01 kernel[0]: Initializing security modules
+Mar 06 10:00:15 web-01 sshd[12345]: Accepted publickey for deploy from 192.168.1.100 port 54321 ssh2
+Mar 06 10:00:23 web-01 sshd[12346]: Failed password for invalid user admin from 203.0.113.50 port 33333 ssh2
+Mar 06 10:00:45 web-01 sshd[12347]: Failed password for invalid user root from 203.0.113.50 port 33334 ssh2
+Mar 06 10:01:02 web-01 fail2ban.actions[5000]: NOTICE  [sshd] Ban 203.0.113.50
+Mar 06 10:01:15 db-01 mysqld[8000]: InnoDB: Buffer pool initialized
+Mar 06 10:01:30 web-01 nginx[9000]: Starting nginx reverse proxy
+Mar 06 10:01:45 web-01 sudo[10000]: deploy : TTY=pts/0 ; PWD=/home/deploy ; USER=root ; COMMAND=/usr/bin/systemctl restart nginx
+Mar 06 10:02:00 firewall-01 iptables[1000]: Dropped packet from 198.51.100.23 to 10.0.0.5:22 (brute force detected)
+Mar 06 10:02:15 web-01 useradd[11000]: new user: name=backdoor, UID=0, GID=0, home=/root, shell=/bin/bash
