@@ -6,6 +6,7 @@ from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 from grokmoment import parse_logs_by_excerpt
 import argparse
+import sqlite3
 
 FASTAPI_SERVER_URL = "http://localhost:8000/api/collect" # URL of the FastAPI server to send logs to
 POLL_INTERVAL = 1
@@ -37,8 +38,66 @@ class eventHandler(FileSystemEventHandler):
                 print(events)
 
 
+def init_db():
+    try:
+        conn = sqlite3.connect("vigil.db")
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS events(
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            timestamp TEXT,
+            host TEXT,
+            proc TEXT,
+            pid TEXT,
+            severity TEXT,
+            facility TEXT,
+            login TEXT,
+            target_user TEXT,
+            auth_method TEXT,
+            login_status TEXT,
+            src_ip TEXT,
+            dst_ip TEXT,
+            src_port TEXT,
+            dst_port TEXT,
+            url TEXT,
+            domain TEXT,
+            path TEXT,
+            uri TEXT,
+            hash TEXT,
+            hash_algo TEXT,
+            signature TEXT,
+            command TEXT,
+            args TEXT,
+            session_id TEXT,
+            request_id TEXT,
+            trace_id TEXT,
+            status_code TEXT,
+            bytes_sent TEXT,
+            bytes_recv TEXT,
+            duration TEXT,
+            tty TEXT,
+            pwd TEXT
+                    )
+                    """)
+    except sqlite3.Error as e:
+        print(f"SQLite error: {e}")
+    finally:
+        conn.close()
+
+def write_to_db(events):
+    try:
+        conn = sqlite3.connect("vigil.db")
+        cursor = conn.cursor()
+        for event in events: 
+    except sqlite3.Error as e:
+        print(f"SQLite error: {e}")
+    finally:
+        conn.close()
+
 
 def main():
+    init_db()
     #parse CLI
     parser = argparse.ArgumentParser(description="Log Collection Agent and Manager")
     parser.add_argument("-l", "--log", help="Pass log path")
