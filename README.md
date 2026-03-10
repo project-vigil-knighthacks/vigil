@@ -43,7 +43,7 @@ An open-source, deployable SIEM with real-time threat detection, Sigma rule supp
 
 | Dependency | Version | Install |
 |------------|---------|---------|
-| Python | 3.12+ | [python.org](https://www.python.org/downloads/) |
+| Python | 3.10+ | [python.org](https://www.python.org/downloads/) |
 | Node.js | 18+ | [nodejs.org](https://nodejs.org/) |
 | npm | 9+ | bundled with Node.js |
 
@@ -56,15 +56,24 @@ An open-source, deployable SIEM with real-time threat detection, Sigma rule supp
 ```bash
 cd vigil/vigil/backend/api
 
-# Install Python dependencies
-pip install fastapi uvicorn
+# Install all required Python packages
+python -m pip install fastapi uvicorn python-multipart pygrok openai
 
 # Start the API server (hot-reload enabled)
-python -m uvicorn api_endpoint:app --reload --port 8000
+python -m uvicorn api_endpoint:app --reload --host 127.0.0.1 --port 8000
 ```
 
-API will be available at `http://localhost:8000`
-Interactive docs at `http://localhost:8000/docs`
+API will be available at `http://localhost:8000`  
+
+#### Python package reference
+
+| Package | Purpose |
+|---------|---------|
+| `fastapi` | Web framework |
+| `uvicorn` | ASGI server |
+| `python-multipart` | File upload support |
+| `pygrok` | Grok pattern matching (log parser) |
+| `openai` | LLM pattern generation (optional, see below) |
 
 ---
 
@@ -90,21 +99,55 @@ Health check page (verifies backend connection): `http://localhost:3000/health`
 
 ### Environment Variables
 
-Copy `.env.local` is already present in `vigil/vigil/frontend/`. No changes needed for local dev.
+#### Frontend — `vigil/vigil/frontend/.env.local`
+
+Create this file if it doesn't exist:
 
 ```
 NEXT_PUBLIC_API_BASE_URL=http://localhost:8000
 ```
 
+#### Backend — shell environment
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `OPENAI_API_KEY` | Optional | Enables automatic Grok pattern generation for unrecognized log lines. Without it, the parser still works for any line matching an existing pattern in `backend/api/data/patterns.json`. |
+
+Set it for your session if you want full LLM-powered parsing:
+
+```powershell
+# PowerShell, REQUIRED
+$env:OPENAI_API_KEY = "sk-..."
+
+# Bash, optional
+export OPENAI_API_KEY="sk-..."
+```
+
+---
+
+### Log Parser (grokmoment)
+
+The log parser is based on [grokmoment](https://github.com/mdunn99/grokmoment) (MIT), inlined at `vigil/vigil/backend/api/grokmoment.py`. **No separate clone is required.**
+
+- **With `OPENAI_API_KEY`**: Unrecognized log lines are sent to the OpenAI API to auto-generate a new Grok pattern, which is then saved to `backend/api/data/patterns.json` for future use.
+- **Without `OPENAI_API_KEY`**: Only lines matching existing patterns are parsed. Unmatched lines appear in the output with an `UNMATCHED` badge, and the UI will prompt you to set an API key.
+
+Patterns are stored in `backend/api/data/patterns.json` and persist across runs. You can inspect or edit them manually.
+
 ---
 
 ### Run Order
 
-Start backend first, then frontend:
+Start backend first, then frontend (separate terminals):
 
 ```
-1. python -m uvicorn api_endpoint:app --reload --port 8000   ← terminal 1
-2. npm run dev                                                ← terminal 2
+Terminal 1 — backend:
+  cd vigil/vigil/backend/api
+  python -m uvicorn api_endpoint:app --reload --host 127.0.0.1 --port 8000
+
+Terminal 2 — frontend:
+  cd vigil/vigil/frontend
+  npm run dev
 ```
 
 ---
