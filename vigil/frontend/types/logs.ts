@@ -50,3 +50,11 @@ export interface LogParseResult {
   api_key_message?: string;
   unmatched_count?: number;
 }
+
+// Response shape from GET /api/events (SQLite-backed)
+export interface EventsResponse {
+  events: ParsedLog[];
+  total: number;
+  limit: number;
+  offset: number;
+}

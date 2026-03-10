@@ -8,6 +8,9 @@ interface LogOutputProps {
   result: LogParseResult | null;
   error?: string | null;
   loading?: boolean;
+  onSave?: () => void;
+  saving?: boolean;
+  saved?: boolean;
 }
 
 function getSeverityClass(severity: string | undefined): string {
@@ -108,7 +111,7 @@ function LogTable({ logs }: { logs: ParsedLog[] }) {
   );
 }
 
-export function LogOutput({ result, error, loading }: LogOutputProps) {
+export function LogOutput({ result, error, loading, onSave, saving, saved }: LogOutputProps) {
   if (loading) {
     return (
       <div className={styles.section}>
@@ -156,7 +159,18 @@ export function LogOutput({ result, error, loading }: LogOutputProps) {
 
   return (
     <div className={styles.section}>
-      <h2 className={styles.sectionTitle}>Parsed Output</h2>
+      <div className={styles.eventsHeader}>
+        <h2 className={styles.sectionTitleInline}>Parsed Output</h2>
+        {onSave && (
+          <button
+            className={styles.refreshBtn}
+            onClick={onSave}
+            disabled={saving || saved}
+          >
+            {saving ? 'Saving...' : saved ? 'Saved!' : 'Save to DB'}
+          </button>
+        )}
+      </div>
       {result.api_key_required && (
         <div className={styles.warning}>
           <svg
