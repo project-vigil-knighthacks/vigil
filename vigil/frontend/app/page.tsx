@@ -13,6 +13,8 @@ export default function Home() {
   const [result, setResult] = useState<LogParseResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
 
   const handleFileSelect = async (content: string, filename: string) => {
     setLoading(true);
@@ -35,11 +37,30 @@ export default function Home() {
       const data: LogParseResult = await response.json();
       data.filename = filename;
       setResult(data);
+      setSaved(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to parse logs');
       setResult(null);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSave = async () => {
+    if (!result) return;
+    setSaving(true);
+    try {
+      const res = await fetch(`${API_BASE}/api/collect`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(result.logs),
+      });
+      if (!res.ok) throw new Error('Failed to save');
+      setSaved(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to save events');
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -50,7 +71,14 @@ export default function Home() {
       <main className={styles.main}>
         <h1 className={styles.pageTitle}>Log Parser</h1>
         <FileUpload onFileSelect={handleFileSelect} loading={loading} />
-        <LogOutput result={result} error={error} loading={loading} />
+        <LogOutput
+          result={result}
+          error={error}
+          loading={loading}
+          onSave={result && result.logs.length > 0 ? handleSave : undefined}
+          saving={saving}
+          saved={saved}
+        />
       </main>
     </div>
   );
