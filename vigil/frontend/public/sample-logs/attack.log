@@ -1,0 +1,508 @@
+Feb 19 10:44:32 web-01 fail2ban.actions[19351]: NOTICE  [sshd] Ban 167.99.201.55
+Feb 19 10:44:40 web-01 sshd[6404]: Accepted publickey for bob from 172.16.0.5 port 2641 ssh2: RSA SHA256:pq9yNPO7RHnG9TVnZQaFHAE4hb2QhmbSAhrDrcj1AvZ
+Feb 19 10:44:51 web-01 sshd[26228]: Disconnected from user deploy 10.0.2.33 port 16901
+Feb 19 10:44:52 web-01 sshd[24092]: Disconnected from user bob 10.0.1.15 port 55238
+Feb 19 10:45:01 web-01 sshd[3600]: Failed password for deploy from 103.255.61.12 port 30089 ssh2
+Feb 19 10:45:04 web-01 sudo[14733]:   ubuntu : TTY=pts/4 ; PWD=/home/ubuntu ; USER=root ; COMMAND=/usr/bin/apt-get update
+Feb 19 10:45:06 web-01 sshd[13546]: Accepted publickey for deploy from 192.168.1.100 port 54938 ssh2: RSA SHA256:KHpKZhMCBy2kYEOc0818YFjpTAePkuMc6YEMaxvnrQ3
+Feb 19 10:45:10 web-01 sshd[7765]: Disconnected from user ubuntu 10.0.2.33 port 62042
+Feb 19 10:45:20 web-01 sshd[6631]: Accepted password for root from 162.243.172.239 port 64043 ssh2
+Feb 19 10:45:20 web-01 sshd[8801]: Accepted publickey for bob from 10.0.2.33 port 5629 ssh2: RSA SHA256:qVdOKAxQvFniLT2m2hyiq6+nSD1N788QuN4Jnafkpru
+Feb 19 10:45:21 web-01 useradd[30568]: new user: name=backdoor, UID=0, GID=0, home=/root, shell=/bin/bash
+Feb 19 10:45:23 web-01 CRON[15264]: (bob) CMD (/usr/local/bin/health-check.sh)
+Feb 19 10:45:35 web-01 sshd[18382]: Accepted publickey for carol from 172.16.0.5 port 41876 ssh2: RSA SHA256:DY66YSld78tElNeiaYT/T1C5eD9zjJdjdLn/v+QpnsT
+Feb 19 10:45:43 web-01 CRON[22294]: (ubuntu) CMD (/usr/bin/certbot renew)
+Feb 19 10:45:46 web-01 sudo[13492]: user : user NOT in sudoers ; TTY=pts/5 ; PWD=/root ; USER=root ; COMMAND=/bin/bash
+Feb 19 10:45:55 web-01 CRON[20383]: (ubuntu) CMD (/usr/bin/certbot renew)
+Feb 19 10:46:09 web-01 sshd[22908]: Failed password for invalid user guest from 5.188.86.172 port 64723 ssh2
+Feb 19 10:46:19 web-01 systemd-logind[22512]: New session 176 of user deploy.
+Feb 19 10:46:20 web-01 sshd[10993]: error: maximum authentication attempts exceeded for invalid user admin from 167.99.201.55 port 35245 ssh2 [preauth]
+Feb 19 10:46:31 web-01 sshd[9726]: Failed password for invalid user oracle from 162.243.172.239 port 8344 ssh2
+Feb 19 10:46:32 web-01 sshd[9726]: Failed password for invalid user user from 162.243.172.239 port 17240 ssh2
+Feb 19 10:46:34 web-01 sshd[9726]: Failed password for invalid user test from 162.243.172.239 port 34811 ssh2
+Feb 19 10:46:34 web-01 sshd[9726]: Failed password for invalid user guest from 162.243.172.239 port 62845 ssh2
+Feb 19 10:46:35 web-01 sshd[9726]: Failed password for invalid user pi from 162.243.172.239 port 25281 ssh2
+Feb 19 10:46:36 web-01 sshd[9726]: Failed password for invalid user guest from 162.243.172.239 port 54347 ssh2
+Feb 19 10:46:37 web-01 sshd[9726]: Failed password for invalid user admin from 162.243.172.239 port 13296 ssh2
+Feb 19 10:46:39 web-01 sshd[9726]: Failed password for invalid user user from 162.243.172.239 port 10761 ssh2
+Feb 19 10:46:40 web-01 sshd[9726]: Failed password for invalid user support from 162.243.172.239 port 8092 ssh2
+Feb 19 10:46:42 web-01 sshd[9726]: Failed password for invalid user support from 162.243.172.239 port 56537 ssh2
+Feb 19 10:46:43 web-01 sshd[9726]: Failed password for invalid user guest from 162.243.172.239 port 56334 ssh2
+Feb 19 10:46:45 web-01 sshd[9726]: Failed password for invalid user oracle from 162.243.172.239 port 4882 ssh2
+Feb 19 10:46:47 web-01 sshd[9726]: Failed password for invalid user oracle from 162.243.172.239 port 46830 ssh2
+Feb 19 10:46:48 web-01 sshd[9726]: Failed password for invalid user oracle from 162.243.172.239 port 39750 ssh2
+Feb 19 10:46:49 web-01 sshd[9726]: Failed password for invalid user guest from 162.243.172.239 port 33736 ssh2
+Feb 19 10:46:51 web-01 fail2ban.actions[10192]: NOTICE  [sshd] Ban 162.243.172.239
+Feb 19 10:46:51 web-01 sudo[28118]:   deploy : TTY=pts/5 ; PWD=/home/deploy ; USER=root ; COMMAND=/bin/cat /etc/shadow
+Feb 19 10:47:04 web-01 systemd-logind[10245]: New session 53 of user bob.
+Feb 19 10:47:06 web-01 sudo[8523]:   bob : TTY=pts/3 ; PWD=/home/bob ; USER=root ; COMMAND=/bin/cat /etc/shadow
+Feb 19 10:47:18 web-01 sshd[3767]: Disconnected from user alice 10.0.1.15 port 17670
+Feb 19 10:47:27 web-01 CRON[11433]: (deploy) CMD (/usr/bin/backup.sh)
+Feb 19 10:47:40 web-01 sshd[19735]: Accepted publickey for carol from 172.16.0.5 port 40474 ssh2: RSA SHA256:gC1m4Stj+cEADyYtGCknTQ+Ryj5PvzoNG4h60273Xvo
+Feb 19 10:47:45 web-01 sshd[13567]: Accepted publickey for alice from 10.0.1.42 port 34946 ssh2: RSA SHA256:BUOu8VnHQkeUVm6oJ+GIpsYamMPM0+bpHlVUOBKTXrE
+Feb 19 10:47:53 web-01 sudo[13926]:   alice : TTY=pts/5 ; PWD=/home/alice ; USER=root ; COMMAND=/usr/bin/systemctl restart nginx
+Feb 19 10:47:54 web-01 sshd[12968]: Disconnected from user carol 192.168.1.100 port 28065
+Feb 19 10:47:59 web-01 sshd[15418]: Failed password for invalid user admin from 198.199.122.40 port 58330 ssh2
+Feb 19 10:48:10 web-01 sudo[7438]:   ec2-user : TTY=pts/3 ; PWD=/home/ec2-user ; USER=root ; COMMAND=/usr/bin/apt-get update
+Feb 19 10:48:23 web-01 sudo[22842]:   deploy : TTY=pts/2 ; PWD=/home/deploy ; USER=root ; COMMAND=/usr/bin/apt-get update
+Feb 19 10:48:33 web-01 sshd[16443]: Accepted publickey for carol from 10.0.1.42 port 5698 ssh2: RSA SHA256:YdDhkrH6RHaOm7PI9AmYkbGqn7gZ73IeLgR57eH1Qlq
+Feb 19 10:48:42 web-01 CRON[11485]: (ubuntu) CMD (/usr/local/bin/health-check.sh)
+Feb 19 10:48:50 web-01 sudo[27084]:   ubuntu : TTY=pts/3 ; PWD=/home/ubuntu ; USER=root ; COMMAND=/usr/bin/passwd root
+Feb 19 10:49:02 web-01 systemd-logind[7298]: New session 146 of user carol.
+Feb 19 10:49:14 web-01 systemd-logind[13492]: New session 4 of user bob.
+Feb 19 10:49:25 web-01 CRON[11180]: (deploy) CMD (/usr/bin/certbot renew)
+Feb 19 10:49:33 web-01 sshd[31760]: Accepted publickey for alice from 172.16.0.5 port 12497 ssh2: RSA SHA256:zW0ueRc/MGcmjY7FK9Pf2M6MdM+Ex2oA8E2jJUmEzKO
+Feb 19 10:49:36 web-01 sudo[19836]:   deploy : TTY=pts/5 ; PWD=/home/deploy ; USER=root ; COMMAND=/usr/bin/apt-get update
+Feb 19 10:49:47 web-01 sshd[27233]: error: maximum authentication attempts exceeded for invalid user admin from 167.99.201.55 port 9409 ssh2 [preauth]
+Feb 19 10:50:02 web-01 useradd[23372]: new user: name=backdoor, UID=0, GID=0, home=/root, shell=/bin/bash
+Feb 19 10:50:16 web-01 systemd-logind[20214]: New session 21 of user deploy.
+Feb 19 10:50:18 web-01 systemd-logind[4224]: New session 34 of user bob.
+Feb 19 10:50:31 web-01 sshd[3082]: Accepted publickey for deploy from 10.0.2.33 port 58414 ssh2: RSA SHA256:QERHBoIA2D/i6thFHw6QEMi94GRdrLVkeT8MZ5e4xLN
+Feb 19 10:50:36 web-01 systemd-logind[12280]: New session 43 of user alice.
+Feb 19 10:50:50 web-01 sshd[13690]: Disconnected from user deploy 10.0.1.42 port 30368
+Feb 19 10:51:03 web-01 sudo[19913]:   oracle : TTY=unknown ; PWD=/ ; USER=root ; COMMAND=/usr/bin/crontab -e
+Feb 19 10:51:10 web-01 sshd[17095]: Disconnected from user ec2-user 10.0.1.42 port 4336
+Feb 19 10:51:18 web-01 sshd[11292]: Accepted publickey for ubuntu from 10.0.2.33 port 53365 ssh2: RSA SHA256:ZlZtLiOA+8yBDyUXElKXrE06fMarmQOmX6CSIlyRdjG
+Feb 19 10:51:29 web-01 sshd[25414]: Disconnected from user ubuntu 172.16.0.5 port 60350
+Feb 19 10:51:38 web-01 sshd[24786]: Failed password for invalid user guest from 45.33.32.156 port 60177 ssh2
+Feb 19 10:51:40 web-01 sshd[10350]: Accepted publickey for alice from 192.168.1.100 port 20843 ssh2: RSA SHA256:NIFxDwaVx5sHtXQI5BDHGXEHfU2QPEQg4aLit6EAaTn
+Feb 19 10:51:51 web-01 sshd[10119]: Accepted publickey for alice from 10.0.1.15 port 38185 ssh2: RSA SHA256:kIvH7Wg+mFHl7msZnwom8noWQ5u7vFgIbcq5L+a+1xb
+Feb 19 10:52:02 web-01 sudo[3854]:   alice : TTY=pts/5 ; PWD=/home/alice ; USER=root ; COMMAND=/bin/cat /etc/shadow
+Feb 19 10:52:11 web-01 sudo[26817]:   alice : TTY=pts/5 ; PWD=/home/alice ; USER=root ; COMMAND=/bin/cat /etc/shadow
+Feb 19 10:52:23 web-01 sudo[4458]:   guest : TTY=unknown ; PWD=/ ; USER=root ; COMMAND=/bin/chmod 777 /etc/passwd
+Feb 19 10:52:28 web-01 sshd[2985]: Failed password for invalid user oracle from 162.243.172.239 port 52164 ssh2
+Feb 19 10:52:39 web-01 sshd[26996]: Failed password for invalid user pi from 91.240.118.172 port 46845 ssh2
+Feb 19 10:52:46 web-01 sshd[12322]: Failed password for ubuntu from 45.33.32.156 port 63047 ssh2
+Feb 19 10:52:58 web-01 sudo[15053]:   ec2-user : TTY=pts/2 ; PWD=/home/ec2-user ; USER=root ; COMMAND=/usr/bin/passwd root
+Feb 19 10:52:58 web-01 sshd[22670]: Failed password for invalid user guest from 185.220.101.47 port 18999 ssh2
+Feb 19 10:53:12 web-01 CRON[19048]: (ubuntu) CMD (/usr/bin/certbot renew)
+Feb 19 10:53:13 web-01 sshd[23837]: Failed password for carol from 194.165.16.11 port 50836 ssh2
+Feb 19 10:53:25 web-01 sshd[9127]: error: maximum authentication attempts exceeded for invalid user admin from 103.255.61.12 port 21962 ssh2 [preauth]
+Feb 19 10:53:35 web-01 sshd[11980]: Disconnected from user carol 172.16.0.5 port 20919
+Feb 19 10:53:45 web-01 sshd[26785]: Accepted password for root from 103.255.61.12 port 44386 ssh2
+Feb 19 10:53:51 web-01 sshd[29336]: Accepted publickey for alice from 10.0.1.15 port 5122 ssh2: RSA SHA256:P5q0j/r4hhnJM+97lYP3kbBpd4uTvvixAvoUrDz1qQV
+Feb 19 10:53:53 web-01 sshd[12857]: error: maximum authentication attempts exceeded for invalid user admin from 162.243.172.239 port 40873 ssh2 [preauth]
+Feb 19 10:53:54 web-01 sshd[12624]: Accepted publickey for ec2-user from 10.0.1.15 port 13263 ssh2: RSA SHA256:oXC3+t42dsz6vESrzFYU/qEnGmes7EX784PP54zUiV3
+Feb 19 10:54:04 web-01 sshd[16638]: Failed password for invalid user user from 45.33.32.156 port 13736 ssh2
+Feb 19 10:54:08 web-01 systemd-logind[25628]: New session 111 of user bob.
+Feb 19 10:54:22 web-01 sshd[4498]: Accepted password for root from 91.240.118.172 port 39138 ssh2
+Feb 19 10:54:33 web-01 sudo[14034]:   oracle : TTY=unknown ; PWD=/ ; USER=root ; COMMAND=/usr/sbin/useradd -m hacker
+Feb 19 10:54:36 web-01 CRON[1442]: (bob) CMD (/usr/bin/backup.sh)
+Feb 19 10:54:42 web-01 sudo[10716]:   www-data : TTY=unknown ; PWD=/ ; USER=root ; COMMAND=/bin/bash
+Feb 19 10:54:46 web-01 sshd[29672]: Failed password for invalid user user from 194.165.16.11 port 35520 ssh2
+Feb 19 10:54:48 web-01 sshd[29672]: Failed password for invalid user pi from 194.165.16.11 port 60289 ssh2
+Feb 19 10:54:50 web-01 sshd[29672]: Failed password for invalid user admin from 194.165.16.11 port 6393 ssh2
+Feb 19 10:54:52 web-01 sshd[29672]: Failed password for invalid user user from 194.165.16.11 port 10709 ssh2
+Feb 19 10:54:53 web-01 sshd[29672]: Failed password for invalid user oracle from 194.165.16.11 port 27501 ssh2
+Feb 19 10:54:53 web-01 sshd[29672]: Failed password for invalid user admin from 194.165.16.11 port 59440 ssh2
+Feb 19 10:54:54 web-01 sshd[29672]: Failed password for invalid user oracle from 194.165.16.11 port 11059 ssh2
+Feb 19 10:54:55 web-01 sshd[29672]: Failed password for invalid user guest from 194.165.16.11 port 32968 ssh2
+Feb 19 10:54:56 web-01 sshd[29672]: Failed password for invalid user guest from 194.165.16.11 port 8401 ssh2
+Feb 19 10:54:57 web-01 sshd[29672]: Failed password for invalid user admin from 194.165.16.11 port 6470 ssh2
+Feb 19 10:54:58 web-01 fail2ban.actions[16559]: NOTICE  [sshd] Ban 194.165.16.11
+Feb 19 10:54:58 web-01 sshd[13957]: Failed password for carol from 167.99.201.55 port 61000 ssh2
+Feb 19 10:55:10 web-01 sshd[29888]: Failed password for deploy from 194.165.16.11 port 47436 ssh2
+Feb 19 10:55:23 web-01 sshd[13814]: Failed password for deploy from 167.99.201.55 port 22336 ssh2
+Feb 19 10:55:26 web-01 useradd[26504]: new user: name=backdoor, UID=0, GID=0, home=/root, shell=/bin/bash
+Feb 19 10:55:29 web-01 sudo[28631]:   test : TTY=unknown ; PWD=/ ; USER=root ; COMMAND=/bin/bash
+Feb 19 10:55:35 web-01 sshd[29018]: Failed password for invalid user test from 167.99.201.55 port 36075 ssh2
+Feb 19 10:55:37 web-01 sshd[29018]: Failed password for invalid user support from 167.99.201.55 port 5302 ssh2
+Feb 19 10:55:38 web-01 sshd[29018]: Failed password for invalid user user from 167.99.201.55 port 64629 ssh2
+Feb 19 10:55:39 web-01 sshd[29018]: Failed password for invalid user root from 167.99.201.55 port 38376 ssh2
+Feb 19 10:55:40 web-01 sshd[29018]: Failed password for invalid user oracle from 167.99.201.55 port 46393 ssh2
+Feb 19 10:55:42 web-01 sshd[29018]: Failed password for invalid user pi from 167.99.201.55 port 53054 ssh2
+Feb 19 10:55:43 web-01 sshd[29018]: Failed password for invalid user admin from 167.99.201.55 port 22365 ssh2
+Feb 19 10:55:43 web-01 sshd[29018]: Failed password for invalid user root from 167.99.201.55 port 36643 ssh2
+Feb 19 10:55:45 web-01 sshd[29018]: Failed password for invalid user test from 167.99.201.55 port 17524 ssh2
+Feb 19 10:55:45 web-01 sshd[29018]: Failed password for invalid user user from 167.99.201.55 port 63580 ssh2
+Feb 19 10:55:46 web-01 sshd[29018]: Failed password for invalid user support from 167.99.201.55 port 15081 ssh2
+Feb 19 10:55:46 web-01 sshd[29018]: Failed password for invalid user root from 167.99.201.55 port 63274 ssh2
+Feb 19 10:55:47 web-01 sshd[29018]: Failed password for invalid user user from 167.99.201.55 port 32020 ssh2
+Feb 19 10:55:48 web-01 sshd[29018]: Failed password for invalid user pi from 167.99.201.55 port 1642 ssh2
+Feb 19 10:55:48 web-01 sshd[29018]: Failed password for invalid user admin from 167.99.201.55 port 37856 ssh2
+Feb 19 10:55:50 web-01 sshd[29018]: Failed password for invalid user test from 167.99.201.55 port 20925 ssh2
+Feb 19 10:55:52 web-01 sshd[29018]: Failed password for invalid user oracle from 167.99.201.55 port 59095 ssh2
+Feb 19 10:55:53 web-01 sshd[29018]: Failed password for invalid user root from 167.99.201.55 port 46831 ssh2
+Feb 19 10:55:54 web-01 sshd[29018]: Failed password for invalid user test from 167.99.201.55 port 10178 ssh2
+Feb 19 10:55:55 web-01 sshd[29018]: Failed password for invalid user root from 167.99.201.55 port 8548 ssh2
+Feb 19 10:55:56 web-01 fail2ban.actions[30641]: NOTICE  [sshd] Ban 167.99.201.55
+Feb 19 10:55:56 web-01 sudo[14403]: guest : user NOT in sudoers ; TTY=pts/5 ; PWD=/root ; USER=root ; COMMAND=/bin/bash
+Feb 19 10:55:57 web-01 systemd-logind[23339]: New session 34 of user bob.
+Feb 19 10:56:09 web-01 sshd[13950]: Accepted publickey for carol from 10.0.1.42 port 8751 ssh2: RSA SHA256:c2p9fQT4q/z5uf6AoY4qc2rkh0FnkP94iZLyl3hSeE+
+Feb 19 10:56:11 web-01 sshd[10198]: Accepted publickey for carol from 10.0.1.42 port 56972 ssh2: RSA SHA256:xYaHDYpYLL90v7uKEwf3UFQslAKj3yLT/SkMtemdyUD
+Feb 19 10:56:21 web-01 sudo[14378]:   oracle : TTY=unknown ; PWD=/ ; USER=root ; COMMAND=/usr/sbin/useradd -m hacker
+Feb 19 10:56:28 web-01 fail2ban.actions[19547]: NOTICE  [sshd] Ban 91.240.118.172
+Feb 19 10:56:30 web-01 sshd[18169]: Failed password for bob from 185.220.101.47 port 33367 ssh2
+Feb 19 10:56:43 web-01 CRON[12697]: (ec2-user) CMD (/usr/bin/certbot renew)
+Feb 19 10:56:49 web-01 sshd[4250]: Accepted password for root from 5.188.86.172 port 54288 ssh2
+Feb 19 10:56:54 web-01 sshd[31806]: Failed password for invalid user test from 167.99.201.55 port 63237 ssh2
+Feb 19 10:56:56 web-01 sshd[31806]: Failed password for invalid user test from 167.99.201.55 port 51974 ssh2
+Feb 19 10:56:57 web-01 sshd[31806]: Failed password for invalid user support from 167.99.201.55 port 7318 ssh2
+Feb 19 10:56:57 web-01 sshd[31806]: Failed password for invalid user user from 167.99.201.55 port 3540 ssh2
+Feb 19 10:56:59 web-01 sshd[31806]: Failed password for invalid user admin from 167.99.201.55 port 39479 ssh2
+Feb 19 10:57:01 web-01 sshd[31806]: Failed password for invalid user root from 167.99.201.55 port 51636 ssh2
+Feb 19 10:57:01 web-01 sshd[31806]: Failed password for invalid user pi from 167.99.201.55 port 17960 ssh2
+Feb 19 10:57:03 web-01 sshd[31806]: Failed password for invalid user support from 167.99.201.55 port 29854 ssh2
+Feb 19 10:57:04 web-01 sshd[31806]: Failed password for invalid user pi from 167.99.201.55 port 40032 ssh2
+Feb 19 10:57:05 web-01 sshd[31806]: Failed password for invalid user support from 167.99.201.55 port 22168 ssh2
+Feb 19 10:57:07 web-01 sshd[31806]: Failed password for invalid user oracle from 167.99.201.55 port 24764 ssh2
+Feb 19 10:57:09 web-01 sshd[31806]: Failed password for invalid user oracle from 167.99.201.55 port 51149 ssh2
+Feb 19 10:57:11 web-01 sshd[31806]: Failed password for invalid user support from 167.99.201.55 port 36878 ssh2
+Feb 19 10:57:12 web-01 sshd[31806]: Failed password for invalid user root from 167.99.201.55 port 44867 ssh2
+Feb 19 10:57:13 web-01 sshd[31806]: Failed password for invalid user user from 167.99.201.55 port 24408 ssh2
+Feb 19 10:57:14 web-01 sshd[31806]: Failed password for invalid user admin from 167.99.201.55 port 57246 ssh2
+Feb 19 10:57:16 web-01 sshd[31806]: Failed password for invalid user user from 167.99.201.55 port 65517 ssh2
+Feb 19 10:57:17 web-01 sshd[31806]: Failed password for invalid user oracle from 167.99.201.55 port 1918 ssh2
+Feb 19 10:57:18 web-01 sshd[31806]: Failed password for invalid user oracle from 167.99.201.55 port 8341 ssh2
+Feb 19 10:57:19 web-01 sshd[31806]: Failed password for invalid user pi from 167.99.201.55 port 60186 ssh2
+Feb 19 10:57:20 web-01 sshd[31806]: Failed password for invalid user user from 167.99.201.55 port 47551 ssh2
+Feb 19 10:57:21 web-01 sshd[31806]: Failed password for invalid user user from 167.99.201.55 port 6097 ssh2
+Feb 19 10:57:21 web-01 sshd[31806]: Failed password for invalid user test from 167.99.201.55 port 56235 ssh2
+Feb 19 10:57:23 web-01 sshd[31806]: Failed password for invalid user admin from 167.99.201.55 port 19615 ssh2
+Feb 19 10:57:25 web-01 sshd[31806]: Failed password for invalid user pi from 167.99.201.55 port 57194 ssh2
+Feb 19 10:57:26 web-01 sshd[31806]: Failed password for invalid user guest from 167.99.201.55 port 33937 ssh2
+Feb 19 10:57:27 web-01 sshd[31806]: Failed password for invalid user oracle from 167.99.201.55 port 62115 ssh2
+Feb 19 10:57:28 web-01 sshd[31806]: Failed password for invalid user pi from 167.99.201.55 port 26290 ssh2
+Feb 19 10:57:30 web-01 fail2ban.actions[3435]: NOTICE  [sshd] Ban 167.99.201.55
+Feb 19 10:57:30 web-01 sudo[5405]: support : user NOT in sudoers ; TTY=pts/5 ; PWD=/root ; USER=root ; COMMAND=/bin/bash
+Feb 19 10:57:32 web-01 CRON[17771]: (bob) CMD (/usr/bin/certbot renew)
+Feb 19 10:57:34 web-01 sshd[29960]: Disconnected from user ubuntu 10.0.2.33 port 53062
+Feb 19 10:57:47 web-01 sshd[9114]: error: maximum authentication attempts exceeded for invalid user admin from 198.199.122.40 port 43138 ssh2 [preauth]
+Feb 19 10:57:52 web-01 sshd[18847]: Accepted publickey for ec2-user from 10.0.1.42 port 30725 ssh2: RSA SHA256:GEC2DbICfcoWPU8RA6EkI6qQORkDxHf+WyPGdLpa3NH
+Feb 19 10:58:00 web-01 systemd-logind[11541]: New session 114 of user deploy.
+Feb 19 10:58:04 web-01 sshd[30220]: Failed password for invalid user test from 167.99.201.55 port 60382 ssh2
+Feb 19 10:58:05 web-01 sshd[30220]: Failed password for invalid user oracle from 167.99.201.55 port 65468 ssh2
+Feb 19 10:58:07 web-01 sshd[30220]: Failed password for invalid user oracle from 167.99.201.55 port 13504 ssh2
+Feb 19 10:58:09 web-01 sshd[30220]: Failed password for invalid user user from 167.99.201.55 port 14949 ssh2
+Feb 19 10:58:09 web-01 sshd[30220]: Failed password for invalid user user from 167.99.201.55 port 58030 ssh2
+Feb 19 10:58:10 web-01 sshd[30220]: Failed password for invalid user test from 167.99.201.55 port 23001 ssh2
+Feb 19 10:58:12 web-01 sshd[30220]: Failed password for invalid user guest from 167.99.201.55 port 17694 ssh2
+Feb 19 10:58:13 web-01 sshd[30220]: Failed password for invalid user pi from 167.99.201.55 port 59833 ssh2
+Feb 19 10:58:14 web-01 sshd[30220]: Failed password for invalid user pi from 167.99.201.55 port 3927 ssh2
+Feb 19 10:58:15 web-01 sshd[30220]: Failed password for invalid user root from 167.99.201.55 port 60688 ssh2
+Feb 19 10:58:17 web-01 sshd[30220]: Failed password for invalid user guest from 167.99.201.55 port 58547 ssh2
+Feb 19 10:58:18 web-01 sshd[30220]: Failed password for invalid user support from 167.99.201.55 port 29317 ssh2
+Feb 19 10:58:19 web-01 sshd[30220]: Failed password for invalid user support from 167.99.201.55 port 29743 ssh2
+Feb 19 10:58:20 web-01 sshd[30220]: Failed password for invalid user support from 167.99.201.55 port 26722 ssh2
+Feb 19 10:58:22 web-01 sshd[30220]: Failed password for invalid user admin from 167.99.201.55 port 48298 ssh2
+Feb 19 10:58:23 web-01 sshd[30220]: Failed password for invalid user pi from 167.99.201.55 port 18715 ssh2
+Feb 19 10:58:24 web-01 sshd[30220]: Failed password for invalid user guest from 167.99.201.55 port 43452 ssh2
+Feb 19 10:58:26 web-01 sshd[30220]: Failed password for invalid user user from 167.99.201.55 port 64390 ssh2
+Feb 19 10:58:27 web-01 sshd[30220]: Failed password for invalid user guest from 167.99.201.55 port 7679 ssh2
+Feb 19 10:58:28 web-01 sshd[30220]: Failed password for invalid user user from 167.99.201.55 port 25851 ssh2
+Feb 19 10:58:29 web-01 sshd[30220]: Failed password for invalid user oracle from 167.99.201.55 port 1460 ssh2
+Feb 19 10:58:31 web-01 sshd[30220]: Failed password for invalid user support from 167.99.201.55 port 47551 ssh2
+Feb 19 10:58:32 web-01 sshd[30220]: Failed password for invalid user root from 167.99.201.55 port 29955 ssh2
+Feb 19 10:58:33 web-01 sshd[30220]: Failed password for invalid user pi from 167.99.201.55 port 25837 ssh2
+Feb 19 10:58:34 web-01 sshd[30220]: Failed password for invalid user root from 167.99.201.55 port 39857 ssh2
+Feb 19 10:58:36 web-01 sshd[30220]: Failed password for invalid user oracle from 167.99.201.55 port 55024 ssh2
+Feb 19 10:58:36 web-01 fail2ban.actions[17254]: NOTICE  [sshd] Ban 167.99.201.55
+Feb 19 10:58:36 web-01 sshd[7257]: Accepted publickey for ec2-user from 172.16.0.5 port 58437 ssh2: RSA SHA256:S9yaV9ZzpKSCrQXHeBDA0eYd6w2gVgKlOq+e5koqGjZ
+Feb 19 10:58:42 web-01 sshd[4681]: Failed password for invalid user guest from 162.243.172.239 port 28534 ssh2
+Feb 19 10:58:50 web-01 CRON[13160]: (ec2-user) CMD (/usr/local/bin/health-check.sh)
+Feb 19 10:58:54 web-01 systemd-logind[1859]: New session 127 of user carol.
+Feb 19 10:59:06 web-01 sudo[22034]: user : user NOT in sudoers ; TTY=pts/4 ; PWD=/root ; USER=root ; COMMAND=/bin/bash
+Feb 19 10:59:12 web-01 sshd[4186]: Failed password for invalid user pi from 103.255.61.12 port 42183 ssh2
+Feb 19 10:59:22 web-01 systemd-logind[14956]: New session 22 of user alice.
+Feb 19 10:59:34 web-01 sshd[22420]: Accepted publickey for bob from 172.16.0.5 port 44441 ssh2: RSA SHA256:xXzp0/esTNGBURwWaAbrwLJvdJUlsCQtVtnSbKoYgLL
+Feb 19 10:59:35 web-01 sshd[22049]: Accepted publickey for bob from 10.0.1.15 port 50011 ssh2: RSA SHA256:SvnMS5JCkPB0hJe9YPnVSIRAfbzTJLVZhXWV5ogJrIn
+Feb 19 10:59:44 web-01 sudo[3100]: test : user NOT in sudoers ; TTY=pts/0 ; PWD=/root ; USER=root ; COMMAND=/bin/bash
+Feb 19 10:59:49 web-01 sshd[12862]: Failed password for invalid user test from 198.199.122.40 port 4324 ssh2
+Feb 19 10:59:51 web-01 sshd[12862]: Failed password for invalid user test from 198.199.122.40 port 59284 ssh2
+Feb 19 10:59:52 web-01 sshd[12862]: Failed password for invalid user oracle from 198.199.122.40 port 16802 ssh2
+Feb 19 10:59:53 web-01 sshd[12862]: Failed password for invalid user root from 198.199.122.40 port 6102 ssh2
+Feb 19 10:59:54 web-01 sshd[12862]: Failed password for invalid user pi from 198.199.122.40 port 61285 ssh2
+Feb 19 10:59:54 web-01 sshd[12862]: Failed password for invalid user root from 198.199.122.40 port 32096 ssh2
+Feb 19 10:59:56 web-01 sshd[12862]: Failed password for invalid user guest from 198.199.122.40 port 54573 ssh2
+Feb 19 10:59:57 web-01 sshd[12862]: Failed password for invalid user test from 198.199.122.40 port 51857 ssh2
+Feb 19 10:59:58 web-01 sshd[12862]: Failed password for invalid user guest from 198.199.122.40 port 9255 ssh2
+Feb 19 10:59:59 web-01 sshd[12862]: Failed password for invalid user user from 198.199.122.40 port 48075 ssh2
+Feb 19 11:00:01 web-01 sshd[12862]: Failed password for invalid user root from 198.199.122.40 port 37679 ssh2
+Feb 19 11:00:02 web-01 sshd[12862]: Failed password for invalid user pi from 198.199.122.40 port 6433 ssh2
+Feb 19 11:00:02 web-01 sshd[12862]: Failed password for invalid user user from 198.199.122.40 port 57690 ssh2
+Feb 19 11:00:03 web-01 sshd[12862]: Failed password for invalid user support from 198.199.122.40 port 22603 ssh2
+Feb 19 11:00:03 web-01 sshd[12862]: Failed password for invalid user user from 198.199.122.40 port 17177 ssh2
+Feb 19 11:00:04 web-01 sshd[12862]: Failed password for invalid user root from 198.199.122.40 port 11953 ssh2
+Feb 19 11:00:05 web-01 sshd[12862]: Failed password for invalid user admin from 198.199.122.40 port 59040 ssh2
+Feb 19 11:00:06 web-01 sshd[12862]: Failed password for invalid user user from 198.199.122.40 port 27537 ssh2
+Feb 19 11:00:07 web-01 sshd[12862]: Failed password for invalid user oracle from 198.199.122.40 port 39577 ssh2
+Feb 19 11:00:08 web-01 sshd[12862]: Failed password for invalid user oracle from 198.199.122.40 port 2581 ssh2
+Feb 19 11:00:09 web-01 sshd[12862]: Failed password for invalid user oracle from 198.199.122.40 port 8903 ssh2
+Feb 19 11:00:10 web-01 sshd[12862]: Failed password for invalid user root from 198.199.122.40 port 40539 ssh2
+Feb 19 11:00:11 web-01 sshd[12862]: Failed password for invalid user admin from 198.199.122.40 port 17678 ssh2
+Feb 19 11:00:12 web-01 sshd[12862]: Failed password for invalid user admin from 198.199.122.40 port 18526 ssh2
+Feb 19 11:00:13 web-01 sshd[12862]: Failed password for invalid user oracle from 198.199.122.40 port 33606 ssh2
+Feb 19 11:00:14 web-01 sshd[12862]: Failed password for invalid user root from 198.199.122.40 port 15029 ssh2
+Feb 19 11:00:15 web-01 sshd[12862]: Failed password for invalid user admin from 198.199.122.40 port 5462 ssh2
+Feb 19 11:00:16 web-01 sshd[12862]: Failed password for invalid user support from 198.199.122.40 port 44254 ssh2
+Feb 19 11:00:18 web-01 fail2ban.actions[6849]: NOTICE  [sshd] Ban 198.199.122.40
+Feb 19 11:00:18 web-01 sshd[19207]: error: maximum authentication attempts exceeded for invalid user admin from 194.165.16.11 port 58368 ssh2 [preauth]
+Feb 19 11:00:31 web-01 sshd[3088]: Failed password for alice from 167.99.201.55 port 54218 ssh2
+Feb 19 11:00:44 web-01 CRON[29255]: (ec2-user) CMD (/usr/local/bin/health-check.sh)
+Feb 19 11:00:47 web-01 sudo[7356]:   oracle : TTY=unknown ; PWD=/ ; USER=root ; COMMAND=/usr/bin/crontab -e
+Feb 19 11:00:56 web-01 sudo[5245]:   admin : TTY=unknown ; PWD=/ ; USER=root ; COMMAND=/bin/bash
+Feb 19 11:01:09 web-01 sshd[3506]: Accepted publickey for deploy from 10.0.2.33 port 30933 ssh2: RSA SHA256:uSaVyIJ4PHnTdwjfITVEkdD5jjGo+SQlPIIDLnMM4Bx
+Feb 19 11:01:21 web-01 sshd[1326]: error: maximum authentication attempts exceeded for invalid user admin from 194.165.16.11 port 8379 ssh2 [preauth]
+Feb 19 11:01:23 web-01 sshd[9966]: Accepted password for root from 5.188.86.172 port 54203 ssh2
+Feb 19 11:01:32 web-01 sshd[24204]: Invalid user oracle from 198.199.122.40 port 17850
+Feb 19 11:01:40 web-01 sshd[29953]: Accepted publickey for deploy from 10.0.1.15 port 21036 ssh2: RSA SHA256:7GW/CSSo1b4vYnC8s/6Gev37V/2VemKBBSRpomuwtQN
+Feb 19 11:01:53 web-01 systemd-logind[20142]: New session 60 of user bob.
+Feb 19 11:02:06 web-01 sshd[26703]: Accepted publickey for alice from 10.0.1.42 port 21357 ssh2: RSA SHA256:UKkErEDqugRB+YRJMSrW41yICPqB1dnS5ucOl3wAbRh
+Feb 19 11:02:20 web-01 sshd[23468]: Disconnected from user ubuntu 172.16.0.5 port 33851
+Feb 19 11:02:22 web-01 sudo[8320]:   bob : TTY=pts/3 ; PWD=/home/bob ; USER=root ; COMMAND=/bin/cat /etc/shadow
+Feb 19 11:02:30 web-01 sshd[1118]: Disconnected from user ec2-user 10.0.1.15 port 43369
+Feb 19 11:02:33 web-01 CRON[25218]: (bob) CMD (/usr/bin/certbot renew)
+Feb 19 11:02:40 web-01 sshd[17608]: Accepted publickey for ec2-user from 172.16.0.5 port 18536 ssh2: RSA SHA256:ZUlvtIo2mHHEqZ0lXKq3goX7oMUOaA/9fmFmaydbjJB
+Feb 19 11:02:54 web-01 sshd[19397]: Accepted publickey for bob from 10.0.2.33 port 30778 ssh2: RSA SHA256:tDlc/xUW2lCwy7Ag0ka26ildZPyKxhjIhTs049cIM3N
+Feb 19 11:03:00 web-01 CRON[16867]: (bob) CMD (/usr/bin/certbot renew)
+Feb 19 11:03:02 web-01 CRON[15973]: (alice) CMD (/usr/local/bin/health-check.sh)
+Feb 19 11:03:15 web-01 sshd[1470]: Disconnected from user carol 192.168.1.100 port 13982
+Feb 19 11:03:17 web-01 sshd[16624]: Accepted publickey for carol from 172.16.0.5 port 51327 ssh2: RSA SHA256:tlqTvkE7GaFTie/lBfWUSVeQDNIu6cMZEjkMaKLoh6A
+Feb 19 11:03:23 web-01 systemd-logind[20324]: New session 182 of user bob.
+Feb 19 11:03:35 web-01 systemd-logind[2740]: New session 25 of user ec2-user.
+Feb 19 11:03:43 web-01 sshd[18659]: Failed password for ec2-user from 5.188.86.172 port 21661 ssh2
+Feb 19 11:03:45 web-01 fail2ban.actions[9731]: NOTICE  [sshd] Ban 103.255.61.12
+Feb 19 11:03:48 web-01 systemd-logind[7603]: New session 179 of user deploy.
+Feb 19 11:04:03 web-01 sshd[10723]: error: maximum authentication attempts exceeded for invalid user admin from 5.188.86.172 port 45171 ssh2 [preauth]
+Feb 19 11:04:10 web-01 sshd[18547]: Accepted publickey for alice from 10.0.1.42 port 60720 ssh2: RSA SHA256:kn01ZVbU/CFfvJA9lJMu3h/4A6WFWXGZpIhAdp2wLC2
+Feb 19 11:04:12 web-01 sshd[18377]: Accepted publickey for alice from 192.168.1.100 port 55079 ssh2: RSA SHA256:k+4Ah16XSLw58Rx6TP8wz9MTidbFQQZw69ir22HmgrC
+Feb 19 11:04:25 web-01 sshd[30150]: Disconnected from user bob 192.168.1.100 port 47121
+Feb 19 11:04:28 web-01 systemd-logind[29798]: New session 89 of user alice.
+Feb 19 11:04:32 web-01 systemd-logind[30096]: New session 175 of user ubuntu.
+Feb 19 11:04:39 web-01 sudo[15981]: oracle : user NOT in sudoers ; TTY=pts/2 ; PWD=/root ; USER=root ; COMMAND=/bin/bash
+Feb 19 11:04:44 web-01 systemd-logind[27813]: New session 14 of user ec2-user.
+Feb 19 11:04:48 web-01 sshd[7987]: Failed password for invalid user root from 91.240.118.172 port 19972 ssh2
+Feb 19 11:04:56 web-01 CRON[3093]: (ec2-user) CMD (/usr/bin/certbot renew)
+Feb 19 11:04:59 web-01 sshd[17787]: Invalid user support from 91.240.118.172 port 1117
+Feb 19 11:05:01 web-01 sshd[4094]: Accepted publickey for ec2-user from 10.0.1.15 port 27253 ssh2: RSA SHA256:zsNcvFeMiAARgsSaps5amAyQ/LilERRE8M5OvDPlGJR
+Feb 19 11:05:01 web-01 CRON[2886]: (bob) CMD (/usr/bin/certbot renew)
+Feb 19 11:05:05 web-01 sshd[13361]: Disconnected from user ubuntu 10.0.1.42 port 47140
+Feb 19 11:05:17 web-01 sudo[9591]:   admin : TTY=unknown ; PWD=/ ; USER=root ; COMMAND=/usr/sbin/useradd -m hacker
+Feb 19 11:05:31 web-01 sshd[10003]: Failed password for invalid user oracle from 198.199.122.40 port 52070 ssh2
+Feb 19 11:05:44 web-01 sshd[13602]: Disconnected from user ec2-user 192.168.1.100 port 8498
+Feb 19 11:05:54 web-01 fail2ban.actions[12043]: NOTICE  [sshd] Ban 91.240.118.172
+Feb 19 11:06:09 web-01 sudo[8713]:   alice : TTY=pts/4 ; PWD=/home/alice ; USER=root ; COMMAND=/usr/bin/passwd root
+Feb 19 11:06:10 web-01 fail2ban.actions[2906]: NOTICE  [sshd] Ban 162.243.172.239
+Feb 19 11:06:19 web-01 sshd[26874]: Disconnected from user ec2-user 10.0.2.33 port 24165
+Feb 19 11:06:28 web-01 CRON[29373]: (ec2-user) CMD (/usr/local/bin/health-check.sh)
+Feb 19 11:06:41 web-01 sudo[10515]:   alice : TTY=pts/5 ; PWD=/home/alice ; USER=root ; COMMAND=/bin/cat /etc/shadow
+Feb 19 11:06:47 web-01 sudo[6973]:   root : TTY=unknown ; PWD=/ ; USER=root ; COMMAND=/usr/bin/crontab -e
+Feb 19 11:06:58 web-01 systemd-logind[20875]: New session 55 of user deploy.
+Feb 19 11:07:01 web-01 CRON[29867]: (ubuntu) CMD (/usr/bin/certbot renew)
+Feb 19 11:07:07 web-01 sshd[5076]: Accepted publickey for ec2-user from 192.168.1.100 port 56840 ssh2: RSA SHA256:3cFJY477VJnvOkYLsqZQDKvO97dsd+e6EFS5n0pSZgD
+Feb 19 11:07:20 web-01 sudo[28266]:   user : TTY=unknown ; PWD=/ ; USER=root ; COMMAND=/bin/bash
+Feb 19 11:07:28 web-01 sshd[17387]: Failed password for invalid user root from 45.33.32.156 port 44003 ssh2
+Feb 19 11:07:41 web-01 sudo[29019]:   alice : TTY=pts/2 ; PWD=/home/alice ; USER=root ; COMMAND=/usr/bin/systemctl restart nginx
+Feb 19 11:07:45 web-01 sshd[16742]: Accepted publickey for alice from 10.0.1.15 port 54636 ssh2: RSA SHA256:hBvZaP9C3R9ou8LATR2sOC7UXyFzGwtduvKukC/iouM
+Feb 19 11:07:49 web-01 useradd[16054]: new user: name=backdoor, UID=0, GID=0, home=/root, shell=/bin/bash
+Feb 19 11:07:56 web-01 fail2ban.actions[11427]: NOTICE  [sshd] Ban 198.199.122.40
+Feb 19 11:08:11 web-01 useradd[26349]: new user: name=backdoor, UID=0, GID=0, home=/root, shell=/bin/bash
+Feb 19 11:08:12 web-01 sudo[23620]: oracle : user NOT in sudoers ; TTY=pts/5 ; PWD=/root ; USER=root ; COMMAND=/bin/bash
+Feb 19 11:08:12 web-01 sshd[23780]: Invalid user pi from 185.220.101.47 port 46791
+Feb 19 11:08:27 web-01 sshd[14194]: Disconnected from user ec2-user 192.168.1.100 port 38525
+Feb 19 11:08:34 web-01 sshd[26082]: Failed password for invalid user root from 185.220.101.47 port 65522 ssh2
+Feb 19 11:08:46 web-01 sshd[25771]: Accepted publickey for deploy from 172.16.0.5 port 44614 ssh2: RSA SHA256:vPOwqIsg2lW0ZPCekmMdICBr5Sot8MvxpLABnSkSMct
+Feb 19 11:08:56 web-01 CRON[24926]: (ec2-user) CMD (/usr/local/bin/health-check.sh)
+Feb 19 11:09:04 web-01 CRON[14626]: (deploy) CMD (/usr/local/bin/health-check.sh)
+Feb 19 11:09:08 web-01 sshd[9370]: Accepted publickey for ec2-user from 172.16.0.5 port 27455 ssh2: RSA SHA256:yuIUbNDjx2zijqKZhejJSxfjgIXvE9uUUzPqZe3onmT
+Feb 19 11:09:20 web-01 CRON[7762]: (bob) CMD (/usr/local/bin/health-check.sh)
+Feb 19 11:09:33 web-01 systemd-logind[15411]: New session 49 of user ubuntu.
+Feb 19 11:09:41 web-01 sshd[30779]: Accepted publickey for ubuntu from 10.0.1.15 port 5253 ssh2: RSA SHA256:iMUNWTW9u8C7zrecDcPjwLnzJ4VV7NPdsu9avDTfxHj
+Feb 19 11:09:43 web-01 sudo[6455]:   deploy : TTY=pts/5 ; PWD=/home/deploy ; USER=root ; COMMAND=/usr/bin/apt-get update
+Feb 19 11:09:45 web-01 sshd[23731]: Failed password for invalid user root from 91.240.118.172 port 13937 ssh2
+Feb 19 11:09:46 web-01 sshd[23731]: Failed password for invalid user support from 91.240.118.172 port 4552 ssh2
+Feb 19 11:09:46 web-01 sshd[23731]: Failed password for invalid user root from 91.240.118.172 port 11940 ssh2
+Feb 19 11:09:47 web-01 sshd[23731]: Failed password for invalid user oracle from 91.240.118.172 port 34291 ssh2
+Feb 19 11:09:48 web-01 sshd[23731]: Failed password for invalid user root from 91.240.118.172 port 50869 ssh2
+Feb 19 11:09:49 web-01 sshd[23731]: Failed password for invalid user admin from 91.240.118.172 port 63153 ssh2
+Feb 19 11:09:49 web-01 sshd[23731]: Failed password for invalid user pi from 91.240.118.172 port 32638 ssh2
+Feb 19 11:09:51 web-01 sshd[23731]: Failed password for invalid user support from 91.240.118.172 port 48370 ssh2
+Feb 19 11:09:51 web-01 sshd[23731]: Failed password for invalid user root from 91.240.118.172 port 14888 ssh2
+Feb 19 11:09:52 web-01 sshd[23731]: Failed password for invalid user guest from 91.240.118.172 port 12279 ssh2
+Feb 19 11:09:52 web-01 sshd[23731]: Failed password for invalid user pi from 91.240.118.172 port 38583 ssh2
+Feb 19 11:09:53 web-01 sshd[23731]: Failed password for invalid user pi from 91.240.118.172 port 9230 ssh2
+Feb 19 11:09:54 web-01 sshd[23731]: Failed password for invalid user test from 91.240.118.172 port 57339 ssh2
+Feb 19 11:09:56 web-01 sshd[23731]: Failed password for invalid user user from 91.240.118.172 port 50810 ssh2
+Feb 19 11:09:56 web-01 sshd[23731]: Failed password for invalid user support from 91.240.118.172 port 45525 ssh2
+Feb 19 11:09:58 web-01 sshd[23731]: Failed password for invalid user root from 91.240.118.172 port 54314 ssh2
+Feb 19 11:09:59 web-01 sshd[23731]: Failed password for invalid user root from 91.240.118.172 port 33167 ssh2
+Feb 19 11:10:01 web-01 sshd[23731]: Failed password for invalid user guest from 91.240.118.172 port 17868 ssh2
+Feb 19 11:10:02 web-01 fail2ban.actions[6569]: NOTICE  [sshd] Ban 91.240.118.172
+Feb 19 11:10:02 web-01 sudo[3870]:   test : TTY=unknown ; PWD=/ ; USER=root ; COMMAND=/usr/bin/crontab -e
+Feb 19 11:10:16 web-01 sshd[27165]: Accepted publickey for ubuntu from 10.0.1.15 port 26143 ssh2: RSA SHA256:s4AgpD5rCoXiNXsgBMscBbhqBJBqPp3g03oAbHNSqP1
+Feb 19 11:10:25 web-01 sshd[31426]: Accepted publickey for alice from 10.0.1.15 port 5096 ssh2: RSA SHA256:reAsjt9drazMJkdMfreX3BbcZkYuY+BqnSg0axzDk8S
+Feb 19 11:10:36 web-01 sshd[1253]: Failed password for invalid user pi from 45.33.32.156 port 25356 ssh2
+Feb 19 11:10:37 web-01 sshd[1253]: Failed password for invalid user test from 45.33.32.156 port 54497 ssh2
+Feb 19 11:10:38 web-01 sshd[1253]: Failed password for invalid user root from 45.33.32.156 port 23504 ssh2
+Feb 19 11:10:39 web-01 sshd[1253]: Failed password for invalid user test from 45.33.32.156 port 33225 ssh2
+Feb 19 11:10:41 web-01 sshd[1253]: Failed password for invalid user test from 45.33.32.156 port 46928 ssh2
+Feb 19 11:10:42 web-01 sshd[1253]: Failed password for invalid user root from 45.33.32.156 port 46746 ssh2
+Feb 19 11:10:42 web-01 sshd[1253]: Failed password for invalid user oracle from 45.33.32.156 port 38263 ssh2
+Feb 19 11:10:43 web-01 sshd[1253]: Failed password for invalid user guest from 45.33.32.156 port 54095 ssh2
+Feb 19 11:10:44 web-01 sshd[1253]: Failed password for invalid user pi from 45.33.32.156 port 13944 ssh2
+Feb 19 11:10:45 web-01 sshd[1253]: Failed password for invalid user root from 45.33.32.156 port 3085 ssh2
+Feb 19 11:10:46 web-01 sshd[1253]: Failed password for invalid user admin from 45.33.32.156 port 61914 ssh2
+Feb 19 11:10:47 web-01 sshd[1253]: Failed password for invalid user pi from 45.33.32.156 port 47293 ssh2
+Feb 19 11:10:48 web-01 sshd[1253]: Failed password for invalid user support from 45.33.32.156 port 33481 ssh2
+Feb 19 11:10:49 web-01 sshd[1253]: Failed password for invalid user user from 45.33.32.156 port 44497 ssh2
+Feb 19 11:10:51 web-01 sshd[1253]: Failed password for invalid user guest from 45.33.32.156 port 32419 ssh2
+Feb 19 11:10:51 web-01 sshd[1253]: Failed password for invalid user pi from 45.33.32.156 port 59075 ssh2
+Feb 19 11:10:52 web-01 sshd[1253]: Failed password for invalid user root from 45.33.32.156 port 62824 ssh2
+Feb 19 11:10:53 web-01 sshd[1253]: Failed password for invalid user oracle from 45.33.32.156 port 39435 ssh2
+Feb 19 11:10:55 web-01 sshd[1253]: Failed password for invalid user oracle from 45.33.32.156 port 12245 ssh2
+Feb 19 11:10:56 web-01 sshd[1253]: Failed password for invalid user guest from 45.33.32.156 port 59023 ssh2
+Feb 19 11:10:56 web-01 sshd[1253]: Failed password for invalid user test from 45.33.32.156 port 62170 ssh2
+Feb 19 11:10:58 web-01 sshd[1253]: Failed password for invalid user admin from 45.33.32.156 port 8322 ssh2
+Feb 19 11:10:58 web-01 sshd[1253]: Failed password for invalid user user from 45.33.32.156 port 61498 ssh2
+Feb 19 11:10:59 web-01 sshd[1253]: Failed password for invalid user pi from 45.33.32.156 port 25702 ssh2
+Feb 19 11:11:01 web-01 fail2ban.actions[9476]: NOTICE  [sshd] Ban 45.33.32.156
+Feb 19 11:11:01 web-01 sshd[19779]: Disconnected from user bob 10.0.1.42 port 21742
+Feb 19 11:11:11 web-01 systemd-logind[10416]: New session 69 of user bob.
+Feb 19 11:11:18 web-01 fail2ban.actions[20293]: NOTICE  [sshd] Ban 91.240.118.172
+Feb 19 11:11:28 web-01 sshd[6824]: Disconnected from user ubuntu 192.168.1.100 port 18004
+Feb 19 11:11:33 web-01 sudo[6336]:   alice : TTY=pts/0 ; PWD=/home/alice ; USER=root ; COMMAND=/bin/cat /etc/shadow
+Feb 19 11:11:35 web-01 sshd[6413]: Disconnected from user deploy 10.0.1.15 port 6649
+Feb 19 11:11:48 web-01 sshd[10741]: Failed password for invalid user test from 162.243.172.239 port 15788 ssh2
+Feb 19 11:11:48 web-01 sshd[10741]: Failed password for invalid user pi from 162.243.172.239 port 22622 ssh2
+Feb 19 11:11:50 web-01 sshd[10741]: Failed password for invalid user guest from 162.243.172.239 port 27344 ssh2
+Feb 19 11:11:50 web-01 sshd[10741]: Failed password for invalid user guest from 162.243.172.239 port 1336 ssh2
+Feb 19 11:11:51 web-01 sshd[10741]: Failed password for invalid user user from 162.243.172.239 port 53115 ssh2
+Feb 19 11:11:52 web-01 sshd[10741]: Failed password for invalid user root from 162.243.172.239 port 31981 ssh2
+Feb 19 11:11:53 web-01 sshd[10741]: Failed password for invalid user user from 162.243.172.239 port 43383 ssh2
+Feb 19 11:11:54 web-01 sshd[10741]: Failed password for invalid user test from 162.243.172.239 port 24128 ssh2
+Feb 19 11:11:55 web-01 sshd[10741]: Failed password for invalid user support from 162.243.172.239 port 54827 ssh2
+Feb 19 11:11:55 web-01 sshd[10741]: Failed password for invalid user oracle from 162.243.172.239 port 4517 ssh2
+Feb 19 11:11:57 web-01 sshd[10741]: Failed password for invalid user support from 162.243.172.239 port 54484 ssh2
+Feb 19 11:11:58 web-01 sshd[10741]: Failed password for invalid user test from 162.243.172.239 port 18708 ssh2
+Feb 19 11:11:59 web-01 sshd[10741]: Failed password for invalid user pi from 162.243.172.239 port 4784 ssh2
+Feb 19 11:12:01 web-01 sshd[10741]: Failed password for invalid user test from 162.243.172.239 port 45636 ssh2
+Feb 19 11:12:03 web-01 sshd[10741]: Failed password for invalid user pi from 162.243.172.239 port 15414 ssh2
+Feb 19 11:12:04 web-01 sshd[10741]: Failed password for invalid user support from 162.243.172.239 port 12545 ssh2
+Feb 19 11:12:06 web-01 sshd[10741]: Failed password for invalid user user from 162.243.172.239 port 55747 ssh2
+Feb 19 11:12:07 web-01 sshd[10741]: Failed password for invalid user pi from 162.243.172.239 port 55932 ssh2
+Feb 19 11:12:09 web-01 sshd[10741]: Failed password for invalid user support from 162.243.172.239 port 1522 ssh2
+Feb 19 11:12:11 web-01 sshd[10741]: Failed password for invalid user pi from 162.243.172.239 port 14890 ssh2
+Feb 19 11:12:12 web-01 sshd[10741]: Failed password for invalid user guest from 162.243.172.239 port 30817 ssh2
+Feb 19 11:12:13 web-01 sshd[10741]: Failed password for invalid user test from 162.243.172.239 port 16646 ssh2
+Feb 19 11:12:14 web-01 sshd[10741]: Failed password for invalid user oracle from 162.243.172.239 port 61052 ssh2
+Feb 19 11:12:14 web-01 sshd[10741]: Failed password for invalid user pi from 162.243.172.239 port 34334 ssh2
+Feb 19 11:12:15 web-01 sshd[10741]: Failed password for invalid user test from 162.243.172.239 port 3886 ssh2
+Feb 19 11:12:16 web-01 sshd[10741]: Failed password for invalid user oracle from 162.243.172.239 port 8722 ssh2
+Feb 19 11:12:18 web-01 sshd[10741]: Failed password for invalid user root from 162.243.172.239 port 10098 ssh2
+Feb 19 11:12:19 web-01 fail2ban.actions[7853]: NOTICE  [sshd] Ban 162.243.172.239
+Feb 19 11:12:19 web-01 sshd[29544]: Failed password for invalid user test from 194.165.16.11 port 46669 ssh2
+Feb 19 11:12:21 web-01 sshd[29544]: Failed password for invalid user root from 194.165.16.11 port 12195 ssh2
+Feb 19 11:12:22 web-01 sshd[29544]: Failed password for invalid user support from 194.165.16.11 port 56121 ssh2
+Feb 19 11:12:23 web-01 sshd[29544]: Failed password for invalid user guest from 194.165.16.11 port 13363 ssh2
+Feb 19 11:12:25 web-01 sshd[29544]: Failed password for invalid user root from 194.165.16.11 port 37476 ssh2
+Feb 19 11:12:26 web-01 sshd[29544]: Failed password for invalid user admin from 194.165.16.11 port 20667 ssh2
+Feb 19 11:12:28 web-01 sshd[29544]: Failed password for invalid user test from 194.165.16.11 port 59779 ssh2
+Feb 19 11:12:29 web-01 sshd[29544]: Failed password for invalid user oracle from 194.165.16.11 port 31952 ssh2
+Feb 19 11:12:30 web-01 sshd[29544]: Failed password for invalid user user from 194.165.16.11 port 44897 ssh2
+Feb 19 11:12:32 web-01 sshd[29544]: Failed password for invalid user support from 194.165.16.11 port 46676 ssh2
+Feb 19 11:12:33 web-01 sshd[29544]: Failed password for invalid user test from 194.165.16.11 port 11107 ssh2
+Feb 19 11:12:33 web-01 sshd[29544]: Failed password for invalid user support from 194.165.16.11 port 46713 ssh2
+Feb 19 11:12:34 web-01 sshd[29544]: Failed password for invalid user oracle from 194.165.16.11 port 5668 ssh2
+Feb 19 11:12:35 web-01 sshd[29544]: Failed password for invalid user oracle from 194.165.16.11 port 30288 ssh2
+Feb 19 11:12:36 web-01 sshd[29544]: Failed password for invalid user pi from 194.165.16.11 port 29686 ssh2
+Feb 19 11:12:37 web-01 sshd[29544]: Failed password for invalid user pi from 194.165.16.11 port 33888 ssh2
+Feb 19 11:12:38 web-01 sshd[29544]: Failed password for invalid user support from 194.165.16.11 port 61183 ssh2
+Feb 19 11:12:40 web-01 sshd[29544]: Failed password for invalid user pi from 194.165.16.11 port 5033 ssh2
+Feb 19 11:12:41 web-01 sshd[29544]: Failed password for invalid user oracle from 194.165.16.11 port 9062 ssh2
+Feb 19 11:12:42 web-01 sshd[29544]: Failed password for invalid user pi from 194.165.16.11 port 44433 ssh2
+Feb 19 11:12:43 web-01 sshd[29544]: Failed password for invalid user pi from 194.165.16.11 port 30343 ssh2
+Feb 19 11:12:45 web-01 sshd[29544]: Failed password for invalid user pi from 194.165.16.11 port 17100 ssh2
+Feb 19 11:12:45 web-01 sshd[29544]: Failed password for invalid user user from 194.165.16.11 port 13826 ssh2
+Feb 19 11:12:47 web-01 sshd[29544]: Failed password for invalid user guest from 194.165.16.11 port 18653 ssh2
+Feb 19 11:12:47 web-01 sshd[29544]: Failed password for invalid user user from 194.165.16.11 port 42968 ssh2
+Feb 19 11:12:49 web-01 sshd[29544]: Failed password for invalid user root from 194.165.16.11 port 27210 ssh2
+Feb 19 11:12:50 web-01 sshd[29544]: Failed password for invalid user test from 194.165.16.11 port 59422 ssh2
+Feb 19 11:12:51 web-01 fail2ban.actions[17410]: NOTICE  [sshd] Ban 194.165.16.11
+Feb 19 11:12:51 web-01 sudo[22296]:   www-data : TTY=unknown ; PWD=/ ; USER=root ; COMMAND=/usr/bin/crontab -e
+Feb 19 11:12:51 web-01 sshd[19645]: Failed password for invalid user test from 162.243.172.239 port 20463 ssh2
+Feb 19 11:12:52 web-01 sshd[11659]: Accepted publickey for alice from 192.168.1.100 port 29740 ssh2: RSA SHA256:pZn/cRmTgtT83ODAkwmO2WoFob3WkXh7VS5iXMleGvX
+Feb 19 11:13:02 web-01 CRON[19245]: (ec2-user) CMD (/usr/local/bin/health-check.sh)
+Feb 19 11:13:15 web-01 CRON[6302]: (bob) CMD (/usr/bin/certbot renew)
+Feb 19 11:13:19 web-01 sshd[9572]: Failed password for alice from 103.255.61.12 port 57515 ssh2
+Feb 19 11:13:20 web-01 sshd[17142]: Accepted publickey for ec2-user from 192.168.1.100 port 55339 ssh2: RSA SHA256:9MBWC86ckMo7ybUQRMjvm5pak5hJtF99UqLUKWT7K5a
+Feb 19 11:13:28 web-01 sshd[21977]: Accepted password for root from 5.188.86.172 port 42418 ssh2
+Feb 19 11:13:40 web-01 sshd[27319]: Accepted publickey for bob from 10.0.1.42 port 64643 ssh2: RSA SHA256:n5kYrPyssdbi7Tln3Xj1331MksWmEA8NmeB38ZuvwrS
+Feb 19 11:13:55 web-01 sshd[17582]: Accepted publickey for ec2-user from 172.16.0.5 port 10082 ssh2: RSA SHA256:k+PtL2k5RtRLUzn/bpDwAbq3HtHk4gbqFbBxXthFuaT
+Feb 19 11:14:00 web-01 sshd[25599]: Accepted publickey for alice from 10.0.1.15 port 19693 ssh2: RSA SHA256:RNTAusL6a85hda8OdAYB+i79AIYf/XRs92SDEtwigxv
+Feb 19 11:14:14 web-01 systemd-logind[11365]: New session 78 of user carol.
+Feb 19 11:14:20 web-01 fail2ban.actions[12050]: NOTICE  [sshd] Ban 198.199.122.40
+Feb 19 11:14:27 web-01 sudo[9375]:   bob : TTY=pts/5 ; PWD=/home/bob ; USER=root ; COMMAND=/bin/cat /etc/shadow
+Feb 19 11:14:27 web-01 sshd[10567]: Invalid user admin from 91.240.118.172 port 11689
+Feb 19 11:14:32 web-01 sudo[8891]:   ubuntu : TTY=pts/5 ; PWD=/home/ubuntu ; USER=root ; COMMAND=/usr/bin/systemctl restart nginx
+Feb 19 11:14:35 web-01 sshd[19470]: Disconnected from user alice 10.0.2.33 port 6781
+Feb 19 11:14:40 web-01 sudo[6250]: admin : user NOT in sudoers ; TTY=pts/3 ; PWD=/root ; USER=root ; COMMAND=/bin/bash
+Feb 19 11:14:42 web-01 sshd[22887]: Disconnected from user alice 10.0.1.15 port 26662
+Feb 19 11:14:51 web-01 sshd[5593]: Invalid user guest from 5.188.86.172 port 53712
+Feb 19 11:14:57 web-01 sshd[6078]: Invalid user user from 167.99.201.55 port 34110
+Feb 19 11:15:07 web-01 sudo[17307]:   carol : TTY=pts/1 ; PWD=/home/carol ; USER=root ; COMMAND=/bin/cat /etc/shadow
+Feb 19 11:15:12 web-01 systemd-logind[2120]: New session 28 of user alice.
+Feb 19 11:15:13 web-01 sudo[1272]:   ec2-user : TTY=pts/3 ; PWD=/home/ec2-user ; USER=root ; COMMAND=/usr/bin/systemctl restart nginx
+Feb 19 11:15:27 web-01 sudo[3307]:   deploy : TTY=pts/3 ; PWD=/home/deploy ; USER=root ; COMMAND=/bin/cat /etc/shadow
+Feb 19 11:15:40 web-01 sshd[8557]: Invalid user root from 167.99.201.55 port 48728
+Feb 19 11:15:48 web-01 sshd[23899]: Invalid user support from 91.240.118.172 port 19189
+Feb 19 11:15:57 web-01 sshd[2858]: error: maximum authentication attempts exceeded for invalid user admin from 194.165.16.11 port 29128 ssh2 [preauth]
+Feb 19 11:16:00 web-01 sshd[17712]: Failed password for alice from 5.188.86.172 port 4161 ssh2
+Feb 19 11:16:03 web-01 fail2ban.actions[14725]: NOTICE  [sshd] Ban 185.220.101.47
+Feb 19 11:16:17 web-01 sshd[1870]: Accepted publickey for ubuntu from 172.16.0.5 port 24988 ssh2: RSA SHA256:Rw9mx+6xJJGcWeeQl6DtVdKt20Y2gATkMssi543Cq5i
+Feb 19 11:16:17 web-01 sudo[4519]: support : user NOT in sudoers ; TTY=pts/5 ; PWD=/root ; USER=root ; COMMAND=/bin/bash
+Feb 19 11:16:20 web-01 systemd-logind[18623]: New session 188 of user carol.
+Feb 19 11:16:26 web-01 sshd[4557]: Invalid user support from 45.33.32.156 port 37179
+Feb 19 11:16:40 web-01 sshd[30450]: Invalid user test from 45.33.32.156 port 9172
+Feb 19 11:16:45 web-01 sshd[1751]: Accepted publickey for deploy from 10.0.1.15 port 18274 ssh2: RSA SHA256:r+9wMSCr51tHvSsb5ItvRrf+iUuzwiTDuvcdI1eq1eB
+Feb 19 11:16:59 web-01 CRON[25347]: (ubuntu) CMD (/usr/local/bin/health-check.sh)
+Feb 19 11:17:03 web-01 sshd[23020]: Accepted publickey for carol from 172.16.0.5 port 32304 ssh2: RSA SHA256:xGrksTNmwRr81DMweomnMeuUF67v2vNg5OcK5lq9GWD
+Feb 19 11:17:05 web-01 sudo[4472]:   ec2-user : TTY=pts/2 ; PWD=/home/ec2-user ; USER=root ; COMMAND=/bin/cat /etc/shadow
+Feb 19 11:17:16 web-01 CRON[18470]: (bob) CMD (/usr/bin/backup.sh)
+Feb 19 11:17:19 web-01 sshd[11610]: Accepted publickey for ubuntu from 10.0.1.42 port 31566 ssh2: RSA SHA256:Z/YOeErDtlkyPq0wFJ4EthNq+z1LZTl5MLEEcz+pKbH
+Feb 19 11:17:22 web-01 sshd[17930]: Disconnected from user ubuntu 192.168.1.100 port 3212
+Feb 19 11:17:35 web-01 useradd[6062]: new user: name=backdoor, UID=0, GID=0, home=/root, shell=/bin/bash
+Feb 19 11:17:42 web-01 sshd[29281]: Failed password for invalid user support from 103.255.61.12 port 45342 ssh2
+Feb 19 11:17:44 web-01 sshd[5338]: Failed password for invalid user pi from 5.188.86.172 port 44802 ssh2
+Feb 19 11:17:45 web-01 sshd[5338]: Failed password for invalid user pi from 5.188.86.172 port 62843 ssh2
+Feb 19 11:17:46 web-01 sshd[5338]: Failed password for invalid user root from 5.188.86.172 port 36561 ssh2
+Feb 19 11:17:47 web-01 sshd[5338]: Failed password for invalid user test from 5.188.86.172 port 25785 ssh2
+Feb 19 11:17:49 web-01 sshd[5338]: Failed password for invalid user oracle from 5.188.86.172 port 21780 ssh2
+Feb 19 11:17:50 web-01 sshd[5338]: Failed password for invalid user admin from 5.188.86.172 port 2337 ssh2
+Feb 19 11:17:50 web-01 sshd[5338]: Failed password for invalid user support from 5.188.86.172 port 37262 ssh2
+Feb 19 11:17:52 web-01 sshd[5338]: Failed password for invalid user oracle from 5.188.86.172 port 51987 ssh2
+Feb 19 11:17:53 web-01 sshd[5338]: Failed password for invalid user support from 5.188.86.172 port 22429 ssh2
+Feb 19 11:17:54 web-01 sshd[5338]: Failed password for invalid user oracle from 5.188.86.172 port 45594 ssh2
+Feb 19 11:17:55 web-01 sshd[5338]: Failed password for invalid user oracle from 5.188.86.172 port 31285 ssh2
+Feb 19 11:17:56 web-01 sshd[5338]: Failed password for invalid user support from 5.188.86.172 port 1931 ssh2
+Feb 19 11:17:58 web-01 sshd[5338]: Failed password for invalid user guest from 5.188.86.172 port 20583 ssh2
+Feb 19 11:17:59 web-01 fail2ban.actions[4054]: NOTICE  [sshd] Ban 5.188.86.172
+Feb 19 11:17:59 web-01 CRON[23445]: (alice) CMD (/usr/bin/backup.sh)
+Feb 19 11:18:14 web-01 systemd-logind[12448]: New session 158 of user carol.
+Feb 19 11:18:28 web-01 sshd[21489]: Accepted publickey for carol from 10.0.1.42 port 9482 ssh2: RSA SHA256:CBU0lAP0U6qZIpH4kwLBsdSMLtp4IYwG3GvqPzKqkZU
+Feb 19 11:18:34 web-01 sshd[2991]: Accepted publickey for alice from 10.0.2.33 port 10753 ssh2: RSA SHA256:BVID2EuQdBRg4CjbMaNo+pB7zoBjQdfjnhsIOZ9ppqF
+Feb 19 11:18:42 web-01 sshd[30347]: Failed password for invalid user oracle from 185.220.101.47 port 39214 ssh2
+Feb 19 11:18:43 web-01 sshd[30347]: Failed password for invalid user user from 185.220.101.47 port 52802 ssh2
+Feb 19 11:18:45 web-01 sshd[30347]: Failed password for invalid user support from 185.220.101.47 port 50702 ssh2
+Feb 19 11:18:47 web-01 sshd[30347]: Failed password for invalid user oracle from 185.220.101.47 port 1780 ssh2
+Feb 19 11:18:48 web-01 sshd[30347]: Failed password for invalid user support from 185.220.101.47 port 28274 ssh2
+Feb 19 11:18:49 web-01 sshd[30347]: Failed password for invalid user test from 185.220.101.47 port 56383 ssh2
+Feb 19 11:18:50 web-01 sshd[30347]: Failed password for invalid user admin from 185.220.101.47 port 32626 ssh2
+Feb 19 11:18:52 web-01 sshd[30347]: Failed password for invalid user user from 185.220.101.47 port 42509 ssh2
+Feb 19 11:18:53 web-01 sshd[30347]: Failed password for invalid user user from 185.220.101.47 port 7586 ssh2
+Feb 19 11:18:54 web-01 sshd[30347]: Failed password for invalid user admin from 185.220.101.47 port 13378 ssh2
+Feb 19 11:18:54 web-01 sshd[30347]: Failed password for invalid user admin from 185.220.101.47 port 23206 ssh2
+Feb 19 11:18:55 web-01 sshd[30347]: Failed password for invalid user test from 185.220.101.47 port 51242 ssh2
+Feb 19 11:18:57 web-01 sshd[30347]: Failed password for invalid user admin from 185.220.101.47 port 36251 ssh2
+Feb 19 11:18:58 web-01 sshd[30347]: Failed password for invalid user support from 185.220.101.47 port 17359 ssh2
+Feb 19 11:18:59 web-01 sshd[30347]: Failed password for invalid user pi from 185.220.101.47 port 25785 ssh2
+Feb 19 11:19:00 web-01 sshd[30347]: Failed password for invalid user test from 185.220.101.47 port 56782 ssh2
+Feb 19 11:19:01 web-01 sshd[30347]: Failed password for invalid user test from 185.220.101.47 port 11069 ssh2
+Feb 19 11:19:03 web-01 sshd[30347]: Failed password for invalid user user from 185.220.101.47 port 38116 ssh2
+Feb 19 11:19:04 web-01 sshd[30347]: Failed password for invalid user test from 185.220.101.47 port 15890 ssh2
+Feb 19 11:19:05 web-01 sshd[30347]: Failed password for invalid user oracle from 185.220.101.47 port 39440 ssh2
+Feb 19 11:19:06 web-01 sshd[30347]: Failed password for invalid user support from 185.220.101.47 port 3981 ssh2
+Feb 19 11:19:07 web-01 sshd[30347]: Failed password for invalid user oracle from 185.220.101.47 port 21327 ssh2
+Feb 19 11:19:09 web-01 sshd[30347]: Failed password for invalid user support from 185.220.101.47 port 64209 ssh2
+Feb 19 11:19:10 web-01 sshd[30347]: Failed password for invalid user support from 185.220.101.47 port 39156 ssh2
+Feb 19 11:19:12 web-01 sshd[30347]: Failed password for invalid user test from 185.220.101.47 port 35407 ssh2
+Feb 19 11:19:12 web-01 fail2ban.actions[15021]: NOTICE  [sshd] Ban 185.220.101.47

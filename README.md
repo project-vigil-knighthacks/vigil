@@ -1,8 +1,9 @@
 # VIGIL SIEM
 
 ![Python](https://img.shields.io/badge/Python-FastAPI-3776AB?logo=python&logoColor=white)
+![SQLite](https://img.shields.io/badge/SQLite-Event%20Storage-003B57?logo=sqlite&logoColor=white)
+![React](https://img.shields.io/badge/Next.js-Dashboard-000000?logo=nextdotjs&logoColor=white)
 ![Elasticsearch](https://img.shields.io/badge/Elasticsearch-8.x-005571?logo=elasticsearch)
-![React](https://img.shields.io/badge/React-Dashboard-61DAFB?logo=react&logoColor=black)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white)
 ![Filebeat](https://img.shields.io/badge/Filebeat-Log%20Shipping-005571?logo=elastic)
 ![Sigma](https://img.shields.io/badge/Sigma-Detection%20Rules-EE3124)
@@ -10,7 +11,7 @@
 ![Azure](https://img.shields.io/badge/Azure-Container%20Apps-0078D4?logo=microsoftazure)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
-An open-source, deployable SIEM with real-time threat detection, Sigma rule support, MITRE ATT&CK mapping, and an AI voice assistant that summarizes security posture and recommends remediation actions.
+An open-source, self-hosted SIEM for website owners. Point it at your existing log files and get real-time threat detection, structured event storage, and a live security dashboard — no changes to your website required. Planned features include Sigma rule support, MITRE ATT&CK mapping, and an AI voice assistant.
 
 ## Architecture
 
@@ -36,7 +37,159 @@ An open-source, deployable SIEM with real-time threat detection, Sigma rule supp
                   ───────────── All services run in Docker on Azure Container Apps ─────────────
 ```
 
-## Quick Start (draft)
+## Development Setup (Current, Pre-Docker*)
+<h5>*setup for early stages -- Docker not setup yet</h5>
+
+### Prerequisites
+
+| Dependency | Version | Install |
+|------------|---------|---------|
+| Python | 3.10+ | [python.org](https://www.python.org/downloads/) |
+| Node.js | 18+ | [nodejs.org](https://nodejs.org/) |
+| npm | 9+ | bundled with Node.js |
+
+---
+
+### Backend
+
+**Directory:** `vigil/vigil/backend/api`
+
+```bash
+cd vigil/vigil/backend/api
+
+# Install all required Python packages
+python -m pip install fastapi uvicorn python-multipart pygrok openai
+
+# Start the API server (hot-reload enabled)
+python -m uvicorn api_endpoint:app --reload --host 127.0.0.1 --port 8000
+```
+
+API will be available at `http://localhost:8000`  
+
+#### Python package reference
+
+| Package | Purpose |
+|---------|---------|
+| `fastapi` | Web framework |
+| `uvicorn` | ASGI server |
+| `python-multipart` | File upload support |
+| `pygrok` | Grok pattern matching (log parser) |
+| `openai` | LLM pattern generation (optional, see below) || `watchdog` | File system event monitoring (log collector) |
+| `requests` | HTTP client used by collector to POST events to FastAPI |
+| `sqlite3` | Built-in — event storage, no install required |
+---
+
+### Frontend
+
+**Directory:** `vigil/vigil/frontend`
+
+```bash
+cd vigil/vigil/frontend
+
+# Install Node dependencies (first time only)
+npm install
+
+# Start the dev server
+npm run dev
+```
+
+Dashboard will be available at `http://localhost:3000`
+
+Health check page (verifies backend connection): `http://localhost:3000/health`
+
+---
+
+### Environment Variables
+
+#### Frontend — `vigil/vigil/frontend/.env.local`
+
+Create this file if it doesn't exist:
+
+```
+NEXT_PUBLIC_API_BASE_URL=http://localhost:8000
+```
+
+#### Backend — shell environment
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `OPENAI_API_KEY` | Optional | Enables automatic Grok pattern generation for unrecognized log lines. Without it, the parser still works for any line matching an existing pattern in `backend/api/data/patterns.json`. |
+| `VIGIL_DB_PATH` | Optional | Override the default SQLite database path. Defaults to `vigil/backend/api/vigil.db`. |
+
+Set them for your session:
+
+```powershell
+# PowerShell
+$env:OPENAI_API_KEY = "sk-..."
+$env:VIGIL_DB_PATH = "C:\path\to\your\vigil.db"   # optional override
+```
+
+```bash
+# Bash
+export OPENAI_API_KEY="sk-..."
+export VIGIL_DB_PATH="/path/to/your/vigil.db"     # optional override
+```
+
+---
+
+### Log Collector
+
+The log collector watches a log file in real time and ships parsed events to both the local SQLite database and the FastAPI server.
+
+**Directory:** `vigil/vigil/backend/api`
+
+```bash
+# Install collector dependency
+python -m pip install watchdog
+
+# Start the collector pointed at a log file
+python log_collector.py -l /path/to/your/access.log
+```
+
+The collector will:
+1. Open `vigil.db` (or `VIGIL_DB_PATH`) and create the `events` table if missing
+2. Tail the specified log file using `watchdog`
+3. Parse new lines with `grokmoment` on every file update
+4. Write structured events to SQLite and POST them to `POST /api/collect`
+
+> **Note:** The API server must be running for the `POST /api/collect` step to succeed. SQLite writes happen regardless.
+
+---
+
+### Log Parser (grokmoment)
+
+The log parser is based on [grokmoment](https://github.com/mdunn99/grokmoment) (MIT), inlined at `vigil/vigil/backend/api/grokmoment.py`. **No separate clone is required.**
+
+- **With `OPENAI_API_KEY`**: Unrecognized log lines are sent to the OpenAI API to auto-generate a new Grok pattern, which is then saved to `backend/api/data/patterns.json` for future use.
+- **Without `OPENAI_API_KEY`**: Only lines matching existing patterns are parsed. Unmatched lines appear in the output with an `UNMATCHED` badge, and the UI will prompt you to set an API key.
+
+Patterns are stored in `backend/api/data/patterns.json` and persist across runs. You can inspect or edit them manually.
+
+---
+
+### Run Order
+
+Start backend first, then frontend, then optionally the collector:
+
+```
+Terminal 1 — backend:
+  cd vigil/vigil/backend/api
+  python -m uvicorn api_endpoint:app --reload --host 127.0.0.1 --port 8000
+
+Terminal 2 — frontend:
+  cd vigil/vigil/frontend
+  npm run dev
+
+Terminal 3 — log collector (optional, requires a target log file):
+  cd vigil/vigil/backend/api
+  python log_collector.py -l /path/to/your/access.log
+```
+
+With all three running, any new lines appended to your log file will be parsed and appear in the dashboard at `http://localhost:3000/events`.
+
+---
+
+## Quick Start (Docker, draft)
 
 ```bash
 docker compose up --build
