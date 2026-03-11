@@ -24,7 +24,10 @@ LLM_REASONING_EFFORT = "low"
 class LLMCalls:
     def __init__(self):
         from openai import OpenAI
-        self.client = OpenAI()
+        try:
+            self.client = OpenAI()
+        except Exception as e:
+            print(f"{e}. Skipping")
         self.prompt = self._build_prompt()
 
     def _build_prompt(self) -> str:
