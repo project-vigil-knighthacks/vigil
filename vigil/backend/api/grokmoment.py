@@ -1,19 +1,33 @@
+"""
+Grok-based log parser for Vigil SIEM.
+Inlined from grokmoment (https://github.com/mdunn99/grokmoment) — MIT License.
+
+When a log line doesn't match any known Grok pattern and an OpenAI API key is
+available, grokmoment generates a new pattern via LLM and persists it for
+future use.
+"""
 from pygrok import Grok
 import json
 
-VARIABLES = ["timestamp", "host", "proc", "pid", "severity", "facility",
-        "login", "target_user", "auth_method", "login_status", "src_ip",
-        "dst_ip", "src_port", "dst_port", "url", "domain", "path", "uri",
-        "hash", "hash_algo", "signature", "command", "args", "session_id",
-        "request_id", "trace_id", "status_code", "bytes_sent", "bytes_recv", 
-        "duration", "tty", "pwd"]
+VARIABLES = [
+    "timestamp", "host", "proc", "pid", "severity", "facility",
+    "login", "target_user", "auth_method", "login_status", "src_ip",
+    "dst_ip", "src_port", "dst_port", "url", "domain", "path", "uri",
+    "hash", "hash_algo", "signature", "command", "args", "session_id",
+    "request_id", "trace_id", "status_code", "bytes_sent", "bytes_recv",
+    "duration", "tty", "pwd",
+]
 MODEL = "gpt-5-mini"
 LLM_REASONING_EFFORT = "low"
+
 
 class LLMCalls:
     def __init__(self):
         from openai import OpenAI
-        self.client = OpenAI()
+        try:
+            self.client = OpenAI()
+        except Exception as e:
+            print(f"{e}. Skipping")
         self.prompt = self._build_prompt()
 
     def _build_prompt(self) -> str:
@@ -161,6 +175,7 @@ def parse_logs_by_file(log_path: str, patterns_file: str = "patterns.json") -> l
 
     store.save()
     return processor.process(lines)
+
 
 def parse_logs_by_excerpt(log_excerpt: list[str], patterns_file: str = "patterns.json") -> list[dict]:
     store = PatternStore(patterns_file)
