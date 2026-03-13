@@ -1014,23 +1014,3 @@ Feb 23 20:02:00 web-01 sshd[19511]: Failed password for invalid user guest from 
 Feb 23 20:02:00 web-01 sshd[19511]: Failed password for invalid user oracle from 194.165.16.11 port 38446 ssh2
 Feb 23 20:02:01 web-01 sshd[19511]: Failed password for invalid user user from 194.165.16.11 port 46939 ssh2
 Feb 23 20:02:03 web-01 sshd[19511]: Failed password for invalid user root from 194.165.16.11 port 33743 ssh2
-Nov 15 12:34:56 myhost sshd[1234]: Accepted password for admin from 192.168.1.1 port 22
-Feb 23 20:02:01 web-01 sshd[19511]: Failed password for invalid user user from 194.165.16.11 port 46939 ssh2
-Nov 15 12:34:56 myhost sshd[1234]: Accepted password for admin from 192.168.1.1 port 22
-Nov 15 12:34:56 myhost sshd[1234]: Accepted password for admin from 192.168.1.1 port 22
-Nov 15 12:34:56 myhost sshd[1234]: Accepted password for admin from 192.168.1.1 port 22
-Feb 23 20:02:03 web-01 sshd[19511]: Failed password for invalid user root from 194.165.16.11 port 33743 ssh2
-Feb 23 20:02:03 web-01 sshd[19511]: Failed password for invalid user root from 194.165.16.11 port 33743 ssh2
-Feb 23 18:46:26 web-01 sshd[23356]: Failed password for deploy from 198.199.122.40 port 15650 ssh2
-Feb 23 18:46:26 web-01 sshd[23356]: Failed password for deploy from 198.199.122.40 port 15650 ssh2
-Feb 23 18:46:26 web-01 sshd[23356]: Failed password for deploy from 198.199.122.40 port 15650 ssh2
-Feb 23 18:46:26 web-01 sshd[23356]: Failed password for deploy from 198.199.122.40 port 15650 ssh2
-Feb 23 18:46:26 web-01 sshd[23356]: Failed password for deploy from 198.199.122.40 port 15650 ssh2
-Feb 23 18:46:26 web-01 sshd[23356]: Failed password for deploy from 198.199.122.40 port 15650 ssh2
-Feb 23 18:46:26 web-01 sshd[23356]: Failed password for deploy from 198.199.122.40 port 15650 ssh2
-Feb 23 18:46:26 web-01 sshd[23356]: Failed password for deploy from 198.199.122.40 port 15650 ssh2
-Feb 23 18:46:26 web-01 sshd[23356]: Failed password for deploy from 198.199.122.40 port 15650 ssh2
-Feb 23 18:46:26 web-01 sshd[23356]: Failed password for deploy from 198.199.122.40 port 15650 ssh2
-Feb 23 18:46:26 web-01 sshd[23356]: Failed password for deploy from 198.199.122.40 port 15650 ssh2
-Feb 23 18:46:26 web-01 sshd[23356]: Failed password for deploy from 198.199.122.40 port 15650 ssh2
-Feb 23 18:46:26 web-01 sshd[23356]: Failed password for deploy from 198.199.122.40 port 15650 ssh2

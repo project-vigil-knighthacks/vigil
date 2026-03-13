@@ -1,14 +1,21 @@
-# SQLite database layer for Vigil SIEM.
-# shared by the collector (writes) and the FastAPI server (reads + writes).
+# SQLite Layer
+
+# Script for managing SQLite reads and writes in the Vigil backend.
+# Both log_collector.py (writer) and api_endpoint.py (reader + writer) import
+# from this module. No other file should open vigil.db directly.
+
+# Default location: vigil/backend/api/vigil.db  (next to this file)
+# Override:         set the VIGIL_DB_PATH environment variable
+
+# SQLite's default journal mode locks the file for both reads and writes
+# WAL lets readers and a single writer run at the same time
+# collector (writer) and FastAPI (reader) run as separate processes simultaneously
 
 import os
 import sqlite3
 from typing import Optional
 
-# DB path is configurable via VIGIL_DB_PATH env var; defaults to vigil.db next to this file
 DB_PATH = os.environ.get("VIGIL_DB_PATH", os.path.join(os.path.dirname(__file__), "vigil.db"))
-
-# 32 normalized fields from grokmoment.. stored as TEXT; NULL means the field wasn't present in the log line
 EVENT_COLUMNS = [
     "timestamp", "host", "proc", "pid", "severity", "facility",
     "login", "target_user", "auth_method", "login_status",
@@ -22,16 +29,16 @@ EVENT_COLUMNS = [
 ]
 
 
+# Internal helpers
 def get_connection() -> sqlite3.Connection:
-    # WAL mode allows the collector (writer) and FastAPI (reader) to run concurrently without locking
     conn = sqlite3.connect(DB_PATH)
-    conn.execute("PRAGMA journal_mode=WAL")
+    conn.execute("PRAGMA journal_mode=WAL")  # must be set before first query
     conn.row_factory = sqlite3.Row
     return conn
 
 
+# Public API
 def init_db() -> None:
-    # creates the events table on first run; safe to call on every startup (IF NOT EXISTS)
     conn = get_connection()
     try:
         cols = ",\n            ".join(f"{col} TEXT" for col in EVENT_COLUMNS)
@@ -47,7 +54,6 @@ def init_db() -> None:
 
 
 def write_events(events: list[dict]) -> int:
-    # inserts a batch of parsed log events and returns the number of rows written
     conn = get_connection()
     try:
         placeholders = ", ".join("?" for _ in EVENT_COLUMNS)
@@ -55,6 +61,7 @@ def write_events(events: list[dict]) -> int:
         for event in events:
             conn.execute(
                 f"INSERT INTO events ({col_names}) VALUES ({placeholders})",
+                # event.get(col) returns None (→ NULL) for any field not present
                 tuple(event.get(col) for col in EVENT_COLUMNS),
             )
         conn.commit()
@@ -68,13 +75,14 @@ def read_events(
     offset: int = 0,
     severity: Optional[str] = None,
 ) -> list[dict]:
-    # fetches events newest-first; accepts a comma-separated severity string e.g. "critical,warning"
     conn = get_connection()
     try:
         query = "SELECT * FROM events"
         params: list = []
 
         if severity:
+            # Split "critical,warning" → ["critical", "warning"]
+            # Use parameterised IN clause — never interpolate user input directly
             severities = [s.strip() for s in severity.split(",")]
             placeholders = ", ".join("?" for _ in severities)
             query += f" WHERE severity IN ({placeholders})"
@@ -90,7 +98,6 @@ def read_events(
 
 
 def count_events(severity: Optional[str] = None) -> int:
-    # returns total matching row count used by the API for pagination metadata
     conn = get_connection()
     try:
         query = "SELECT COUNT(*) FROM events"

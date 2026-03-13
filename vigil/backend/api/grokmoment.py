@@ -8,6 +8,7 @@ future use.
 """
 from pygrok import Grok
 import json
+import os
 
 VARIABLES = [
     "timestamp", "host", "proc", "pid", "severity", "facility",
@@ -20,6 +21,8 @@ VARIABLES = [
 MODEL = "gpt-5-mini"
 LLM_REASONING_EFFORT = "low"
 
+base = os.path.dirname(os.path.abspath(__file__))
+path = os.path.join(base, "patterns.json")
 
 class LLMCalls:
     def __init__(self):
@@ -137,11 +140,11 @@ class LogProcessor:
     def _is_continuation(self, line: str) -> bool:
         return line.startswith(("\t", "    ")) or line.startswith("Caused by:")
 
-    def _fold(self, lines: list[str]) -> list[str]:
+    def _fold(self, lines: str) -> list[str]:
         blocks = []
         current = []
-        for line in lines:
-            line = line.rstrip()
+        for line in lines.splitlines():
+            line = line.strip()
             if not line:
                 continue
             if self._is_continuation(line) and current:
@@ -154,33 +157,31 @@ class LogProcessor:
             blocks.append("\n".join(current))
         return blocks
 
-    def process(self, lines: list[str]) -> list[dict]:
+    def process(self, lines: str) -> list[dict]:
         events = []
         for block in self._fold(lines):
             match = self.matcher.match(block)
             if not match:
                 print(f"Error parsing block, skipping: {block[:80]!r}")
+                events.append(None)
                 continue
             events.append(match)
         return events
 
+class Parse:
+    def __init__(self, patterns_file: str = path):
+        self.store = PatternStore(patterns_file)
+        self.matcher = GrokMatcher(store=self.store, llm=LLMCalls())
+        self.processor = LogProcessor(matcher=self.matcher)
 
-def parse_logs_by_file(log_path: str, patterns_file: str = "patterns.json") -> list[dict]:
-    store = PatternStore(patterns_file)
-    matcher = GrokMatcher(store=store, llm=LLMCalls())
-    processor = LogProcessor(matcher=matcher)
+    def parse_by_file(self, log_path: str) -> list[dict]:
+        with open(log_path, 'r') as f:
+            lines = f.read()
+        events = self.processor.process(lines)
+        self.store.save()
+        return events
 
-    with open(log_path, 'r') as f:
-        lines = f.readlines()
-
-    store.save()
-    return processor.process(lines)
-
-
-def parse_logs_by_excerpt(log_excerpt: list[str], patterns_file: str = "patterns.json") -> list[dict]:
-    store = PatternStore(patterns_file)
-    matcher = GrokMatcher(store=store, llm=LLMCalls())
-    processor = LogProcessor(matcher=matcher)
-
-    store.save()
-    return processor.process(log_excerpt)
+    def parse_by_excerpt(self, log_excerpt: str) -> list[dict]:
+        events = self.processor.process(log_excerpt)
+        self.store.save()
+        return events
