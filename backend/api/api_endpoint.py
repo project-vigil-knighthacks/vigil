@@ -22,7 +22,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-class LogParseRequest(BaseModel):
+class StringPayload(BaseModel):
     content: str
 
 # basic API endpoints for testing connectivity and functionality, - Zayne
@@ -32,9 +32,9 @@ def health():
 
 # Log parsing endpoints for SIEM functionality (using grokmoment parser)
 @app.post("/api/logs/parse")
-async def parse_log_content(request: dict):
+async def parse_log_content(request: StringPayload):
     try:
-        result = parse_and_sort(request.get('content'))
+        result = parse_and_sort(request.content)
         return result
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Failed to parse logs: {str(e)}")
@@ -52,7 +52,15 @@ async def upload_log_file(file: UploadFile = File(...)):
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Failed to parse file: {str(e)}")
 
-
+@app.post("/api/create_env")
+def create_edit_openai_env_file(api_key: StringPayload):
+    try:
+        with open('.env', 'w') as openai_env:
+            openai_env.write(api_key.content)
+            return {"status": "ok"}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    
 # SQLite-backed:
 # called by log_collector.py after parsing each batch of new log lines
 @app.post("/api/collect")

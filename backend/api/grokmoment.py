@@ -9,6 +9,7 @@ future use.
 from pygrok import Grok
 import json
 import os
+from dotenv import dotenv_values
 
 VARIABLES = [
     "timestamp", "host", "proc", "pid", "severity", "facility",
@@ -22,13 +23,15 @@ MODEL = "gpt-5-mini"
 LLM_REASONING_EFFORT = "low"
 
 base = os.path.dirname(os.path.abspath(__file__))
-path = os.path.join(base, "patterns.json")
+path = os.path.join(base, "data", "patterns.json")
 
 class LLMCalls:
     def __init__(self):
+        global OPENAI_API_KEY, has_api_key
+        OPENAI_API_KEY = dotenv_values(".env").get('OPENAI_API_KEY')
         from openai import OpenAI
         try:
-            self.client = OpenAI()
+            self.client = OpenAI(api_key=OPENAI_API_KEY)
         except Exception as e:
             print(f"{e}. Skipping")
         self.prompt = self._build_prompt()
@@ -111,12 +114,15 @@ class GrokMatcher:
         self._compiled: list[Grok] = [Grok(p) for p in store.patterns]
 
     def match(self, log_line: str) -> dict | None:
+        global OPENAI_API_KEY
         for grok in self._compiled:
             result = grok.match(log_line)
             if result:
                 return result
-
-        return self._learn_and_match(log_line)
+        if OPENAI_API_KEY:
+            return self._learn_and_match(log_line)
+        else:
+            return None
 
     def _learn_and_match(self, log_line: str) -> dict | None:
         for _ in range(3):
@@ -181,7 +187,10 @@ class Parse:
         self.store.save()
         return events
 
-    def parse_by_excerpt(self, log_excerpt: str) -> list[dict]:
+    def parse_by_excerpt(self, log_excerpt: str) -> tuple[list[dict], str | None]:
         events = self.processor.process(log_excerpt)
         self.store.save()
-        return events
+        return events, OPENAI_API_KEY
+  
+# events, api_available = Parse().parse_by_excerpt('Nov 15 12:34:56 myhost sshd[1234]: Accepted password for admin from 192.168.1.1 port 22')
+# print(events)
