@@ -23,11 +23,11 @@ MODEL = "gpt-5-mini"
 LLM_REASONING_EFFORT = "low"
 
 base = os.path.dirname(os.path.abspath(__file__))
-path = os.path.join(base, "data", "patterns.json")
+patterns_path = os.path.join(base, "data", "patterns.json")
 
 class LLMCalls:
     def __init__(self):
-        global OPENAI_API_KEY, has_api_key
+        global OPENAI_API_KEY
         OPENAI_API_KEY = dotenv_values(".env").get('OPENAI_API_KEY')
         from openai import OpenAI
         try:
