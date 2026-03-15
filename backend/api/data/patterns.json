@@ -1,23 +1,3 @@
 {
-    "patterns": [
-        "%{SYSLOGTIMESTAMP:timestamp} %{HOSTNAME:host} %{WORD:proc}\\[%{INT:pid}\\]: \\(%{USERNAME:login}\\) CMD \\(%{PATH:path}\\)",
-        "%{SYSLOGTIMESTAMP:timestamp} %{HOSTNAME:host} %{WORD:proc}\\[%{INT:pid}\\]: Disconnected from user %{USERNAME:login} %{IP:src_ip} port %{INT:src_port}",
-        "%{SYSLOGTIMESTAMP:timestamp} %{HOSTNAME:host} %{WORD:proc}\\[%{INT:pid}\\]: %{WORD:login_status} %{WORD:auth_method} for %{USERNAME:login} from %{IP:src_ip} port %{INT:src_port} ssh2: %{WORD:signature} %{WORD:hash_algo}:%{GREEDYDATA:hash}",
-        "%{SYSLOGTIMESTAMP:timestamp} %{HOSTNAME:host} %{NOTSPACE:proc}\\[%{INT:pid}\\]: New session %{INT:session_id} of user %{USERNAME:login}\\.",
-        "%{SYSLOGTIMESTAMP:timestamp} %{HOSTNAME:host} %{WORD:proc}\\[%{INT:pid}\\]:\\s+%{USERNAME:login}\\s+:\\s+TTY=%{DATA:tty}\\s+;\\s+PWD=%{PATH:pwd}\\s+;\\s+USER=%{USERNAME:target_user}\\s+;\\s+COMMAND=%{GREEDYDATA:command}",
-        "%{SYSLOGTIMESTAMP:timestamp} %{HOSTNAME:host} %{WORD:proc}\\[%{INT:pid}\\]: \\(%{USERNAME:login}\\) CMD \\(%{PATH:command}(?: %{DATA:args})?\\)",
-        "^%{SYSLOGTIMESTAMP:timestamp} %{HOSTNAME:host} %{WORD:proc}\\[%{INT:pid}\\]: %{WORD:login_status} %{WORD:auth_method} for %{USERNAME:login} from %{IP:src_ip} port %{INT:src_port}(?: %{WORD})?$",
-        "^%{SYSLOGTIMESTAMP:timestamp} %{HOSTNAME:host} %{WORD:proc}\\[%{INT:pid}\\]: %{USER:login} : %{DATA:login_status} ; TTY=%{DATA:tty} ; PWD=%{PATH:pwd} ; USER=%{USER:target_user} ; COMMAND=%{PATH:command}$",
-        "%{SYSLOGTIMESTAMP:timestamp} %{HOSTNAME:host} %{WORD:proc}\\[%{INT:pid}\\]: %{WORD:login_status} %{WORD:auth_method} for (?:invalid user )?%{USERNAME:target_user} from %{IP:src_ip} port %{INT:src_port} %{WORD}",
-        "%{SYSLOGTIMESTAMP:timestamp} %{HOSTNAME:host} %{WORD:proc}\\[%{INT:pid}\\]: Invalid user %{USERNAME:target_user} from %{IP:src_ip} port %{INT:src_port}",
-        "^%{SYSLOGTIMESTAMP:timestamp} %{HOSTNAME:host} %{WORD:proc}\\[%{INT:pid}\\]: new user: name=%{USERNAME:login}, UID=%{INT}, GID=%{INT}, home=%{PATH:path}, shell=%{PATH:command}$",
-        "%{SYSLOGTIMESTAMP:timestamp} %{HOSTNAME:host} %{WORD:proc}\\[%{INT:pid}\\]: %{WORD:severity}: maximum authentication attempts exceeded for invalid user %{USERNAME:login} from %{IP:src_ip} port %{INT:src_port} ssh2 \\[preauth\\]",
-        "%{SYSLOGTIMESTAMP:timestamp} %{HOSTNAME:host} %{DATA:proc}\\[%{INT:pid}\\]: %{WORD:severity}\\s+\\[%{WORD:facility}\\] Ban %{IP:src_ip}",
-        "%{SYSLOGTIMESTAMP:timestamp} %{HOSTNAME:host} %{WORD:proc}\\[%{INT:pid}\\]: Failed password for invalid user %{USERNAME:login} from %{DATA:src_ip}",
-        "^<%{INT:facility}>%{INT:severity} %{TIMESTAMP_ISO8601:timestamp} %{HOSTNAME:host} %{DATA:proc} %{INT:pid} %{WORD:request_id} - User authentication completed\\. Details: %{WORD:hash} %{GREEDYDATA}$",
-        "<%{INT:facility}>%{INT:version} %{TIMESTAMP_ISO8601:timestamp} %{HOSTNAME:host} %{DATA:proc} %{INT:pid} %{WORD:session_id} - API request processing time exceeded limits\\. Details: %{WORD:request_id} %{GREEDYDATA:args}",
-        "^<%{INT:facility}>1 %{TIMESTAMP_ISO8601:timestamp} %{HOSTNAME:host} %{DATA:proc} %{INT:pid} %{DATA:request_id} - Network latency detected on primary interface\\. Details: %{WORD:session_id} Cache hit r$",
-        "^<13>1 %{TIMESTAMP_ISO8601:timestamp} %{HOSTNAME:host} %{DATA:proc} %{INT:pid} %{WORD:request_id} - %{GREEDYDATA}$",
-        "%{IP:src_ip} - - \\[%{HTTPDATE:timestamp}\\] \"%{WORD} %{URIPATH:uri} HTTP/%{NUMBER}\" %{INT:status_code} %{INT:bytes_sent}"
-    ]
+    "patterns": []
 }

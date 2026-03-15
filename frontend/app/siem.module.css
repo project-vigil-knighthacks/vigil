@@ -328,6 +328,28 @@
   height: 20px;
 }
 
+.learningBanner {
+  display: flex;
+  gap: 0.75rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  background-color: rgba(88, 166, 255, 0.12);
+  border: 1px solid rgba(88, 166, 255, 0.25);
+  border-radius: 6px;
+  color: #58a6ff;
+  font-size: 0.875rem;
+}
+
+.learningBanner strong {
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.learningBanner p {
+  margin: 0;
+  color: #8b949e;
+}
+
 /* Raw log view */
 .rawLog {
   background-color: #0d1117;
