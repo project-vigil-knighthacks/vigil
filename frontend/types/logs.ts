@@ -49,6 +49,7 @@ export interface LogParseResult {
   api_key_required?: boolean;
   api_key_message?: string;
   unmatched_count?: number;
+  learning_in_progress?: boolean; // indicates background pattern learning is still running
 }
 
 // Response shape from GET /api/events (SQLite-backed)

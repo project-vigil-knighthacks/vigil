@@ -15,7 +15,7 @@ def parse_and_sort(content) -> dict:
     parsed_events = []
     unmatched_blocks = []
     
-    blocks, api_key_available = grok_parse.parse_by_excerpt(content) # calling them blocks instead of lines b/c of multi-line logs
+    blocks, api_key_available, learning_in_progress = grok_parse.parse_by_excerpt(content) # calling them blocks instead of lines b/c of multi-line logs
 
     for block in blocks:
         if block:
@@ -55,6 +55,7 @@ def parse_and_sort(content) -> dict:
         "logs": parsed_events,
         "parsed_at": datetime.utcnow().isoformat() + "Z",
         "api_key_available": True if api_key_available else False,
+        "learning_in_progress": True if learning_in_progress else False,
     }
     
     # Add warning if there are unmatched lines and no API key

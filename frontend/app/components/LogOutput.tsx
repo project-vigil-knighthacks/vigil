@@ -165,12 +165,44 @@ export function LogOutput({ result, error, loading, onSave, saving, saved }: Log
           <button
             className={styles.refreshBtn}
             onClick={onSave}
-            disabled={saving || saved}
+            disabled={saving || saved || result.learning_in_progress}
+            title={
+              result.learning_in_progress
+                ? 'Waiting for new Grok patterns to finish learning before saving.'
+                : undefined
+            }
           >
-            {saving ? 'Saving...' : saved ? 'Saved!' : 'Save to DB'}
+            {result.learning_in_progress
+              ? 'Waiting on LLM'
+              : saving
+              ? 'Saving...'
+              : saved
+              ? 'Saved!'
+              : 'Save to DB'}
           </button>
         )}
       </div>
+      {result.learning_in_progress && (
+        <div className={styles.learningBanner}>
+          <svg
+            className={styles.warningIcon}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M13 16h-1v-4h-1m1-4h.01M12 7v5h.01M12 17.5a5.5 5.5 0 100-11 5.5 5.5 0 000 11z"
+            />
+          </svg>
+          <div>
+            <strong>Learning new patterns</strong>
+            <p>Unmatched lines may still resolve once the LLM finishes generating Grok patterns.</p>
+          </div>
+        </div>
+      )}
       {result.api_key_required && (
         <div className={styles.warning}>
           <svg
