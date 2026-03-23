@@ -11,16 +11,12 @@ from datetime import datetime
 PATTERNS_FILE = os.path.join(os.path.dirname(__file__), 'data', 'patterns.json')
 grok_parse = Parse(patterns_file=PATTERNS_FILE)
 
-def has_api_key() -> bool:
-    """Check if OpenAI API key is available."""
-    return bool(os.environ.get('OPENAI_API_KEY'))
-
 def parse_and_sort(content) -> dict:
-    blocks = grok_parse.parse_by_excerpt(content) # calling them blocks instead of lines b/c of multi-line logs
     parsed_events = []
     unmatched_blocks = []
-    api_key_available = has_api_key()
     
+    blocks, api_key_available, learning_in_progress = grok_parse.parse_by_excerpt(content) # calling them blocks instead of lines b/c of multi-line logs
+
     for block in blocks:
         if block:
             parsed_events.append(block)
@@ -58,7 +54,8 @@ def parse_and_sort(content) -> dict:
         "count": len(parsed_events),
         "logs": parsed_events,
         "parsed_at": datetime.utcnow().isoformat() + "Z",
-        "api_key_available": api_key_available,
+        "api_key_available": True if api_key_available else False,
+        "learning_in_progress": True if learning_in_progress else False,
     }
     
     # Add warning if there are unmatched lines and no API key
@@ -73,4 +70,5 @@ def parse_and_sort(content) -> dict:
     return result
 
 # debug
-result = parse_and_sort("Mar 06 09:15:01 auth-server sshd[12001]: Accepted publickey for admin from 192.168.1.100 port 52341 ssh2: RSA SHA256:abc123XYZ\nMar 06 09:15:15 auth-server sshd[12002]: Failed password for invalid user hacker from 203.0.113.50 port 33333 ssh2\nMar 06 09:15:23 auth-server sshd[12003]: Failed password for invalid user root from 203.0.113.50 port 33334 ssh2\nMar 06 09:15:45 auth-server sshd[12004]: Failed password for invalid user admin from 203.0.113.50 port 33335 ssh2\nMar 06 09:16:01 auth-server fail2ban.actions[5001]: NOTICE  [sshd] Ban 203.0.113.50\nMar 06 09:17:30 auth-server sshd[12010]: Accepted password for deploy from 10.0.1.15 port 54321 ssh2\nMar 06 09:18:00 auth-server sudo[13001]:   deploy : TTY=pts/0 ; PWD=/home/deploy ; USER=root ; COMMAND=/usr/bin/systemctl restart nginx\nMar 06 09:18:15 auth-server systemd-logind[1001]: New session 45 of user deploy.\nMar 06 09:19:30 auth-server sshd[12015]: Disconnected from user deploy 10.0.1.15 port 54321\nMar 06 09:20:00 auth-server useradd[14001]: new user: name=backdoor, UID=0, GID=0, home=/root, shell=/bin/bash\nMar 06 09:21:15 auth-server CRON[15001]: (root) CMD (/usr/local/bin/backup.sh)\nMar 06 09:22:30 auth-server sshd[12020]: error: maximum authentication attempts exceeded for invalid user oracle from 198.51.100.75 port 22222 ssh2 [preauth]")
+# result = parse_and_sort("Mar 06 09:15:01 auth-server sshd[12001]: Accepted publickey for admin from 192.168.1.100 port 52341 ssh2: RSA SHA256:abc123XYZ\nMar 06 09:15:15 auth-server sshd[12002]: Failed password for invalid user hacker from 203.0.113.50 port 33333 ssh2\nMar 06 09:15:23 auth-server sshd[12003]: Failed password for invalid user root from 203.0.113.50 port 33334 ssh2\nMar 06 09:15:45 auth-server sshd[12004]: Failed password for invalid user admin from 203.0.113.50 port 33335 ssh2\nMar 06 09:16:01 auth-server fail2ban.actions[5001]: NOTICE  [sshd] Ban 203.0.113.50\nMar 06 09:17:30 auth-server sshd[12010]: Accepted password for deploy from 10.0.1.15 port 54321 ssh2\nMar 06 09:18:00 auth-server sudo[13001]:   deploy : TTY=pts/0 ; PWD=/home/deploy ; USER=root ; COMMAND=/usr/bin/systemctl restart nginx\nMar 06 09:18:15 auth-server systemd-logind[1001]: New session 45 of user deploy.\nMar 06 09:19:30 auth-server sshd[12015]: Disconnected from user deploy 10.0.1.15 port 54321\nMar 06 09:20:00 auth-server useradd[14001]: new user: name=backdoor, UID=0, GID=0, home=/root, shell=/bin/bash\nMar 06 09:21:15 auth-server CRON[15001]: (root) CMD (/usr/local/bin/backup.sh)\nMar 06 09:22:30 auth-server sshd[12020]: error: maximum authentication attempts exceeded for invalid user oracle from 198.51.100.75 port 22222 ssh2 [preauth]")
+# print(result)

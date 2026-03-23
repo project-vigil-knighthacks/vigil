@@ -10,15 +10,15 @@ import requests
 from classifier import parse_and_sort
 from database import write_events
 
-FASTAPI_SERVER_URL = "http://localhost:8000/api/collect" # URL of the FastAPI server to send logs to
+WRITE_DB_URL_ENDPOINT = "http://localhost:8000/api/collect"
+WEBSOCKET_URL_ENDPOINT = "http://localhost:8000/ws/parse"
 POLL_INTERVAL = 1
 
-# sends parsed events to FastAPI so they're accessible from the dashboard
-# instead of inline SQLite, now imports from database.py module to write to SQLite and also sends to FastAPI, - Zayne
-# if the frontend is already polling the database through the api, what exactly is this doing? - Mike
-def send_to_api(events: list):
+
+def send_to_api(events: dict):
     try:
-        requests.post(FASTAPI_SERVER_URL, json=events)
+        requests.post(WEBSOCKET_URL_ENDPOINT, json=events)
+        requests.post(WRITE_DB_URL_ENDPOINT, json=events)
     except requests.ConnectionError as e:
         print(f"FastAPI error: {e}")
 
@@ -37,10 +37,7 @@ class eventHandler(FileSystemEventHandler):
                 new_data = f.read()
                 self.position = f.tell()  # update position
             if new_data:
-                results = parse_and_sort(new_data)
-                write_events(results.get('logs'))
-                for result in results.get('logs'):
-                    send_to_api(result)
+                send_to_api({"content": new_data})
 
 def run_observer(log_name):
     log_directory = os.path.dirname(os.path.abspath(log_name))
@@ -58,4 +55,4 @@ def run_observer(log_name):
         observer.join()
 
 # debug
-# run_observer('vigil/backend/dummy-logs/evil_1000.log')
+run_observer('backend/dummy-logs/evil_1000.log')
