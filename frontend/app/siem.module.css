@@ -36,13 +36,13 @@
 }
 
 @keyframes marchingAnts {
-  /* Each border only moves along its own axis:
-     1 = top    → march right  (+X)
-     2 = bottom → march left   (-X), Y stays at 100%
-     3 = left   → march down   (+Y), X stays at 0
-     4 = right  → march up     (-Y), X stays at 100%  */
-  0%   { background-position: 0 0,     0 100%,   0 0,    100% 0; }
-  100% { background-position: 20px 0, -20px 100%, 0 20px, 100% -20px; }
+  /* tile size = 15px — movement must equal tile size for seamless loop
+     top    → left   (-X)
+     bottom → right  (+X), Y locked at 100%
+     left   → down   (+Y), X locked at 0
+     right  → up     (-Y), X locked at 100% */
+  0%   { background-position: 0 0,      0 100%,   0 0,     100% 0; }
+  100% { background-position: -15px 0, 15px 100%, 0 15px,  100% -15px; }
 }
 
 @keyframes barGrow {
@@ -82,6 +82,23 @@
   z-index: 40;
   font-family: var(--font-space-grotesk, 'Space Grotesk'), sans-serif;
   letter-spacing: -0.01em;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Mobile drawer — open state */
+.sidebarOpen {
+  transform: translateX(0) !important;
+  pointer-events: auto !important;
+}
+
+/* Mobile overlay backdrop */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.65);
+  z-index: 39;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
 }
 
 .logoWrapper {
@@ -92,10 +109,12 @@
 }
 
 .logoImage {
-  width: 32px;
-  height: 32px;
+  width: 128px;
+  height: 128px;
   object-fit: contain;
   flex-shrink: 0;
+  mix-blend-mode: screen;
+  margin-right: -52px; /* extends into text area so text overlays logo */
 }
 
 .logoMark {
@@ -115,6 +134,9 @@
   display: flex;
   flex-direction: column;
   gap: 0.1rem;
+  position: relative;
+  z-index: 1;
+  margin-left: 0.5rem;
 }
 
 .logoText {
@@ -123,15 +145,18 @@
   color: #e63946;
   letter-spacing: 0.05em;
   line-height: 1.2;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.9);
+  margin-top: 1rem;
 }
 
 .logoSubtext {
   font-size: 0.5625rem;
-  color: rgba(229, 226, 225, 0.4);
+  color: rgba(229, 226, 225, 0.5);
   text-transform: uppercase;
   letter-spacing: 0.15em;
   line-height: 1.4;
   font-family: var(--font-geist-mono, monospace);
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.9);
 }
 
 .nav {
@@ -296,6 +321,53 @@
 
 .topBarIconBtn:hover {
   color: #e5e2e1;
+}
+
+/* Hamburger toggle — hidden on desktop, shown on mobile via media query */
+.hamburger {
+  display: none;
+  background: none;
+  border: none;
+  color: #e5e2e1;
+  cursor: pointer;
+  padding: 0.125rem;
+  font-family: 'Material Symbols Outlined';
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  font-size: 1.375rem;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: color 0.2s;
+}
+
+.hamburger:hover {
+  color: #e63946;
+}
+
+.topBarBreadcrumb {
+  color: rgba(229, 226, 225, 0.4);
+}
+
+/* Logo in top bar — hidden on desktop, shown on mobile */
+.topBarLogo {
+  display: none;
+  align-items: center;
+  gap: 0.4rem;
+  text-decoration: none;
+}
+
+.topBarLogoImg {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  mix-blend-mode: screen;
+}
+
+.topBarLogoText {
+  font-family: var(--font-space-grotesk, 'Space Grotesk'), sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #e63946;
+  letter-spacing: 0.05em;
 }
 
 /* Main content */
@@ -1314,4 +1386,77 @@
   font-family: var(--font-geist-mono, monospace);
   font-size: 0.75rem;
   color: rgba(229, 226, 225, 0.5);
+}
+
+/* ============================================================
+   Responsive — Mobile & Tablet
+   ============================================================ */
+
+@media (max-width: 768px) {
+  /* Sidebar hidden off-screen; pointer-events off so topbar is clickable */
+  .sidebar {
+    transform: translateX(-256px);
+    pointer-events: none;
+  }
+
+  /* Hamburger visible on mobile */
+  .hamburger {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Top bar spans full width on mobile */
+  .topBar {
+    left: 0;
+  }
+
+  /* Hide desktop breadcrumb on mobile */
+  .topBarBreadcrumb,
+  .topBarDivider {
+    display: none;
+  }
+
+  /* Show logo in top bar on mobile */
+  .topBarLogo {
+    display: flex;
+  }
+
+  /* Main content: full width */
+  .main {
+    margin-left: 0;
+    padding: 1rem;
+    padding-top: 3.75rem;
+  }
+
+  /* Single-column stat cards */
+  .statCards {
+    grid-template-columns: 1fr;
+  }
+
+  /* Single-column health grid */
+  .healthGrid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Slightly smaller page title */
+  .pageTitle {
+    font-size: 1.375rem;
+  }
+
+  /* Shorter log table on mobile */
+  .logTableContainer {
+    max-height: 280px;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  /* Two-column grids on tablet */
+  .statCards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .healthGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }

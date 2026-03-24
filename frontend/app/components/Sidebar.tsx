@@ -57,8 +57,8 @@ export function Sidebar() {
           <Image
             src="/images/logo.png"
             alt="Vigil"
-            width={108}
-            height={108}
+            width={128}
+            height={128}
             className={styles.logoImage}
             priority
           />
@@ -110,6 +110,18 @@ export function Sidebar() {
           >
             {mobileOpen ? 'close' : 'menu'}
           </button>
+
+          {/* Logo — mobile only */}
+          <div className={styles.topBarLogo}>
+            <Image
+              src="/images/logo.png"
+              alt="Vigil"
+              width={48}
+              height={48}
+              className={styles.topBarLogoImg}
+              priority
+            />
+          </div>
 
           {/* Route breadcrumb — desktop only */}
           <span className={styles.topBarBreadcrumb}>Route:</span>
