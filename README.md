@@ -11,9 +11,9 @@
 ![Azure](https://img.shields.io/badge/Azure-Container%20Apps-0078D4?logo=microsoftazure)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
-An open-source, self-hosted SIEM for website owners. Point it at your existing log files and get real-time threat detection, structured event storage, and a live security dashboard — no changes to your website required. Planned features include Sigma rule support, MITRE ATT&CK mapping, and an AI voice assistant.
+An open-source, self-hosted SIEM for website owners. Point it at your existing log files and get real-time threat detection, structured event storage, and a live security dashboard — no changes to your website required. Planned features include Sigma rule support, MITRE ATT&CK mapping, Dockerized services, Elasticsearch, and Azure deployment, and AI voice assistant.
 
-## Architecture
+## Plan Architecture
 
 ```
                                    ┌──────────────────────┐
@@ -34,11 +34,12 @@ An open-source, self-hosted SIEM for website owners. Point it at your existing l
                   │ (Log Index)  │    Queries / Searches   │(Users/Rules)│
                   └──────────────┘                         └─────────────┘
 
-                  ───────────── All services run in Docker on Azure Container Apps ─────────────
+                  ───────────── Planned Docker deployment on Azure Container Apps ─────────────
 ```
 
-## Development Setup (Current, Pre-Docker*)
-<h5>*setup for early stages -- Docker not setup yet</h5>
+## Current Development Setup
+
+Current local development uses the FastAPI backend and Next.js frontend already present in this repo. Docker, Elasticsearch, PostgreSQL, Filebeat, and Azure are still plan items.
 
 ### Prerequisites
 
@@ -52,16 +53,16 @@ An open-source, self-hosted SIEM for website owners. Point it at your existing l
 
 ### Backend
 
-**Directory:** `vigil/vigil/backend/api`
+**Directory:** `vigil/backend/api`
 
 ```bash
-cd vigil/vigil/backend/api
+cd vigil/backend/api
 
 # Install all required Python packages
-python -m pip install fastapi uvicorn python-multipart pygrok openai
+python3 -m pip install fastapi uvicorn python-multipart pygrok openai watchdog requests
 
 # Start the API server (hot-reload enabled)
-python -m uvicorn api_endpoint:app --reload --host 127.0.0.1 --port 8000
+python3 -m uvicorn api_endpoint:app --reload --host 127.0.0.1 --port 8000
 ```
 
 API will be available at `http://localhost:8000`  
@@ -74,17 +75,18 @@ API will be available at `http://localhost:8000`
 | `uvicorn` | ASGI server |
 | `python-multipart` | File upload support |
 | `pygrok` | Grok pattern matching (log parser) |
-| `openai` | LLM pattern generation (optional, see below) || `watchdog` | File system event monitoring (log collector) |
+| `openai` | LLM pattern generation for unmatched logs |
+| `watchdog` | File system event monitoring for the collector |
 | `requests` | HTTP client used by collector to POST events to FastAPI |
 | `sqlite3` | Built-in — event storage, no install required |
 ---
 
 ### Frontend
 
-**Directory:** `vigil/vigil/frontend`
+**Directory:** `vigil/frontend`
 
 ```bash
-cd vigil/vigil/frontend
+cd vigil/frontend
 
 # Install Node dependencies (first time only)
 npm install
@@ -101,7 +103,7 @@ Health check page (verifies backend connection): `http://localhost:3000/health`
 
 ### Environment Variables
 
-#### Frontend — `vigil/vigil/frontend/.env.local`
+#### Frontend — `vigil/frontend/.env.local`
 
 Create this file if it doesn't exist:
 
@@ -136,29 +138,26 @@ export VIGIL_DB_PATH="/path/to/your/vigil.db"     # optional override
 
 The log collector watches a log file in real time and ships parsed events to both the local SQLite database and the FastAPI server.
 
-**Directory:** `vigil/vigil/backend/api`
+**Directory:** `vigil/backend/api`
 
 ```bash
 # Install collector dependency
-python -m pip install watchdog
+python3 -m pip install watchdog requests
 
-# Start the collector pointed at a log file
-python log_collector.py -l /path/to/your/access.log
+# Start the current collector
+cd vigil
+python3 backend/api/collector.py
 ```
 
-The collector will:
-1. Open `vigil.db` (or `VIGIL_DB_PATH`) and create the `events` table if missing
-2. Tail the specified log file using `watchdog`
-3. Parse new lines with `grokmoment` on every file update
-4. Write structured events to SQLite and POST them to `POST /api/collect`
+The current collector is still a development script. Right now it is hard-coded to watch `backend/dummy-logs/evil_1000.log` and POST raw content back to the backend.
 
-> **Note:** The API server must be running for the `POST /api/collect` step to succeed. SQLite writes happen regardless.
+> **Note:** The API server must be running for the collector flow to work.
 
 ---
 
 ### Log Parser (grokmoment)
 
-The log parser is based on [grokmoment](https://github.com/mdunn99/grokmoment) (MIT), inlined at `vigil/vigil/backend/api/grokmoment.py`. **No separate clone is required.**
+The log parser is based on [grokmoment](https://github.com/mdunn99/grokmoment) (MIT), inlined at `vigil/backend/api/grokmoment.py`. **No separate clone is required.**
 
 - **With `OPENAI_API_KEY`**: Unrecognized log lines are sent to the OpenAI API to auto-generate a new Grok pattern, which is then saved to `backend/api/data/patterns.json` for future use.
 - **Without `OPENAI_API_KEY`**: Only lines matching existing patterns are parsed. Unmatched lines appear in the output with an `UNMATCHED` badge, and the UI will prompt you to set an API key.
@@ -173,23 +172,23 @@ Start backend first, then frontend, then optionally the collector:
 
 ```
 Terminal 1 — backend:
-  cd vigil/vigil/backend/api
-  python -m uvicorn api_endpoint:app --reload --host 127.0.0.1 --port 8000
+  cd vigil/backend/api
+  python3 -m uvicorn api_endpoint:app --reload --host 127.0.0.1 --port 8000
 
 Terminal 2 — frontend:
-  cd vigil/vigil/frontend
+  cd vigil/frontend
   npm run dev
 
-Terminal 3 — log collector (optional, requires a target log file):
-  cd vigil/vigil/backend/api
-  python log_collector.py -l /path/to/your/access.log
+Terminal 3 — log collector (optional, current dev script):
+  cd vigil
+  python3 backend/api/collector.py
 ```
 
-With all three running, any new lines appended to your log file will be parsed and appear in the dashboard at `http://localhost:3000/events`.
+With all three running, new lines appended to the collector's watched file can be processed and appear in the dashboard at `http://localhost:3000/events`.
 
 ---
 
-## Quick Start (Docker, draft)
+## Planned Quick Start (Docker)
 
 ```bash
 docker compose up --build
@@ -201,7 +200,7 @@ docker compose up --build
 | API            | http://localhost:8000/docs  |
 | Elasticsearch  | http://localhost:9200       |
 
-## Project Structure (draft)
+## Planned Project Structure
 
 ```
 vigil-siem/
@@ -214,7 +213,7 @@ vigil-siem/
 └── docker-compose.yml
 ```
 
-## Detection Rules (draft)
+## Planned Detection Rules
 
 Sigma-format YAML rules mapped to MITRE ATT&CK:
 
