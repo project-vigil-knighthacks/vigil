@@ -23,9 +23,7 @@ export default function Home() {
     try {
       const response = await fetch(`${API_BASE}/api/logs/parse`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content }),
       });
 
@@ -67,9 +65,11 @@ export default function Home() {
   return (
     <div className={styles.container}>
       <Sidebar />
-
       <main className={styles.main}>
         <h1 className={styles.pageTitle}>Log Parser</h1>
+        <p className={styles.pageSubtitle}>
+          Ingest raw telemetry streams for tactical normalization and threat pattern identification.
+        </p>
         <FileUpload onFileSelect={handleFileSelect} loading={loading} />
         <LogOutput
           result={result}
@@ -83,4 +83,3 @@ export default function Home() {
     </div>
   );
 }
-
