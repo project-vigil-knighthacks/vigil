@@ -9,11 +9,11 @@ interface FileUploadProps {
 }
 
 const SAMPLE_FILES = [
-  { name: 'Attack Logs (auth.log)', path: '/sample-logs/attack.log' },
-  { name: 'Apache Access Log', path: '/sample-logs/apache-fake.log' },
-  { name: 'Syslog RFC 5424', path: '/sample-logs/syslog-fake.log' },
-  { name: 'Syslog Sample', path: '/sample-logs/sample-syslog.log' },
-  { name: 'SSH Auth Logs', path: '/sample-logs/sample-auth.log' },
+  { name: 'Attack Logs (auth.log)',  path: '/sample-logs/attack.log' },
+  { name: 'Apache Access Log',       path: '/sample-logs/apache-fake.log' },
+  { name: 'Syslog RFC 5424',         path: '/sample-logs/syslog-fake.log' },
+  { name: 'Syslog Sample',           path: '/sample-logs/sample-syslog.log' },
+  { name: 'SSH Auth Logs',           path: '/sample-logs/sample-auth.log' },
 ];
 
 export function FileUpload({ onFileSelect, loading }: FileUploadProps) {
@@ -73,7 +73,8 @@ export function FileUpload({ onFileSelect, loading }: FileUploadProps) {
 
   return (
     <div className={styles.section}>
-      <h2 className={styles.sectionTitle}>Upload Log File</h2>
+      <p className={styles.sectionTitle}>Upload Log File</p>
+
       <div
         className={`${styles.uploadArea} ${isDragging ? styles.uploadAreaDragging : ''}`}
         onDrop={handleDrop}
@@ -81,31 +82,27 @@ export function FileUpload({ onFileSelect, loading }: FileUploadProps) {
         onDragLeave={handleDragLeave}
         onClick={handleClick}
       >
-        <svg
-          className={styles.uploadIcon}
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={1.5}
-            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-          />
-        </svg>
+        <div className={styles.uploadIconBox}>
+          <span className={`material-symbols-outlined ${styles.uploadIcon}`}>upload_file</span>
+        </div>
+
+        <h3 className={styles.uploadTitle}>
+          {loading ? 'Processing...' : 'Drop Log Payload'}
+        </h3>
         <p className={styles.uploadText}>
-          {loading ? (
-            'Processing...'
-          ) : (
-            <>
-              <span className={styles.uploadTextHighlight}>Click to upload</span> or drag
-              and drop
-              <br />
-              Syslog or text log files (.log, .txt)
-            </>
-          )}
+          Supports .log, .txt &nbsp;·&nbsp; Max 512 MB
         </p>
+
+        {!loading && (
+          <button
+            className={styles.uploadBtn}
+            onClick={(e) => { e.stopPropagation(); handleClick(); }}
+            disabled={loading}
+          >
+            Select File
+          </button>
+        )}
+
         <input
           ref={inputRef}
           type="file"
@@ -114,6 +111,7 @@ export function FileUpload({ onFileSelect, loading }: FileUploadProps) {
           onChange={handleInputChange}
         />
       </div>
+
       <div className={styles.sampleDropdownWrapper}>
         <label className={styles.sampleDropdownLabel} htmlFor="sample-select">
           Or load a sample:

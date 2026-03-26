@@ -1,7 +1,4 @@
 'use client';
-// honestly had claude opus make this page
-// temporary design, mainly to iterate backend API and db usage
-// Future: add filtering, searching, sorting, new design, etc
 
 import { useEffect, useState, useCallback } from 'react';
 import { Sidebar } from '../components/Sidebar';
@@ -16,12 +13,9 @@ const DISPLAY_COLUMNS = ['timestamp', 'severity', 'host', 'proc', 'src_ip', 'log
 
 function getSeverityClass(severity: string | undefined): string {
   switch (severity?.toLowerCase()) {
-    case 'critical':
-      return styles.severityCritical;
-    case 'warning':
-      return styles.severityWarning;
-    default:
-      return styles.severityUnknown;
+    case 'critical': return styles.severityCritical;
+    case 'warning':  return styles.severityWarning;
+    default:         return styles.severityUnknown;
   }
 }
 
@@ -62,30 +56,94 @@ export default function AlertsPage() {
   const totalPages = Math.ceil(total / PAGE_SIZE);
   const currentPage = Math.floor(offset / PAGE_SIZE) + 1;
 
+  // Stat counts from current page
+  const criticalCount = events.filter((e) => e.severity === 'critical').length;
+  const warningCount  = events.filter((e) => e.severity === 'warning').length;
+
   return (
     <div className={styles.container}>
       <Sidebar />
       <main className={styles.main}>
         <h1 className={styles.pageTitle}>Alerts</h1>
+        <p className={styles.pageSubtitle}>
+          Real-time threat monitoring — critical and warning events only.
+        </p>
 
-        <div className={styles.section}>
-          <div className={styles.eventsHeader}>
-            <p className={styles.sectionTitleInline}>
-              Critical &amp; Warning — {total} total
-            </p>
+        {/* Stat Cards */}
+        <div className={styles.statCards}>
+          {/* Total */}
+          <div className={styles.statCard}>
+            <div className={styles.statCardHeader}>
+              <span className={styles.statCardLabel}>Total Alerts (24h)</span>
+              <span className={`material-symbols-outlined ${styles.statCardIcon}`}>shield</span>
+            </div>
+            <div className={styles.statNumber}>{total.toLocaleString()}</div>
+            <div className={styles.statCardMeta}>
+              <span className={`material-symbols-outlined ${styles.statMetaIcon}`}>trending_up</span>
+              Critical + warning combined
+            </div>
+          </div>
+
+          {/* Critical */}
+          <div className={`${styles.statCard} ${styles.statCardCritical}`}>
+            <div className={styles.statCardHeader}>
+              <span className={`${styles.statCardLabel} ${styles.statCardLabelCritical}`}>Critical Alerts</span>
+              <span className={`material-symbols-outlined ${styles.statCardIcon} ${styles.statCardIconCritical}`}>warning</span>
+            </div>
+            <div className={`${styles.statNumber} ${styles.statNumberCritical}`}>
+              {criticalCount}
+            </div>
+            <div className={styles.statCardMeta} style={{ color: '#ff535b' }}>
+              <span className={`material-symbols-outlined ${styles.statMetaIcon}`}>gpp_bad</span>
+              URGENT
+            </div>
+          </div>
+
+          {/* Warning */}
+          <div className={`${styles.statCard} ${styles.statCardWarning}`}>
+            <div className={styles.statCardHeader}>
+              <span className={`${styles.statCardLabel} ${styles.statCardLabelWarning}`}>Warning Alerts</span>
+              <span className={`material-symbols-outlined ${styles.statCardIcon} ${styles.statCardIconWarning}`}>error</span>
+            </div>
+            <div className={`${styles.statNumber} ${styles.statNumberWarning}`}>
+              {warningCount}
+            </div>
+            <div className={styles.statCardMeta} style={{ color: '#ffb95f' }}>
+              <span className={`material-symbols-outlined ${styles.statMetaIcon}`}>history</span>
+              STABLE
+            </div>
+          </div>
+        </div>
+
+        {/* Table Section */}
+        <div className={styles.tableSection}>
+          {/* Toolbar */}
+          <div className={styles.tableToolbar}>
+            <div className={styles.tableToolbarLeft}>
+              <div className={styles.liveIndicator}>
+                <div className={styles.liveDot}>
+                  <span className={styles.liveDotPing} />
+                  <span className={styles.liveDotCore} />
+                </div>
+                <span className={styles.liveText}>Real-Time Threat Monitoring</span>
+              </div>
+              <span className={styles.toolbarDividerV} />
+              <span className={styles.tableCount}>
+                Severity: Critical, Warning &nbsp;·&nbsp; {total.toLocaleString()} entries
+              </span>
+            </div>
             <button
               className={styles.refreshBtn}
               onClick={() => fetchAlerts(offset)}
               disabled={loading}
             >
+              <span className={`material-symbols-outlined ${styles.btnIcon}`}>refresh</span>
               {loading ? 'Loading...' : 'Refresh'}
             </button>
           </div>
 
           {error && (
-            <div className={styles.errorBanner}>
-              {error}
-            </div>
+            <div className={styles.errorBanner}>{error}</div>
           )}
 
           {!loading && events.length === 0 && !error && (
@@ -114,6 +172,9 @@ export default function AlertsPage() {
                           <td key={col}>
                             {col === 'severity' ? (
                               <span className={`${styles.severity} ${getSeverityClass(event[col] as string)}`}>
+                                {(event[col] as string) === 'critical' && (
+                                  <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#ffb4ab', display: 'inline-block', marginRight: 3 }} />
+                                )}
                                 {(event[col] as string) || 'warning'}
                               </span>
                             ) : (
@@ -127,23 +188,31 @@ export default function AlertsPage() {
                 </table>
               </div>
 
+              {/* Pagination */}
               {totalPages > 1 && (
                 <div className={styles.pagination}>
-                  <button
-                    className={styles.paginationBtn}
-                    onClick={() => setOffset(Math.max(0, offset - PAGE_SIZE))}
-                    disabled={offset === 0}
-                  >
-                    Previous
-                  </button>
-                  <span>Page {currentPage} of {totalPages}</span>
-                  <button
-                    className={styles.paginationBtn}
-                    onClick={() => setOffset(offset + PAGE_SIZE)}
-                    disabled={offset + PAGE_SIZE >= total}
-                  >
-                    Next
-                  </button>
+                  <div className={styles.paginationLeft}>
+                    <button
+                      className={styles.paginationBtn}
+                      onClick={() => setOffset(Math.max(0, offset - PAGE_SIZE))}
+                      disabled={offset === 0}
+                    >
+                      ‹ Prev
+                    </button>
+                    <button className={`${styles.paginationBtn} ${styles.paginationBtnActive}`}>
+                      {String(currentPage).padStart(2, '0')}
+                    </button>
+                    <button
+                      className={styles.paginationBtn}
+                      onClick={() => setOffset(offset + PAGE_SIZE)}
+                      disabled={offset + PAGE_SIZE >= total}
+                    >
+                      Next ›
+                    </button>
+                  </div>
+                  <span className={styles.paginationMeta}>
+                    Page {currentPage} of {totalPages}
+                  </span>
                 </div>
               )}
             </>
