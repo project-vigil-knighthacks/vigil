@@ -3,24 +3,26 @@
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import styles from '../siem.module.css';
 import { useToast } from './Toast';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8000';
 
 const navItems = [
-  { href: '/',        label: 'Log Parser', icon: 'terminal' },
-  { href: '/events',  label: 'Events',     icon: 'event_note' },
-  { href: '/alerts',  label: 'Alerts',     icon: 'notification_important' },
-  { href: '/health',  label: 'Health',     icon: 'monitor_heart' },
+  { href: '/',         label: 'Log Parser', icon: 'terminal' },
+  { href: '/events',   label: 'Events',     icon: 'event_note' },
+  { href: '/alerts',   label: 'Alerts',     icon: 'notification_important' },
+  { href: '/health',   label: 'Health',     icon: 'monitor_heart' },
+  { href: '/settings', label: 'Settings',   icon: 'settings' },
 ];
 
 const routeLabels: Record<string, string> = {
-  '/':       '/terminal/parser',
-  '/events': '/events',
-  '/alerts': '/alerts',
-  '/health': '/root/system/health',
+  '/':         '/terminal/parser',
+  '/events':   '/events',
+  '/alerts':   '/alerts',
+  '/health':   '/root/system/health',
+  '/settings': '/settings',
 };
 
 export function Sidebar() {
@@ -28,6 +30,7 @@ export function Sidebar() {
   const [backendStatus, setBackendStatus] = useState<'connected' | 'disconnected'>('disconnected');
   const [mobileOpen, setMobileOpen] = useState(false);
   const { toast } = useToast();
+  const router = useRouter();
 
   useEffect(() => {
     fetch(`${API_BASE}/api/health`)
@@ -135,7 +138,7 @@ export function Sidebar() {
           >schedule</button>
           <button
             className={`material-symbols-outlined ${styles.topBarIconBtn}`}
-            onClick={() => toast('warning', 'Settings not yet implemented')}
+            onClick={() => router.push('/settings')}
             aria-label="Settings"
           >settings</button>
           <button
