@@ -14,7 +14,6 @@ const navItems = [
   { href: '/events',   label: 'Events',     icon: 'event_note' },
   { href: '/alerts',   label: 'Alerts',     icon: 'notification_important' },
   { href: '/health',   label: 'Health',     icon: 'monitor_heart' },
-  { href: '/settings', label: 'Settings',   icon: 'settings' },
 ];
 
 const routeLabels: Record<string, string> = {
@@ -41,7 +40,7 @@ export function Sidebar() {
   }, []);
 
   useEffect(() => {
-    document.documentElement.style.setProperty('--sidebar-width', sidebarCollapsed ? '88px' : '256px');
+    document.documentElement.style.setProperty('--sidebar-width', sidebarCollapsed ? '88px' : '220px');
   }, [sidebarCollapsed]);
 
   const routeLabel = routeLabels[pathname] ?? pathname;
@@ -101,6 +100,14 @@ export function Sidebar() {
         </nav>
 
         <div className={styles.sidebarFooter}>
+          <Link
+            href="/settings"
+            onClick={() => setMobileOpen(false)}
+            className={`${styles.navLink} ${styles.footerSettingsLink} ${pathname === '/settings' ? styles.navLinkActive : ''}`}
+          >
+            <span className={`material-symbols-outlined ${styles.navIcon}`}>settings</span>
+            <span className={styles.navLabel}>Settings</span>
+          </Link>
           <div className={styles.statusFooter}>
             <span
               className={`material-symbols-outlined ${styles.statusIcon} ${
