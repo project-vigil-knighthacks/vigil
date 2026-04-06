@@ -765,7 +765,7 @@
 }
 
 .logTable th {
-  padding: 0.75rem 1.5rem;
+  padding: var(--table-row-padding, 0.5rem 0.75rem);
   text-align: left;
   font-size: 0.5625rem;
   font-weight: 500;
@@ -780,7 +780,7 @@
 }
 
 .logTable td {
-  padding: 0.75rem 1.5rem;
+  padding: var(--table-row-padding, 0.5rem 0.75rem);
   text-align: left;
   color: rgba(229, 226, 225, 0.75);
   border-bottom: 1px solid rgba(255, 255, 255, 0.025);
