@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import styles from '../siem.module.css';
+import { useToast } from './Toast';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8000';
 
@@ -26,6 +27,7 @@ export function Sidebar() {
   const pathname = usePathname();
   const [backendStatus, setBackendStatus] = useState<'connected' | 'disconnected'>('disconnected');
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     fetch(`${API_BASE}/api/health`)
@@ -126,9 +128,21 @@ export function Sidebar() {
         </div>
 
         <div className={styles.topBarRight}>
-          <span className={`material-symbols-outlined ${styles.topBarIconBtn}`}>schedule</span>
-          <span className={`material-symbols-outlined ${styles.topBarIconBtn}`}>settings</span>
-          <span className={`material-symbols-outlined ${styles.topBarIconBtn}`}>account_circle</span>
+          <button
+            className={`material-symbols-outlined ${styles.topBarIconBtn}`}
+            onClick={() => toast('info', 'System time synced', new Date().toLocaleString())}
+            aria-label="Time"
+          >schedule</button>
+          <button
+            className={`material-symbols-outlined ${styles.topBarIconBtn}`}
+            onClick={() => toast('warning', 'Settings not yet implemented')}
+            aria-label="Settings"
+          >settings</button>
+          <button
+            className={`material-symbols-outlined ${styles.topBarIconBtn}`}
+            onClick={() => toast('success', 'Logged in as admin')}
+            aria-label="Account"
+          >account_circle</button>
         </div>
       </header>
     </>
