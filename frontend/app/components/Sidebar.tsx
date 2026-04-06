@@ -34,11 +34,6 @@ export function Sidebar() {
       .catch(() => setBackendStatus('disconnected'));
   }, []);
 
-  // Close sidebar on route change (mobile nav tap)
-  useEffect(() => {
-    setMobileOpen(false);
-  }, [pathname]);
-
   const routeLabel = routeLabels[pathname] ?? pathname;
 
   return (
@@ -57,13 +52,13 @@ export function Sidebar() {
           <Image
             src="/images/logo.png"
             alt="Vigil"
-            width={128}
-            height={128}
+            width={64}
+            height={64}
             className={styles.logoImage}
             priority
           />
           <div className={styles.logoTextBlock}>
-            <span className={styles.logoText}>igil</span>
+            <span className={styles.logoText}>Vigil</span>
             <span className={styles.logoSubtext}>SIEM Solutions</span>
           </div>
         </div>
@@ -73,6 +68,7 @@ export function Sidebar() {
             <Link
               key={href}
               href={href}
+              onClick={() => setMobileOpen(false)}
               className={`${styles.navLink} ${pathname === href ? styles.navLinkActive : ''}`}
             >
               <span className={`material-symbols-outlined ${styles.navIcon}`}>{icon}</span>
