@@ -3,6 +3,8 @@
 import { useEffect, useState, useCallback } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import styles from '../siem.module.css';
+import { useSettings } from '../contexts/SettingsContext';
+import { useToast } from '../components/Toast';
 import type { ParsedLog, EventsResponse } from '../../types/logs';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8000';
@@ -25,6 +27,8 @@ export default function AlertsPage() {
   const [offset, setOffset] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { settings } = useSettings();
+  const { toast } = useToast();
 
   const fetchAlerts = useCallback(async (currentOffset: number) => {
     setLoading(true);
@@ -37,6 +41,9 @@ export default function AlertsPage() {
       const data: EventsResponse = await res.json();
       setEvents(data.events);
       setTotal(data.total);
+      if (settings.alertOnCritical && data.events.some((e) => e.severity === 'critical')) {
+        toast('error', 'Critical events detected', `${data.events.filter((e) => e.severity === 'critical').length} critical alerts on this page`);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error');
     } finally {
