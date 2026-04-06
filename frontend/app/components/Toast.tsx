@@ -2,6 +2,7 @@
 
 import { createContext, useCallback, useContext, useRef, useState } from 'react';
 import styles from '../siem.module.css';
+import { useSettings } from '../contexts/SettingsContext';
 
 export type ToastType = 'error' | 'success' | 'warning' | 'info';
 
@@ -40,14 +41,16 @@ function getTime() {
 export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([]);
   const counter = useRef(0);
+  const { settings } = useSettings();
 
   const toast = useCallback((type: ToastType, title: string, message?: string) => {
+    if (!settings.toastsEnabled) return;
     const id = ++counter.current;
     setToasts((prev) => [...prev, { id, type, title, message, time: getTime() }]);
     setTimeout(() => {
       setToasts((prev) => prev.filter((t) => t.id !== id));
     }, DURATION);
-  }, []);
+  }, [settings.toastsEnabled]);
 
   const dismiss = (id: number) =>
     setToasts((prev) => prev.filter((t) => t.id !== id));
