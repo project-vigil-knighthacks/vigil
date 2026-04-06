@@ -29,6 +29,7 @@ export function Sidebar() {
   const pathname = usePathname();
   const [backendStatus, setBackendStatus] = useState<'connected' | 'disconnected'>('disconnected');
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const { toast } = useToast();
   const router = useRouter();
 
@@ -38,6 +39,10 @@ export function Sidebar() {
       .then((data) => { if (data.ok) setBackendStatus('connected'); })
       .catch(() => setBackendStatus('disconnected'));
   }, []);
+
+  useEffect(() => {
+    document.documentElement.style.setProperty('--sidebar-width', sidebarCollapsed ? '88px' : '256px');
+  }, [sidebarCollapsed]);
 
   const routeLabel = routeLabels[pathname] ?? pathname;
 
@@ -52,7 +57,7 @@ export function Sidebar() {
       )}
 
       {/* Sidebar */}
-      <aside className={`${styles.sidebar} ${mobileOpen ? styles.sidebarOpen : ''}`}>
+      <aside className={`${styles.sidebar} ${mobileOpen ? styles.sidebarOpen : ''} ${sidebarCollapsed ? styles.sidebarCollapsed : ''}`}>
         <div className={styles.logoWrapper}>
           <Image
             src="/images/logo.png"
@@ -68,6 +73,19 @@ export function Sidebar() {
           </div>
         </div>
 
+        <div className={styles.sidebarControlRow}>
+          <button
+            type="button"
+            className={styles.collapseButton}
+            onClick={() => setSidebarCollapsed((v) => !v)}
+            aria-label={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          >
+            <span className={`material-symbols-outlined ${styles.collapseButtonIcon}`}>
+              {sidebarCollapsed ? 'right_panel_open' : 'right_panel_close'}
+            </span>
+          </button>
+        </div>
+
         <nav className={styles.nav}>
           {navItems.map(({ href, label, icon }) => (
             <Link
@@ -77,7 +95,7 @@ export function Sidebar() {
               className={`${styles.navLink} ${pathname === href ? styles.navLinkActive : ''}`}
             >
               <span className={`material-symbols-outlined ${styles.navIcon}`}>{icon}</span>
-              {label}
+              <span className={styles.navLabel}>{label}</span>
             </Link>
           ))}
         </nav>
