@@ -1592,3 +1592,309 @@
     grid-template-columns: repeat(2, 1fr);
   }
 }
+
+/* ============================================================
+   Settings Page
+   ============================================================ */
+
+.settingsPage {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  height: calc(100vh - 48px);
+}
+
+/* Left tab nav */
+.settingsTabs {
+  width: 180px;
+  flex-shrink: 0;
+  border-right: 1px solid rgba(53, 53, 52, 0.5);
+  padding: 1.25rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.settingsTabHeader {
+  padding: 0 1rem 0.75rem;
+  font-family: var(--font-geist-mono, monospace);
+  font-size: 0.5rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(229, 226, 225, 0.25);
+}
+
+.settingsTab {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.625rem 1rem;
+  font-size: 0.8rem;
+  font-family: var(--font-geist-mono, monospace);
+  color: rgba(229, 226, 225, 0.45);
+  cursor: pointer;
+  border: none;
+  border-left: 2px solid transparent;
+  background: none;
+  text-align: left;
+  width: 100%;
+  transition: color 0.15s, background-color 0.15s;
+}
+
+.settingsTab:hover {
+  color: #e5e2e1;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.settingsTabActive {
+  color: #e5e2e1;
+  border-left-color: #e63946;
+  background: rgba(230, 57, 70, 0.05);
+}
+
+.settingsTabIcon {
+  font-family: 'Material Symbols Outlined';
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  font-size: 0.9rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+/* Content pane */
+.settingsContent {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.5rem 2rem 2rem;
+}
+
+.settingsSectionTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-geist-mono, monospace);
+  font-size: 0.625rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(229, 226, 225, 0.3);
+  margin-bottom: 0.25rem;
+}
+
+.settingsSectionTitle::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(53, 53, 52, 0.5);
+}
+
+.settingsRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.875rem 0;
+  border-bottom: 1px solid rgba(53, 53, 52, 0.3);
+  gap: 2rem;
+}
+
+.settingsRowLabel {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #e5e2e1;
+}
+
+.settingsRowDesc {
+  font-family: var(--font-geist-mono, monospace);
+  font-size: 0.625rem;
+  color: rgba(229, 226, 225, 0.35);
+  margin-top: 0.2rem;
+}
+
+/* Text / number inputs */
+.settingsInput {
+  background: #0e0e0e;
+  border: 1px solid rgba(53, 53, 52, 0.8);
+  color: rgba(229, 226, 225, 0.8);
+  font-family: var(--font-geist-mono, monospace);
+  font-size: 0.6875rem;
+  padding: 0.375rem 0.625rem;
+  width: 240px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.settingsInput:focus {
+  border-color: rgba(230, 57, 70, 0.5);
+}
+
+.settingsInputError {
+  border-color: #e63946 !important;
+}
+
+/* Select */
+.settingsSelect {
+  background: #0e0e0e;
+  border: 1px solid rgba(53, 53, 52, 0.8);
+  color: rgba(229, 226, 225, 0.8);
+  font-family: var(--font-geist-mono, monospace);
+  font-size: 0.6875rem;
+  padding: 0.375rem 0.625rem;
+  width: 180px;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.settingsSelect:focus {
+  border-color: rgba(230, 57, 70, 0.5);
+}
+
+/* Toggle */
+.settingsToggle {
+  position: relative;
+  width: 36px;
+  height: 18px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.settingsToggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  position: absolute;
+}
+
+.settingsToggleTrack {
+  position: absolute;
+  inset: 0;
+  background: rgba(53, 53, 52, 0.8);
+  border-radius: 9px;
+  transition: background 0.2s;
+}
+
+.settingsToggle input:checked + .settingsToggleTrack {
+  background: #e63946;
+}
+
+.settingsToggleThumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.2s;
+  pointer-events: none;
+}
+
+.settingsToggle input:checked ~ .settingsToggleThumb {
+  transform: translateX(18px);
+}
+
+/* Row spacing segmented picker */
+.segPicker {
+  display: flex;
+  border: 1px solid rgba(53, 53, 52, 0.8);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.segOption {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1rem;
+  cursor: pointer;
+  background: #0e0e0e;
+  border: none;
+  border-right: 1px solid rgba(53, 53, 52, 0.6);
+  min-width: 80px;
+  transition: background 0.15s;
+  color: rgba(229, 226, 225, 0.4);
+}
+
+.segOption:last-child {
+  border-right: none;
+}
+
+.segOption:hover {
+  background: #1a1a1a;
+}
+
+.segOptionActive {
+  background: rgba(230, 57, 70, 0.08);
+  box-shadow: inset 0 -2px 0 #e63946;
+  color: #e63946;
+}
+
+.segPreview {
+  display: flex;
+  flex-direction: column;
+  width: 44px;
+}
+
+.segPreviewRow {
+  background: rgba(229, 226, 225, 0.15);
+  border-bottom: 1px solid rgba(53, 53, 52, 0.4);
+}
+
+.segOptionActive .segPreviewRow {
+  background: rgba(230, 57, 70, 0.25);
+  border-bottom-color: rgba(230, 57, 70, 0.2);
+}
+
+.segName {
+  font-family: var(--font-geist-mono, monospace);
+  font-size: 0.5625rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* Footer bar */
+.settingsFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding-top: 1.5rem;
+}
+
+.settingsBtnSave {
+  background: #e63946;
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1.25rem;
+  font-family: var(--font-geist-mono, monospace);
+  font-size: 0.625rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.settingsBtnSave:hover {
+  background: #c8303c;
+}
+
+.settingsBtnSave:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.settingsBtnReset {
+  background: none;
+  color: rgba(229, 226, 225, 0.4);
+  border: 1px solid rgba(53, 53, 52, 0.6);
+  padding: 0.5rem 1.25rem;
+  font-family: var(--font-geist-mono, monospace);
+  font-size: 0.625rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.settingsBtnReset:hover {
+  color: #e5e2e1;
+  border-color: rgba(229, 226, 225, 0.3);
+}
