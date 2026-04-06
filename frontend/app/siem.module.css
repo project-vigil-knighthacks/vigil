@@ -1204,6 +1204,30 @@
    Error / Info banners
    ============================================================ */
 
+.newEventsBanner {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.5rem 1.5rem;
+  background: rgba(34, 197, 94, 0.08);
+  border: none;
+  border-bottom: 1px solid rgba(34, 197, 94, 0.2);
+  color: #22c55e;
+  font-family: var(--font-geist-mono, monospace);
+  font-size: 0.625rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.15s;
+  margin-bottom: 0;
+  text-align: left;
+}
+
+.newEventsBanner:hover {
+  background: rgba(34, 197, 94, 0.14);
+}
+
 .errorBanner {
   background-color: rgba(147, 0, 10, 0.12);
   border-left: 4px solid #93000a;

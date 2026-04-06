@@ -1,16 +1,15 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import styles from '../siem.module.css';
+import type { ParsedLog, EventsResponse } from '../../types/logs';
 import { useSettings } from '../contexts/SettingsContext';
 import { useToast } from '../components/Toast';
-import type { ParsedLog, EventsResponse } from '../../types/logs';
+import { useCollectorStream, StreamStatus } from '../hooks/useCollectorStream';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8000';
 const PAGE_SIZE = 50;
 const SEVERITY_FILTER = 'critical,warning';
-
 const DISPLAY_COLUMNS = ['timestamp', 'severity', 'host', 'proc', 'src_ip', 'login', 'login_status', 'command'];
 
 function getSeverityClass(severity: string | undefined): string {
@@ -21,14 +20,27 @@ function getSeverityClass(severity: string | undefined): string {
   }
 }
 
+const STATUS_DOT: Record<StreamStatus, { core: string; label: string }> = {
+  connected:    { core: '#22c55e', label: 'Real-Time Threat Monitoring' },
+  connecting:   { core: '#f59e0b', label: 'Connecting…' },
+  disconnected: { core: '#ff535b', label: 'Disconnected' },
+};
+
 export default function AlertsPage() {
+  const { settings } = useSettings();
+  const { toast } = useToast();
+  const API_BASE = settings.apiBaseUrl;
+
   const [events, setEvents] = useState<ParsedLog[]>([]);
   const [total, setTotal] = useState(0);
   const [offset, setOffset] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { settings } = useSettings();
-  const { toast } = useToast();
+  const [streamStatus, setStreamStatus] = useState<StreamStatus>('connecting');
+  const [pending, setPending] = useState(0);
+
+  const offsetRef = useRef(offset);
+  useEffect(() => { offsetRef.current = offset; }, [offset]);
 
   const fetchAlerts = useCallback(async (currentOffset: number) => {
     setLoading(true);
@@ -49,23 +61,48 @@ export default function AlertsPage() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [API_BASE, settings.alertOnCritical, toast]);
 
   useEffect(() => {
     fetchAlerts(offset);
   }, [offset, fetchAlerts]);
 
-  const activeColumns = DISPLAY_COLUMNS.filter((col) =>
-    events.some((e) => e[col] != null)
-  );
-  const columns = activeColumns.length > 0 ? activeColumns : DISPLAY_COLUMNS;
+  // Handle incoming streamed events — only care about critical/warning
+  const handleNewEvents = useCallback((incoming: ParsedLog[]) => {
+    const alertEvents = incoming.filter(
+      (e) => e.severity === 'critical' || e.severity === 'warning'
+    );
+    if (alertEvents.length === 0) return;
 
+    if (settings.alertOnCritical && alertEvents.some((e) => e.severity === 'critical')) {
+      const critCount = alertEvents.filter((e) => e.severity === 'critical').length;
+      toast('error', 'Critical events detected', `${critCount} new critical alert${critCount !== 1 ? 's' : ''}`);
+    }
+
+    if (offsetRef.current === 0) {
+      setEvents((prev) => [...alertEvents, ...prev].slice(0, PAGE_SIZE));
+      setTotal((prev) => prev + alertEvents.length);
+      setPending(0);
+    } else {
+      setPending((prev) => prev + alertEvents.length);
+      setTotal((prev) => prev + alertEvents.length);
+    }
+  }, [settings.alertOnCritical, toast]);
+
+  useCollectorStream(API_BASE, handleNewEvents, setStreamStatus);
+
+  const goToLatest = () => {
+    setPending(0);
+    setOffset(0);
+  };
+
+  const activeColumns = DISPLAY_COLUMNS.filter((col) => events.some((e) => e[col] != null));
+  const columns = activeColumns.length > 0 ? activeColumns : DISPLAY_COLUMNS;
   const totalPages = Math.ceil(total / PAGE_SIZE);
   const currentPage = Math.floor(offset / PAGE_SIZE) + 1;
-
-  // Stat counts from current page
   const criticalCount = events.filter((e) => e.severity === 'critical').length;
   const warningCount  = events.filter((e) => e.severity === 'warning').length;
+  const dot = STATUS_DOT[streamStatus];
 
   return (
     <div className={styles.container}>
@@ -78,7 +115,6 @@ export default function AlertsPage() {
 
         {/* Stat Cards */}
         <div className={styles.statCards}>
-          {/* Total */}
           <div className={styles.statCard}>
             <div className={styles.statCardHeader}>
               <span className={styles.statCardLabel}>Total Alerts (24h)</span>
@@ -91,30 +127,24 @@ export default function AlertsPage() {
             </div>
           </div>
 
-          {/* Critical */}
           <div className={`${styles.statCard} ${styles.statCardCritical}`}>
             <div className={styles.statCardHeader}>
               <span className={`${styles.statCardLabel} ${styles.statCardLabelCritical}`}>Critical Alerts</span>
               <span className={`material-symbols-outlined ${styles.statCardIcon} ${styles.statCardIconCritical}`}>warning</span>
             </div>
-            <div className={`${styles.statNumber} ${styles.statNumberCritical}`}>
-              {criticalCount}
-            </div>
+            <div className={`${styles.statNumber} ${styles.statNumberCritical}`}>{criticalCount}</div>
             <div className={styles.statCardMeta} style={{ color: '#ff535b' }}>
               <span className={`material-symbols-outlined ${styles.statMetaIcon}`}>gpp_bad</span>
               URGENT
             </div>
           </div>
 
-          {/* Warning */}
           <div className={`${styles.statCard} ${styles.statCardWarning}`}>
             <div className={styles.statCardHeader}>
               <span className={`${styles.statCardLabel} ${styles.statCardLabelWarning}`}>Warning Alerts</span>
               <span className={`material-symbols-outlined ${styles.statCardIcon} ${styles.statCardIconWarning}`}>error</span>
             </div>
-            <div className={`${styles.statNumber} ${styles.statNumberWarning}`}>
-              {warningCount}
-            </div>
+            <div className={`${styles.statNumber} ${styles.statNumberWarning}`}>{warningCount}</div>
             <div className={styles.statCardMeta} style={{ color: '#ffb95f' }}>
               <span className={`material-symbols-outlined ${styles.statMetaIcon}`}>history</span>
               STABLE
@@ -124,39 +154,38 @@ export default function AlertsPage() {
 
         {/* Table Section */}
         <div className={styles.tableSection}>
-          {/* Toolbar */}
           <div className={styles.tableToolbar}>
             <div className={styles.tableToolbarLeft}>
               <div className={styles.liveIndicator}>
                 <div className={styles.liveDot}>
-                  <span className={styles.liveDotPing} />
-                  <span className={styles.liveDotCore} />
+                  {streamStatus === 'connected' && <span className={styles.liveDotPing} />}
+                  <span className={styles.liveDotCore} style={{ background: dot.core }} />
                 </div>
-                <span className={styles.liveText}>Real-Time Threat Monitoring</span>
+                <span className={styles.liveText}>{dot.label}</span>
               </div>
               <span className={styles.toolbarDividerV} />
               <span className={styles.tableCount}>
                 Severity: Critical, Warning &nbsp;·&nbsp; {total.toLocaleString()} entries
               </span>
             </div>
-            <button
-              className={styles.refreshBtn}
-              onClick={() => fetchAlerts(offset)}
-              disabled={loading}
-            >
+            <button className={styles.refreshBtn} onClick={() => fetchAlerts(offset)} disabled={loading}>
               <span className={`material-symbols-outlined ${styles.btnIcon}`}>refresh</span>
               {loading ? 'Loading...' : 'Refresh'}
             </button>
           </div>
 
-          {error && (
-            <div className={styles.errorBanner}>{error}</div>
+          {/* New alerts banner */}
+          {pending > 0 && (
+            <button className={styles.newEventsBanner} onClick={goToLatest}>
+              <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>arrow_upward</span>
+              {pending} new alert{pending !== 1 ? 's' : ''} — go to latest
+            </button>
           )}
 
+          {error && <div className={styles.errorBanner}>{error}</div>}
+
           {!loading && events.length === 0 && !error && (
-            <p className={styles.emptyState}>
-              No alerts found. Only critical and warning events appear here.
-            </p>
+            <p className={styles.emptyState}>No alerts found. Only critical and warning events appear here.</p>
           )}
 
           {events.length > 0 && (
@@ -166,9 +195,7 @@ export default function AlertsPage() {
                   <thead>
                     <tr>
                       <th>#</th>
-                      {columns.map((col) => (
-                        <th key={col}>{col.replace(/_/g, ' ')}</th>
-                      ))}
+                      {columns.map((col) => <th key={col}>{col.replace(/_/g, ' ')}</th>)}
                     </tr>
                   </thead>
                   <tbody>
@@ -195,31 +222,14 @@ export default function AlertsPage() {
                 </table>
               </div>
 
-              {/* Pagination */}
               {totalPages > 1 && (
                 <div className={styles.pagination}>
                   <div className={styles.paginationLeft}>
-                    <button
-                      className={styles.paginationBtn}
-                      onClick={() => setOffset(Math.max(0, offset - PAGE_SIZE))}
-                      disabled={offset === 0}
-                    >
-                      ‹ Prev
-                    </button>
-                    <button className={`${styles.paginationBtn} ${styles.paginationBtnActive}`}>
-                      {String(currentPage).padStart(2, '0')}
-                    </button>
-                    <button
-                      className={styles.paginationBtn}
-                      onClick={() => setOffset(offset + PAGE_SIZE)}
-                      disabled={offset + PAGE_SIZE >= total}
-                    >
-                      Next ›
-                    </button>
+                    <button className={styles.paginationBtn} onClick={() => setOffset(Math.max(0, offset - PAGE_SIZE))} disabled={offset === 0}>‹ Prev</button>
+                    <button className={`${styles.paginationBtn} ${styles.paginationBtnActive}`}>{String(currentPage).padStart(2, '0')}</button>
+                    <button className={styles.paginationBtn} onClick={() => setOffset(offset + PAGE_SIZE)} disabled={offset + PAGE_SIZE >= total}>Next ›</button>
                   </div>
-                  <span className={styles.paginationMeta}>
-                    Page {currentPage} of {totalPages}
-                  </span>
+                  <span className={styles.paginationMeta}>Page {currentPage} of {totalPages}</span>
                 </div>
               )}
             </>
