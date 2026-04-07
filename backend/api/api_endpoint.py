@@ -1,11 +1,15 @@
 from contextlib import asynccontextmanager
 from typing import Optional
 import asyncio
-from fastapi import FastAPI, UploadFile, File, HTTPException, Query, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, UploadFile, File, HTTPException, Query, WebSocket, WebSocketDisconnect, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from database import init_db, write_events, read_events, count_events
 from classifier import parse_and_sort, grok_parse
+from emailer import router as emailer_router
+
+
+
 
 # lifespan runs init_db() once at startup so vigil.db and its tables exist before any request is handled
 @asynccontextmanager
@@ -14,6 +18,8 @@ async def lifespan(app: FastAPI):
     yield
 
 app = FastAPI(lifespan=lifespan)
+app.include_router(emailer_router, prefix="/api")
+router=APIRouter
 
 
 class EventBroadcaster:
@@ -179,3 +185,6 @@ async def collector_events_stream(websocket: WebSocket):
         return
     finally:
         await event_broadcaster.unregister(websocket)
+
+app.include_router(emailer_router, prefix="/api")
+

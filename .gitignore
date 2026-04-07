@@ -1,5 +1,7 @@
-# Nested project copy
-/vigil/
+# Node
+node_modules/
+.next/
+.turbo/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
