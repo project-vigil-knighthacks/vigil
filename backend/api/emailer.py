@@ -41,6 +41,7 @@ def send_simple_message():
         "text": resp.text,
     }
 
+
 @router.post('/alertEmail')
 def send_alert_email():
 	return {"ok": True}
