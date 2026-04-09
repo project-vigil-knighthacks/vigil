@@ -61,9 +61,11 @@ What must be fixed for the SIEM to work end-to-end (dummy-site → collector →
 
 ---
 
-## Fix Order
+## Fix Order (lowest → highest LoC)
 
-1. **Fix the collector**: accept file path, parse locally, POST `list[dict]` to `/api/collect`
-2. **Seed `patterns.json`**: copy the Apache pattern from backup
-3. **Add HTTP severity rules** in classifier
-4. **Remove duplicate `include_router`** in api_endpoint.py
+| # | Fix | File | LoC | Impact |
+|---|-----|------|----------|--------------|
+| 1 | Remove duplicate `include_router` | `backend/api/api_endpoint.py` | ~1 | Prevents the emailer router from being registered twice, which can cause duplicate email alerts |
+| 2 | Seed `patterns.json` with Apache pattern | `backend/api/data/patterns.json` | ~1–3 | Lets HTTP access logs parse out of the box without needing an OpenAI API key |
+| 3 | Add HTTP severity rules | `backend/api/classifier.py` | ~10–15 | Tags Apache log events with correct severity (5xx → critical, 4xx → warning, suspicious URIs → critical) so they appear on the Alerts page |
+| 4 | Fix the collector | `backend/api/collector.py` | ~20–25 | Enables the full pipeline: watches any log file, parses lines locally, and POSTs structured events to the backend — this is what makes the live dashboard work |
