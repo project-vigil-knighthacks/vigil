@@ -13,6 +13,7 @@ import sys
 from time import sleep
 import requests
 from classifier import parse_and_sort  # original didn't parse before sending
+from emailer import send_alert_email
 
 WRITE_DB_URL_ENDPOINT = "http://localhost:8000/api/collect"  # was posting to /ws/parse (a WebSocket, not a REST endpoint)
 POLL_INTERVAL = 1
@@ -42,6 +43,9 @@ class eventHandler(FileSystemEventHandler):
             if new_data:
                 result = parse_and_sort(new_data)        # parse raw log text into structured events
                 parsed_logs = result.get("logs", [])     # extract parsed log list
+                for ev in parsed_logs:
+                    send_alert_email(ev)
+
                 if parsed_logs:
                     send_to_api(parsed_logs)             # prev: `send_to_api({"content": new_data})` -> now sends parsed list
 

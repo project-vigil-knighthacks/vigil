@@ -51,6 +51,9 @@ def init_db() -> None:
         conn.commit()
     finally:
         conn.close()
+    
+    create_subscriptions_table()
+
 
 
 def write_events(events: list[dict]) -> int:

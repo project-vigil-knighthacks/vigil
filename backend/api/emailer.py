@@ -1,6 +1,7 @@
 import os
 import requests
 from fastapi import FastAPI, HTTPException, APIRouter
+import database
 
 router = APIRouter()
 
@@ -41,9 +42,37 @@ def send_simple_message():
         "text": resp.text,
     }
 
+def severity_rank(sev: str) -> int:
+    return {"critical": 3, "warning": 2, "info": 1, "unknown": 0}.get(sev, 0)
 
-@router.post('/alertEmail')
-def send_alert_email():
-	return {"ok": True}
-	
+def should_alert(event: dict, min_severity: str) -> bool:
+    return severity_rank(event.get("severity", "unknown")) >= severity_rank(min_severity)
+
+
+@router.post("/alertEmail")
+def send_alert_email(events: list[dict]):
+    users = database.get_subscriptions()
+
+    for event in events:
+        for user in users:
+            if should_alert(event, user["min_severity"]):
+                send_event_alert(event, user["email"])
+
+def send_event_alert(event: dict, user: str):
+	cfg = mailGun_Config()
+
+	resp =  requests.post(
+		f"https://api.mailgun.net/v3/{cfg['domain']}/messages",
+		auth=("api", cfg.get("api_key")),
+		dat={f"from": cfg.get("sender"),
+			f"to": user["email"],
+			f"subject": "Vigil Alert "+ event.get("severity", "unknown"),
+			f"text": "Vigil SIEM has detected the following problem:"+
+			event.get("severity", "unknown")+":"+event.get("event"),
+               }
+			)
+	return{
+		"status_code": resp.status_code,
+		"text": resp.text,
+	}
 
