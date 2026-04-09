@@ -9,7 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from database import init_db, write_events, read_events, count_events
 from classifier import parse_and_sort, grok_parse
-from emailer import router as emailer_router
+from emailer import router as emailer_router, send_alert_email
 from subscriptions import router as subscriptions_router
 import database
 
@@ -22,7 +22,6 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 app.include_router(emailer_router, prefix="/api")
-app.include_router(subscriptions_router, prefix="/api")
 
 
 # ── WebSocket broadcaster ─────────────────────────────────────────────────────
@@ -147,6 +146,11 @@ async def collect_events(events: list[dict]):
     try:
         inserted = write_events(events)
         await event_broadcaster.broadcast({"type": "collector_events", "events": events})
+        try:
+            send_alert_email(events)
+        except Exception as exc:
+            # Don't block ingestion if email fails
+            print(f"[alerts] send_alert_email failed: {exc}")
         return {"ok": True, "inserted": inserted}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to store events: {str(e)}")
@@ -225,7 +229,6 @@ async def collector_events_stream(websocket: WebSocket):
         await event_broadcaster.unregister(websocket)
 
 
-app.include_router(subscriptions_router, prefix="/api")
 
 # ── Voice agent ───────────────────────────────────────────────────────────────
 @app.get("/api/voice/status")
@@ -365,3 +368,6 @@ async def text_to_speech(body: TTSRequest):
 
     audio_b64 = base64.b64encode(response.content).decode("utf-8")
     return {"audio": audio_b64, "disabled": False}
+
+app.include_router(subscriptions_router, prefix="/api")
+
