@@ -10,18 +10,20 @@ import { useToast } from './Toast';
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8000';
 
 const navItems = [
-  { href: '/',         label: 'Log Parser', icon: 'terminal' },
-  { href: '/events',   label: 'Events',     icon: 'event_note' },
-  { href: '/alerts',   label: 'Alerts',     icon: 'notification_important' },
-  { href: '/health',   label: 'Health',     icon: 'monitor_heart' },
+  { href: '/dashboard', label: 'Dashboard',  icon: 'dashboard' },
+  { href: '/',          label: 'Log Parser',  icon: 'terminal' },
+  { href: '/events',    label: 'Events',      icon: 'event_note' },
+  { href: '/alerts',    label: 'Alerts',      icon: 'notification_important' },
+  { href: '/health',    label: 'Health',      icon: 'monitor_heart' },
 ];
 
 const routeLabels: Record<string, string> = {
-  '/':         '/terminal/parser',
-  '/events':   '/events',
-  '/alerts':   '/alerts',
-  '/health':   '/root/system/health',
-  '/settings': '/settings',
+  '/dashboard': '/dashboard',
+  '/':          '/terminal/parser',
+  '/events':    '/events',
+  '/alerts':    '/alerts',
+  '/health':    '/root/system/health',
+  '/settings':  '/settings',
 };
 
 export function Sidebar() {

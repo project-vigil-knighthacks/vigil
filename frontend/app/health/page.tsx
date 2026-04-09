@@ -244,16 +244,17 @@ export default function HealthPage() {
             </div>
           </div>
 
-          {/* Host Resources */}
+          {/* Latency Metrics */}
           <div style={{ background: "#201f1f", padding: "1.5rem", minWidth: "220px" }}>
             <h3 style={{ fontFamily: "var(--font-space-grotesk)", fontSize: "0.75rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", color: "#e5e2e1", marginBottom: "1.5rem" }}>
-              Host Resources
+              Latency Metrics
             </h3>
             {[
-              { label: "CPU Load", value: "14.2%", fill: "14.2%" },
-              { label: "Memory", value: "4.8GB / 32GB", fill: "15%" },
-              { label: "Storage", value: "842GB / 2TB", fill: "42%", muted: true },
-            ].map(({ label, value, fill, muted }) => (
+              { label: "Average", value: `${avg}ms`, fill: `${Math.min((avg / Math.max(max, 1)) * 100, 100)}%`, warn: avg > LATENCY_WARN_MS },
+              { label: "Maximum", value: `${max}ms`, fill: "100%", warn: max > LATENCY_WARN_MS },
+              { label: "Latest", value: lastMs !== null ? `${lastMs}ms` : "—", fill: `${Math.min(((lastMs ?? 0) / Math.max(max, 1)) * 100, 100)}%`, warn: (lastMs ?? 0) > LATENCY_WARN_MS },
+              { label: "Samples", value: `${samples.length} / ${MAX_BARS}`, fill: `${(samples.length / MAX_BARS) * 100}%`, warn: false },
+            ].map(({ label, value, fill, warn }) => (
               <div key={label} style={{ marginBottom: "1.25rem" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", fontFamily: "var(--font-geist-mono)", fontSize: "0.5625rem", marginBottom: "0.375rem", color: "rgba(229,226,225,0.7)", textTransform: "uppercase" }}>
                   <span>{label}</span>
@@ -264,7 +265,8 @@ export default function HealthPage() {
                     className={styles.healthResourceFill}
                     style={{
                       width: fill,
-                      background: muted ? "rgba(228,190,188,0.5)" : "#e63946",
+                      background: warn ? "#e63946" : "#22c55e",
+                      transition: "width 0.4s ease",
                     }}
                   />
                 </div>
