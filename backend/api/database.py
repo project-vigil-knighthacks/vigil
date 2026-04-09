@@ -112,3 +112,39 @@ def count_events(severity: Optional[str] = None) -> int:
         return conn.execute(query, params).fetchone()[0]
     finally:
         conn.close()
+
+def create_subscriptions_table() -> None:
+    conn = get_connection()
+    try:
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS alert_subscriptions (
+                email TEXT PRIMARY KEY,
+                min_severity TEXT NOT NULL,
+                created_at TEXT DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+        conn.commit()
+    finally:
+        conn.close()
+
+def add_subscription(email: str, min_severity: str) -> None:
+    conn = get_connection()
+    try:
+        conn.execute("""
+            INSERT INTO alert_subscriptions (email, min_severity)
+            VALUES (?, ?)
+            ON CONFLICT(email) DO UPDATE SET min_severity=excluded.min_severity
+        """, (email, min_severity))
+        conn.commit()
+    finally:
+        conn.close()
+
+def get_subscriptions() -> list[dict]:
+    conn = get_connection()
+    try:
+        rows = conn.execute(
+            "SELECT email, min_severity FROM alert_subscriptions"
+        ).fetchall()
+        return [dict(r) for r in rows]
+    finally:
+        conn.close()

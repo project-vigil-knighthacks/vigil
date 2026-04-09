@@ -1,6 +1,7 @@
 import os
 import requests
 from fastapi import FastAPI, HTTPException, APIRouter
+import database
 
 router = APIRouter()
 
@@ -11,4 +12,4 @@ def subscription_health():
 
 @router.post("/add_subscription")
 def add_subscription(email: str,min_severity: str):
-    
+    pass
