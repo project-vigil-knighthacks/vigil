@@ -21,6 +21,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 app.include_router(emailer_router, prefix="/api")
+app.include_router(subscriptions_router, prefix="/api")
 
 
 # ── WebSocket broadcaster ─────────────────────────────────────────────────────

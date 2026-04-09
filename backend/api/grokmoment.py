@@ -39,12 +39,19 @@ class LLMCalls:
     def __init__(self):
         global OPENAI_API_KEY
         OPENAI_API_KEY = dotenv_values(".env").get('OPENAI_API_KEY')
-        from openai import OpenAI
-        try:
-            self.client = OpenAI(api_key=OPENAI_API_KEY)
-        except Exception as e:
-            print(e)
+        # Slight adjustments to OpenAI key handling:
+        # Defer OpenAI client creation so the server can start without an API key
+        # The client is only instantiated on first LLM call (see .client property) - Zayne
+        self._client = None
         self.prompt = self._build_prompt()
+
+    @property
+    def client(self):
+        """Lazy-init the OpenAI client on first access instead of at import time."""
+        if self._client is None:
+            from openai import OpenAI
+            self._client = OpenAI(api_key=OPENAI_API_KEY)
+        return self._client
 
     def _build_prompt(self) -> str:
         return f"""You produce Grok patterns to parse individual log lines using Python's pygrok library.
