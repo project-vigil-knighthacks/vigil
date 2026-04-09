@@ -1,3 +1,5 @@
 {
-    "patterns": []
+    "patterns": [
+        "%{IP:src_ip} - - \\[%{HTTPDATE:timestamp}\\] \"%{WORD} %{URIPATH:uri} HTTP/%{NUMBER}\" %{INT:status_code} %{INT:bytes_sent}"
+    ]
 }

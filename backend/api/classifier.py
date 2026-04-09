@@ -39,8 +39,20 @@ def parse_and_sort(content) -> dict:
         if 'severity' not in event:
             login_status = str(event.get('login_status', '')).lower()
             proc = str(event.get('proc', '')).lower()
-            
-            if any(word in login_status for word in ['failed', 'invalid', 'error', 'denied']):
+            status_code = event.get('status_code', '')
+            uri = str(event.get('uri', '')).lower()
+
+            # HTTP-aware rules (Apache access logs)
+            SUSPICIOUS_URIS = ('/etc/passwd', '/.env', '/.git', '/wp-admin', '/wp-login',
+                               '/phpmyadmin', '/.htaccess', '/config', '/admin', '/../')
+            if any(s in uri for s in SUSPICIOUS_URIS):
+                event['severity'] = 'critical'
+            elif status_code and int(status_code) >= 500:
+                event['severity'] = 'critical'
+            elif status_code and int(status_code) >= 400:
+                event['severity'] = 'warning'
+            # Syslog / auth.log rules
+            elif any(word in login_status for word in ['failed', 'invalid', 'error', 'denied']):
                 event['severity'] = 'warning'
             elif 'ban' in proc or 'fail2ban' in proc:
                 event['severity'] = 'critical'
