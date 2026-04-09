@@ -75,15 +75,15 @@ function InnerVoiceAgent() {
                 }),
             });
             if (res.ok) {
-                setSaveMsg("✅ Keys saved! Restart the backend to apply.");
                 setCurrentProvider(aiProvider);
-                setVoiceEnabled(
-                    aiProvider === "ollama" ? true :
-                    aiProvider === "openai" ? !!openaiKey :
-                    aiProvider === "anthropic" ? !!anthropicKey :
-                    aiProvider === "groq" ? !!groqKey : false
-                );
-                setTtsEnabled(!!elevenKey);
+                // Re-poll both status endpoints — keys are live immediately (no restart needed)
+                const [voiceRes, ttsRes] = await Promise.all([
+                    fetch("http://localhost:8000/api/voice/status").then(r => r.json()).catch(() => ({ enabled: false })),
+                    fetch("http://localhost:8000/api/tts/status").then(r => r.json()).catch(() => ({ enabled: false })),
+                ]);
+                setVoiceEnabled(voiceRes.enabled);
+                setTtsEnabled(ttsRes.enabled);
+                setSaveMsg(voiceRes.enabled ? "✅ Keys saved and active!" : "✅ Keys saved! Voice requires a valid API key.");
             } else {
                 setSaveMsg("❌ Failed to save keys.");
             }
