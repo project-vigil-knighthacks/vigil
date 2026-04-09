@@ -11,6 +11,7 @@ from database import init_db, write_events, read_events, count_events
 from classifier import parse_and_sort, grok_parse
 from emailer import router as emailer_router
 from subscriptions import router as subscriptions_router
+import database
 
 
 # ── Startup ───────────────────────────────────────────────────────────────────
@@ -222,6 +223,8 @@ async def collector_events_stream(websocket: WebSocket):
     finally:
         await event_broadcaster.unregister(websocket)
 
+
+app.include_router(subscriptions_router, prefix="/api")
 
 # ── Voice agent ───────────────────────────────────────────────────────────────
 @app.get("/api/voice/status")
