@@ -166,11 +166,6 @@ export function Sidebar() {
             onClick={() => router.push('/settings')}
             aria-label="Settings"
           >settings</button>
-          <button
-            className={`material-symbols-outlined ${styles.topBarIconBtn}`}
-            onClick={() => toast('success', 'Logged in as admin')}
-            aria-label="Account"
-          >account_circle</button>
         </div>
       </header>
     </>

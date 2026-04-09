@@ -1874,6 +1874,23 @@
   border-color: rgba(230, 57, 70, 0.5);
 }
 
+/* Compact toolbar page-size selector */
+.pageSizeSelect {
+  background: #0e0e0e;
+  border: 1px solid rgba(53, 53, 52, 0.8);
+  color: rgba(229, 226, 225, 0.7);
+  font-family: var(--font-geist-mono, monospace);
+  font-size: 0.5625rem;
+  padding: 0.2rem 0.35rem;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.pageSizeSelect:focus {
+  border-color: rgba(230, 57, 70, 0.5);
+}
+
 /* Toggle */
 .settingsToggle {
   position: relative;

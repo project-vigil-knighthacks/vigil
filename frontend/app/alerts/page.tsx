@@ -53,15 +53,12 @@ export default function AlertsPage() {
       const data: EventsResponse = await res.json();
       setEvents(data.events);
       setTotal(data.total);
-      if (settings.alertOnCritical && data.events.some((e) => e.severity === 'critical')) {
-        toast('error', 'Critical events detected', `${data.events.filter((e) => e.severity === 'critical').length} critical alerts on this page`);
-      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error');
     } finally {
       setLoading(false);
     }
-  }, [API_BASE, settings.alertOnCritical, toast]);
+  }, [API_BASE]);
 
   useEffect(() => {
     fetchAlerts(offset);
@@ -200,7 +197,7 @@ export default function AlertsPage() {
                   </thead>
                   <tbody>
                     {events.map((event, idx) => (
-                      <tr key={event.id as number ?? idx}>
+                      <tr key={`${event.id ?? 'ws'}-${idx}`}>
                         <td>{offset + idx + 1}</td>
                         {columns.map((col) => (
                           <td key={col}>

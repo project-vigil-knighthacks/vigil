@@ -7,7 +7,8 @@ import type { ParsedLog, EventsResponse } from '../../types/logs';
 import { useCollectorStream, StreamStatus } from '../hooks/useCollectorStream';
 import { useSettings } from '../contexts/SettingsContext';
 
-const PAGE_SIZE = 50;
+const PAGE_SIZE_OPTIONS = [25, 50, 100, 250, 'All'] as const;
+type PageSizeOption = typeof PAGE_SIZE_OPTIONS[number];
 const DISPLAY_COLUMNS = ['timestamp', 'severity', 'host', 'proc', 'src_ip', 'login', 'login_status', 'command', 'uri', 'status_code', 'bytes_sent'];
 
 function getSeverityClass(severity: string | undefined): string {
@@ -29,6 +30,9 @@ export default function EventsPage() {
   const { settings } = useSettings();
   const API_BASE = settings.apiBaseUrl;
 
+  const [pageSize, setPageSize] = useState<PageSizeOption>(50);
+  const pageSizeNum = pageSize === 'All' ? 1000 : pageSize;
+
   const [events, setEvents] = useState<ParsedLog[]>([]);
   const [total, setTotal] = useState(0);
   const [offset, setOffset] = useState(0);
@@ -44,7 +48,7 @@ export default function EventsPage() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`${API_BASE}/api/events?limit=${PAGE_SIZE}&offset=${currentOffset}`);
+      const res = await fetch(`${API_BASE}/api/events?limit=${pageSizeNum}&offset=${currentOffset}`);
       if (!res.ok) throw new Error('Failed to fetch events');
       const data: EventsResponse = await res.json();
       setEvents(data.events);
@@ -54,7 +58,7 @@ export default function EventsPage() {
     } finally {
       setLoading(false);
     }
-  }, [API_BASE]);
+  }, [API_BASE, pageSizeNum]);
 
   useEffect(() => {
     fetchEvents(offset);
@@ -63,8 +67,8 @@ export default function EventsPage() {
   // Handle incoming streamed events
   const handleNewEvents = useCallback((incoming: ParsedLog[]) => {
     if (offsetRef.current === 0) {
-      // On page 1: prepend and cap at PAGE_SIZE
-      setEvents((prev) => [...incoming, ...prev].slice(0, PAGE_SIZE));
+      // On page 1: prepend and cap at current page size
+      setEvents((prev) => [...incoming, ...prev].slice(0, pageSizeNum));
       setTotal((prev) => prev + incoming.length);
       setPending(0);
     } else {
@@ -83,8 +87,8 @@ export default function EventsPage() {
 
   const activeColumns = DISPLAY_COLUMNS.filter((col) => events.some((e) => e[col] != null));
   const columns = activeColumns.length > 0 ? activeColumns : DISPLAY_COLUMNS;
-  const totalPages = Math.ceil(total / PAGE_SIZE);
-  const currentPage = Math.floor(offset / PAGE_SIZE) + 1;
+  const totalPages = Math.ceil(total / pageSizeNum);
+  const currentPage = Math.floor(offset / pageSizeNum) + 1;
   const criticalCount = events.filter((e) => e.severity === 'critical').length;
   const warningCount  = events.filter((e) => e.severity === 'warning').length;
   const dot = STATUS_DOT[streamStatus];
@@ -150,8 +154,25 @@ export default function EventsPage() {
               </div>
               <span className={styles.toolbarDividerV} />
               <span className={styles.tableCount}>
-                Showing {offset + 1}–{Math.min(offset + PAGE_SIZE, total)} of {total.toLocaleString()} results
+                Showing {offset + 1}–{Math.min(offset + pageSizeNum, total)} of {total.toLocaleString()} results
               </span>
+              <span className={styles.toolbarDividerV} />
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontFamily: 'var(--font-geist-mono)', fontSize: '0.5625rem', color: 'rgba(229,226,225,0.4)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                Rows:
+                <select
+                  className={styles.pageSizeSelect}
+                  value={pageSize}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setPageSize(val === 'All' ? 'All' : Number(val) as PageSizeOption);
+                    setOffset(0);
+                  }}
+                >
+                  {PAGE_SIZE_OPTIONS.map((o) => (
+                    <option key={o} value={o}>{o}</option>
+                  ))}
+                </select>
+              </label>
             </div>
             <button className={styles.refreshBtn} onClick={() => fetchEvents(offset)} disabled={loading}>
               <span className={`material-symbols-outlined ${styles.btnIcon}`}>refresh</span>
@@ -185,7 +206,7 @@ export default function EventsPage() {
                   </thead>
                   <tbody>
                     {events.map((event, idx) => (
-                      <tr key={event.id as number ?? idx}>
+                      <tr key={`${event.id ?? 'ws'}-${idx}`}>
                         <td>{offset + idx + 1}</td>
                         {columns.map((col) => (
                           <td key={col}>
@@ -207,12 +228,12 @@ export default function EventsPage() {
                 </table>
               </div>
 
-              {totalPages > 1 && (
+              {totalPages > 1 && pageSize !== 'All' && (
                 <div className={styles.pagination}>
                   <div className={styles.paginationLeft}>
-                    <button className={styles.paginationBtn} onClick={() => setOffset(Math.max(0, offset - PAGE_SIZE))} disabled={offset === 0}>‹ Prev</button>
+                    <button className={styles.paginationBtn} onClick={() => setOffset(Math.max(0, offset - pageSizeNum))} disabled={offset === 0}>‹ Prev</button>
                     <button className={`${styles.paginationBtn} ${styles.paginationBtnActive}`}>{String(currentPage).padStart(2, '0')}</button>
-                    <button className={styles.paginationBtn} onClick={() => setOffset(offset + PAGE_SIZE)} disabled={offset + PAGE_SIZE >= total}>Next ›</button>
+                    <button className={styles.paginationBtn} onClick={() => setOffset(offset + pageSizeNum)} disabled={offset + pageSizeNum >= total}>Next ›</button>
                   </div>
                   <span className={styles.paginationMeta}>Page {currentPage} of {totalPages}</span>
                 </div>
