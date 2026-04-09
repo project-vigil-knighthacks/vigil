@@ -35,7 +35,7 @@ This is the standard SIEM data flow (Splunk, Wazuh, ELK all work this way). The 
 - They do NOT add FastAPI to their own website (Vigil's FastAPI is separate)
 - They do NOT modify application code to emit special formats
 
-**Key differentiator:** Grokmoment's LLM pattern auto-generation means unrecognized formats get learned automatically — more flexible than most open-source SIEMs.
+**Key differentiator:** Grokmoment's LLM pattern auto-generation means unrecognized formats get learned automatically: more flexible than most open-source SIEMs.
 
 ---
 
@@ -47,7 +47,7 @@ This is the standard SIEM data flow (Splunk, Wazuh, ELK all work this way). The 
 
 | Factor | SQLite
 |---|---|
-| Setup | Zero — it's a file, ships with Python |
+| Setup | Zero: it's a file, ships with Python |
 | Deployment | `git clone` → `pip install` → running |
 | Portability | Single `vigil.db` file, copy to back up |
 | Concurrency | One writer (fine for single-site) |

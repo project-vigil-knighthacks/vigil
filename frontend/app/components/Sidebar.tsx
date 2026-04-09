@@ -10,18 +10,20 @@ import { useToast } from './Toast';
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8000';
 
 const navItems = [
-  { href: '/',         label: 'Log Parser', icon: 'terminal' },
-  { href: '/events',   label: 'Events',     icon: 'event_note' },
-  { href: '/alerts',   label: 'Alerts',     icon: 'notification_important' },
-  { href: '/health',   label: 'Health',     icon: 'monitor_heart' },
+  { href: '/dashboard', label: 'Dashboard',  icon: 'dashboard' },
+  { href: '/',          label: 'Log Parser',  icon: 'terminal' },
+  { href: '/events',    label: 'Events',      icon: 'event_note' },
+  { href: '/alerts',    label: 'Alerts',      icon: 'notification_important' },
+  { href: '/health',    label: 'Health',      icon: 'monitor_heart' },
 ];
 
 const routeLabels: Record<string, string> = {
-  '/':         '/terminal/parser',
-  '/events':   '/events',
-  '/alerts':   '/alerts',
-  '/health':   '/root/system/health',
-  '/settings': '/settings',
+  '/dashboard': '/dashboard',
+  '/':          '/terminal/parser',
+  '/events':    '/events',
+  '/alerts':    '/alerts',
+  '/health':    '/root/system/health',
+  '/settings':  '/settings',
 };
 
 export function Sidebar() {
@@ -128,7 +130,7 @@ export function Sidebar() {
       {/* Top App Bar */}
       <header className={`${styles.topBar} ${mobileOpen ? styles.topBarSidebarOpen : ''}`}>
         <div className={styles.topBarLeft}>
-          {/* Hamburger — mobile only */}
+          {/* Hamburger: mobile only */}
           <button
             className={styles.hamburger}
             onClick={() => setMobileOpen((v) => !v)}
@@ -137,7 +139,7 @@ export function Sidebar() {
             {mobileOpen ? 'close' : 'menu'}
           </button>
 
-          {/* Logo — mobile only */}
+          {/* Logo: mobile only */}
           <div className={styles.topBarLogo}>
             <Image
               src="/images/logo.png"
@@ -149,7 +151,7 @@ export function Sidebar() {
             />
           </div>
 
-          {/* Route breadcrumb — desktop only */}
+          {/* Route breadcrumb: desktop only */}
           <span className={styles.topBarBreadcrumb}>Route:</span>
           <span className={styles.topBarDivider} />
           <span className={styles.topBarRoute}>{routeLabel}</span>
@@ -166,11 +168,6 @@ export function Sidebar() {
             onClick={() => router.push('/settings')}
             aria-label="Settings"
           >settings</button>
-          <button
-            className={`material-symbols-outlined ${styles.topBarIconBtn}`}
-            onClick={() => toast('success', 'Logged in as admin')}
-            aria-label="Account"
-          >account_circle</button>
         </div>
       </header>
     </>

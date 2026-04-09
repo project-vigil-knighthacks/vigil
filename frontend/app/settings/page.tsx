@@ -6,13 +6,12 @@ import { useSettings, Settings } from '../contexts/SettingsContext';
 import { useToast } from '../components/Toast';
 import styles from '../siem.module.css';
 
-type Tab = 'connection' | 'notifications' | 'display' | 'profile';
+type Tab = 'connection' | 'notifications' | 'display';
 
 const TABS: { id: Tab; label: string; icon: string }[] = [
   { id: 'connection',    label: 'Connection',    icon: 'cable' },
   { id: 'notifications', label: 'Notifications', icon: 'notifications' },
   { id: 'display',       label: 'Display',       icon: 'display_settings' },
-  { id: 'profile',       label: 'Profile',       icon: 'account_circle' },
 ];
 
 function validate(staged: Settings): Partial<Record<keyof Settings, string>> {
@@ -25,9 +24,6 @@ function validate(staged: Settings): Partial<Record<keyof Settings, string>> {
   }
   if (!Number.isInteger(staged.connectionTimeout) || staged.connectionTimeout < 1000 || staged.connectionTimeout > 30000) {
     errors.connectionTimeout = 'Must be an integer between 1000 and 30000';
-  }
-  if (!staged.username || staged.username.length > 32) {
-    errors.username = 'Required, max 32 characters';
   }
   return errors;
 }
@@ -248,42 +244,6 @@ export default function SettingsPage() {
                     <option value="iso">ISO 8601</option>
                     <option value="relative">Relative</option>
                     <option value="local">Local</option>
-                  </select>
-                </div>
-              </>
-            )}
-
-            {activeTab === 'profile' && (
-              <>
-                <div className={styles.settingsSectionTitle}>profile</div>
-
-                <div className={styles.settingsRow}>
-                  <div>
-                    <div className={styles.settingsRowLabel}>Username</div>
-                    <div className={styles.settingsRowDesc}>Display name shown in top bar (max 32 chars)</div>
-                    {errors.username && <div style={errorStyle}>{errors.username}</div>}
-                  </div>
-                  <input
-                    className={`${styles.settingsInput} ${errors.username ? styles.settingsInputError : ''}`}
-                    value={staged.username}
-                    onChange={(e) => setSetting('username', e.target.value)}
-                    style={{ width: 180 }}
-                  />
-                </div>
-
-                <div className={styles.settingsRow}>
-                  <div>
-                    <div className={styles.settingsRowLabel}>Role</div>
-                    <div className={styles.settingsRowDesc}>Access level label</div>
-                  </div>
-                  <select
-                    className={styles.settingsSelect}
-                    value={staged.role}
-                    onChange={(e) => setSetting('role', e.target.value as Settings['role'])}
-                  >
-                    <option value="administrator">Administrator</option>
-                    <option value="analyst">Analyst</option>
-                    <option value="readonly">Read-only</option>
                   </select>
                 </div>
               </>

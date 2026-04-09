@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Dummy Corp: Home{% endblock %}
+{% block content %}
+<h1>Welcome to Dummy Corp</h1>
+<p>This is a placeholder site monitored by <strong>Vigil SIEM</strong>.</p>
+<p>Every HTTP request generates an Apache-format log line that feeds into Vigil's pipeline.</p>
+{% if user %}
+  <p>Logged in as <strong>{{ user }}</strong>. <a href="/dashboard">Go to Dashboard →</a></p>
+{% else %}
+  <p><a href="/login">Login</a> to access the dashboard.</p>
+{% endif %}
+{% endblock %}

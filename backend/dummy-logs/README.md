@@ -5,7 +5,7 @@ python3 generate_logs.py --mode malicious -o attack.log
 python3 generate_logs.py --mode mixed --lines 2000 -o test.log
 ```
 
-`auth.log` is a Linux system log that records all authentication-related events. Anything involving proving identity or gaining access gets written here — SSH logins, sudo usage, PAM (Pluggable Authentication Modules) events, su attempts, failed passwords, etc. On Red Hat/CentOS based systems it's called secure instead, but same content.
+`auth.log` is a Linux system log that records all authentication-related events. Anything involving proving identity or gaining access gets written here: SSH logins, sudo usage, PAM (Pluggable Authentication Modules) events, su attempts, failed passwords, etc. On Red Hat/CentOS based systems it's called secure instead, but same content.
 It lives at `/var/log/auth.log`.
 Permissions: it's owned by `root` and typically has `640` permissions, meaning:
 - `root` can read/write it

@@ -28,6 +28,13 @@ export interface ParsedLog {
   tty?: string;
   pwd?: string;
 
+  // HTTP fields
+  uri?: string;
+  url?: string;
+  status_code?: string;
+  bytes_sent?: string;
+  bytes_recv?: string;
+
   // Session fields
   session_id?: string;
   request_id?: string;
