@@ -136,13 +136,13 @@ npm run dev
 
 Dashboard: `http://localhost:3000`
 
-### 3. Dummy Site (optional: for testing)
+## Optional Terminals for Testing w/ Dummy-Site
+### 3. Dummy Site
 
 ```bash
 cd dummy-site
 pip install flask
-python app.py                     # starts on :5000, logs to dummy-site/logs/access.log
-python simulate.py --mode mixed   # generates traffic
+python app.py                    # starts on :5000, logs to dummy-site/logs/access.log
 ```
 
 ### 4. Collector (connects dummy-site → backend)
@@ -152,15 +152,32 @@ cd backend/api
 python collector.py   # currently hardcoded to watch a specific file: see docs/constraints.md
 ```
 
-### Run Order
+### 5. Fake Traffic / Simulated Attacks
 
+```bash
+cd dummy-site                     # separate terminal from 3rd terminal
+python simulate.py --mode mixed   # generates traffic
 ```
-Terminal 1:  backend API       (uvicorn)
-Terminal 2:  frontend          (npm run dev)
-Terminal 3:  dummy-site        (python app.py)        : optional
-Terminal 4:  traffic simulator (python simulate.py)    : optional
-Terminal 5:  collector         (python collector.py)   : optional
+
+> **Note:** The simulator must run _after_ the dummy site (Terminal 3) is up, since it sends HTTP requests to Flask on `:5000`.
+
+#### Available modes
+
+| Flag | Description |
+|------|-------------|
+| `--mode mixed` | **(default)** 60% benign / 40% attack, randomly interleaved |
+| `--mode benign` | Normal browsing only (page visits, valid logins) |
+| `--mode attack` | Malicious traffic only (see attack types below) |
+
+#### Additional CLI options
+
+```bash
+python simulate.py --requests 500   # number of requests (default: 200)
+python simulate.py --delay 0.1      # seconds between requests (default: 0.05)
+python simulate.py --base http://127.0.0.1:5000  # target URL (default)
 ```
+
+> **Tip:** `--requests` sets the number of _iterations_, not individual HTTP requests. Some actions (e.g. a login flow) make 4–5 requests per iteration, so 30 iterations may produce ~75 log entries.
 
 ## Environment Variables
 
