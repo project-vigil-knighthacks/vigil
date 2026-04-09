@@ -128,7 +128,7 @@ export function Sidebar() {
       {/* Top App Bar */}
       <header className={`${styles.topBar} ${mobileOpen ? styles.topBarSidebarOpen : ''}`}>
         <div className={styles.topBarLeft}>
-          {/* Hamburger — mobile only */}
+          {/* Hamburger: mobile only */}
           <button
             className={styles.hamburger}
             onClick={() => setMobileOpen((v) => !v)}
@@ -137,7 +137,7 @@ export function Sidebar() {
             {mobileOpen ? 'close' : 'menu'}
           </button>
 
-          {/* Logo — mobile only */}
+          {/* Logo: mobile only */}
           <div className={styles.topBarLogo}>
             <Image
               src="/images/logo.png"
@@ -149,7 +149,7 @@ export function Sidebar() {
             />
           </div>
 
-          {/* Route breadcrumb — desktop only */}
+          {/* Route breadcrumb: desktop only */}
           <span className={styles.topBarBreadcrumb}>Route:</span>
           <span className={styles.topBarDivider} />
           <span className={styles.topBarRoute}>{routeLabel}</span>

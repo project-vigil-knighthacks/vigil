@@ -8,7 +8,7 @@ import { useCollectorStream, StreamStatus } from '../hooks/useCollectorStream';
 import { useSettings } from '../contexts/SettingsContext';
 
 const PAGE_SIZE = 50;
-const DISPLAY_COLUMNS = ['timestamp', 'severity', 'host', 'proc', 'src_ip', 'login', 'login_status', 'command'];
+const DISPLAY_COLUMNS = ['timestamp', 'severity', 'host', 'proc', 'src_ip', 'login', 'login_status', 'command', 'uri', 'status_code', 'bytes_sent'];
 
 function getSeverityClass(severity: string | undefined): string {
   switch (severity?.toLowerCase()) {
@@ -32,7 +32,7 @@ export default function EventsPage() {
   const [events, setEvents] = useState<ParsedLog[]>([]);
   const [total, setTotal] = useState(0);
   const [offset, setOffset] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [streamStatus, setStreamStatus] = useState<StreamStatus>('connecting');
   const [pending, setPending] = useState(0);
@@ -63,12 +63,12 @@ export default function EventsPage() {
   // Handle incoming streamed events
   const handleNewEvents = useCallback((incoming: ParsedLog[]) => {
     if (offsetRef.current === 0) {
-      // On page 1 — prepend and cap at PAGE_SIZE
+      // On page 1: prepend and cap at PAGE_SIZE
       setEvents((prev) => [...incoming, ...prev].slice(0, PAGE_SIZE));
       setTotal((prev) => prev + incoming.length);
       setPending(0);
     } else {
-      // On a deeper page — show banner
+      // On a deeper page: show banner
       setPending((prev) => prev + incoming.length);
       setTotal((prev) => prev + incoming.length);
     }
@@ -95,7 +95,7 @@ export default function EventsPage() {
       <main className={styles.main}>
         <h1 className={styles.pageTitle}>Events</h1>
         <p className={styles.pageSubtitle}>
-          Live event stream — all collected telemetry, paginated and sortable.
+          Live event stream: all collected telemetry, paginated and sortable.
         </p>
 
         {/* Stat Cards */}
@@ -163,7 +163,7 @@ export default function EventsPage() {
           {pending > 0 && (
             <button className={styles.newEventsBanner} onClick={goToLatest}>
               <span className={`material-symbols-outlined`} style={{ fontSize: '0.875rem' }}>arrow_upward</span>
-              {pending} new event{pending !== 1 ? 's' : ''} — go to latest
+              {pending} new event{pending !== 1 ? 's' : ''}: go to latest
             </button>
           )}
 

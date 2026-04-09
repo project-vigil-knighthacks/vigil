@@ -1,5 +1,5 @@
 /* ============================================================
-   Vigil SIEM — Tactical Command UI
+   Vigil SIEM: Tactical Command UI
    Theme: Threat Intelligence / Red Team SOC
    ============================================================ */
 
@@ -36,7 +36,7 @@
 }
 
 @keyframes marchingAnts {
-  /* tile size = 15px — movement must equal tile size for seamless loop
+  /* tile size = 15px: movement must equal tile size for seamless loop
      top    → left   (-X)
      bottom → right  (+X), Y locked at 100%
      left   → down   (+Y), X locked at 0
@@ -93,7 +93,7 @@
   width: var(--sidebar-width, 88px);
 }
 
-/* Mobile drawer — open state */
+/* Mobile drawer: open state */
 .sidebarOpen {
   transform: translateX(0) !important;
   pointer-events: auto !important;
@@ -367,7 +367,7 @@
   color: #e5e2e1;
 }
 
-/* Hamburger toggle — hidden on desktop, shown on mobile via media query */
+/* Hamburger toggle: hidden on desktop, shown on mobile via media query */
 .hamburger {
   display: none;
   background: none;
@@ -391,7 +391,7 @@
   color: rgba(229, 226, 225, 0.4);
 }
 
-/* Logo in top bar — hidden on desktop, shown on mobile */
+/* Logo in top bar: hidden on desktop, shown on mobile */
 .topBarLogo {
   display: none;
   align-items: center;
@@ -1409,8 +1409,16 @@
 .healthBar {
   flex: 1;
   background-color: #353534;
-  transform-origin: bottom;
-  animation: barGrow 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards, barJitter 3s ease-in-out infinite;
+  transition: background-color 0.15s ease;
+  cursor: pointer;
+}
+
+.healthBar:hover {
+  background-color: #4a4a49;
+}
+
+.healthBarHighlight:hover {
+  background-color: rgba(255, 83, 91, 0.7);
 }
 
 .healthBarHighlight {
@@ -1499,7 +1507,7 @@
 }
 
 /* ============================================================
-   Responsive — Mobile & Tablet
+   Responsive: Mobile & Tablet
    ============================================================ */
 
 @media (max-width: 768px) {
@@ -1569,7 +1577,7 @@
   }
 }
 
-/* Toast Notifications — Terminal Style */
+/* Toast Notifications: Terminal Style */
 
 @keyframes toastSlideIn {
   from { opacity: 0; transform: translateX(16px); }

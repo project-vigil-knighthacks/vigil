@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Admin: Dummy Corp{% endblock %}
+{% block content %}
+<h1>Admin Panel</h1>
+<p>User: <strong>{{ user }}</strong></p>
+<ul>
+  <li><a href="/api/users">User List (JSON)</a></li>
+  <li><a href="/api/status">System Status (JSON)</a></li>
+</ul>
+{% endblock %}

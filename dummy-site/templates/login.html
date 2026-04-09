@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Login: Dummy Corp{% endblock %}
+{% block content %}
+<h1>Login</h1>
+{% if error %}<p class="error">{{ error }}</p>{% endif %}
+<form method="post">
+  <label>Username <input name="username" autocomplete="username" required /></label>
+  <label>Password <input name="password" type="password" autocomplete="current-password" required /></label>
+  <button type="submit">Sign In</button>
+</form>
+{% endblock %}

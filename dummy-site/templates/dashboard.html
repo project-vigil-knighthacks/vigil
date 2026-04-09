@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Dashboard: Dummy Corp{% endblock %}
+{% block content %}
+<h1>Dashboard</h1>
+<p>Hello, <strong>{{ user }}</strong>. This is the internal dashboard.</p>
+<ul>
+  <li><a href="/api/status">API Status</a></li>
+  {% if user == 'admin' %}<li><a href="/admin">Admin Panel</a></li>{% endif %}
+</ul>
+{% endblock %}

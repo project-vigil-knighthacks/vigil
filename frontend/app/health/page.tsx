@@ -1,41 +1,98 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { Sidebar } from "../components/Sidebar";
 import styles from "../siem.module.css";
-
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000";
+import { useSettings } from "../contexts/SettingsContext";
 
 interface HealthResponse {
   ok: boolean;
 }
 
-const BAR_HEIGHTS = [20, 25, 22, 35, 30, 28, 60, 40, 35, 25, 22, 20, 25, 85, 45, 30, 32, 25, 22, 28];
-const HIGHLIGHT_BARS = [6, 13];
+interface LatencySample {
+  ms: number;
+  ts: string;          // HH:MM:SS.mmm
+}
 
-const LOG_LINES = [
-  { ts: "14:22:01.002", level: "INFO",  msg: "Heartbeat received from Node-Alpha-01" },
-  { ts: "14:22:01.458", level: "INFO",  msg: "Database connection pool verified (32/100 active)" },
-  { ts: "14:22:01.991", level: "INFO",  msg: "API Gateway status: 200 OK" },
-  { ts: "14:22:02.312", level: "WARN",  msg: "Disk I/O spike detected on storage cluster B" },
-  { ts: "14:22:03.001", level: "INFO",  msg: "Health check cycle complete. No critical errors." },
-  { ts: "14:22:03.555", level: "INFO",  msg: "Peer connection re-established: Node-Gamma-12" },
-];
+interface LogEntry {
+  ts: string;
+  level: "INFO" | "WARN" | "ERR";
+  msg: string;
+}
+
+const MAX_BARS = 20;
+const POLL_MS  = 3000;
+const LATENCY_WARN_MS = 40;   // bar turns red above this
 
 export default function HealthPage() {
+  const { settings } = useSettings();
+  const API_BASE = settings.apiBaseUrl;
+
   const [data, setData] = useState<HealthResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [samples, setSamples] = useState<LatencySample[]>([]);
+  const [logs, setLogs] = useState<LogEntry[]>([]);
+
+  const logsRef = useRef(logs);
+  logsRef.current = logs;
+
+  const pushLog = useCallback((level: LogEntry["level"], msg: string) => {
+    const now = new Date();
+    const ts = now.toTimeString().slice(0, 8) + "." + String(now.getMilliseconds()).padStart(3, "0");
+    const entry: LogEntry = { ts, level, msg };
+    setLogs((prev) => [...prev.slice(-29), entry]);   // keep last 30
+  }, []);
 
   useEffect(() => {
-    fetch(`${API_BASE}/api/health`)
-      .then((res) => res.json())
-      .then((json) => setData(json))
-      .catch((err: unknown) => {
-        setError(err instanceof Error ? err.message : "Unknown error");
-      })
-      .finally(() => setLoading(false));
-  }, []);
+    let cancelled = false;
+
+    const poll = async () => {
+      const t0 = performance.now();
+      try {
+        const res = await fetch(`${API_BASE}/api/health`);
+        const ms = Math.round(performance.now() - t0);
+        const now = new Date();
+        const ts = now.toTimeString().slice(0, 8) + "." + String(now.getMilliseconds()).padStart(3, "0");
+
+        if (cancelled) return;
+
+        const json: HealthResponse = await res.json();
+        setData(json);
+        setError(null);
+        setSamples((prev) => [...prev.slice(-(MAX_BARS - 1)), { ms, ts }]);
+        pushLog("INFO", `Health check OK — ${ms}ms`);
+      } catch (err) {
+        if (cancelled) return;
+        const ms = Math.round(performance.now() - t0);
+        const msg = err instanceof Error ? err.message : "Unknown error";
+        setError(msg);
+        setSamples((prev) => [...prev.slice(-(MAX_BARS - 1)), { ms, ts: new Date().toTimeString().slice(0, 8) }]);
+        pushLog("ERR", `Health check failed — ${msg}`);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+
+    pushLog("INFO", `Starting health monitor — polling ${API_BASE}/api/health every ${POLL_MS / 1000}s`);
+    poll();
+    const id = setInterval(poll, POLL_MS);
+    return () => { cancelled = true; clearInterval(id); };
+  }, [API_BASE, pushLog]);
+
+  // Derived stats
+  const latencies = samples.map((s) => s.ms);
+  const avg = latencies.length ? Math.round(latencies.reduce((a, b) => a + b, 0) / latencies.length) : 0;
+  const max = latencies.length ? Math.max(...latencies) : 0;
+  const lastMs = latencies.length ? latencies[latencies.length - 1] : null;
+
+  // Normalise bar heights: tallest bar = 100%
+  const barMax = Math.max(max, 1);
+  const barHeights = samples.map((s) => Math.max((s.ms / barMax) * 100, 5)); // min 5% so bars are visible
+
+  // Tooltip state for bar hover
+  const [tooltip, setTooltip] = useState<{ x: number; y: number; ms: number; ts: string } | null>(null);
+  const chartRef = useRef<HTMLDivElement>(null);
 
   return (
     <div className={styles.container}>
@@ -72,7 +129,7 @@ export default function HealthPage() {
                 {loading ? "Checking…" : error ? "UNREACHABLE" : "STABLE"}
               </div>
               {!loading && !error && (
-                <div className={styles.healthCardSub}>LATENCY: &lt; 50MS</div>
+                <div className={styles.healthCardSub}>LATENCY: {lastMs !== null ? `${lastMs}MS` : "—"}</div>
               )}
               {!loading && error && (
                 <div style={{ fontFamily: "var(--font-geist-mono)", fontSize: "0.6875rem", color: "#ffb4ab", marginTop: "0.25rem" }}>
@@ -136,22 +193,53 @@ export default function HealthPage() {
                 API Response Latency (ms)
               </h3>
               <div style={{ display: "flex", gap: "1rem", fontFamily: "var(--font-geist-mono)", fontSize: "0.625rem" }}>
-                <span style={{ color: "rgba(228,190,188,0.6)" }}>AVG: 12ms</span>
-                <span style={{ color: "#e63946" }}>MAX: 44ms</span>
+                <span style={{ color: "rgba(228,190,188,0.6)" }}>AVG: {avg}ms</span>
+                <span style={{ color: "#e63946" }}>MAX: {max}ms</span>
               </div>
             </div>
-            <div className={styles.healthBarChart}>
-              {BAR_HEIGHTS.map((h, i) => (
+            <div className={styles.healthBarChart} ref={chartRef} onMouseLeave={() => setTooltip(null)} style={{ position: "relative" }}>
+              {barHeights.map((h, i) => (
                 <div
                   key={i}
-                  className={`${styles.healthBar} ${HIGHLIGHT_BARS.includes(i) ? styles.healthBarHighlight : ""}`}
-                  style={{ height: `${h}%`, animationDelay: `${i * 0.1}s` }}
+                  className={`${styles.healthBar} ${samples[i].ms > LATENCY_WARN_MS ? styles.healthBarHighlight : ""}`}
+                  style={{ height: `${h}%` }}
+                  onMouseMove={(e) => {
+                    const rect = chartRef.current?.getBoundingClientRect();
+                    if (!rect) return;
+                    setTooltip({
+                      x: e.clientX - rect.left,
+                      y: e.clientY - rect.top - 40,
+                      ms: samples[i].ms,
+                      ts: samples[i].ts,
+                    });
+                  }}
                 />
               ))}
+              {tooltip && (
+                <div style={{
+                  position: "absolute",
+                  left: tooltip.x,
+                  top: tooltip.y,
+                  transform: "translateX(-50%)",
+                  background: "#1a1a1a",
+                  border: "1px solid rgba(228,190,188,0.2)",
+                  padding: "0.25rem 0.5rem",
+                  borderRadius: "4px",
+                  fontFamily: "var(--font-geist-mono)",
+                  fontSize: "0.625rem",
+                  color: "#e5e2e1",
+                  pointerEvents: "none",
+                  whiteSpace: "nowrap",
+                  zIndex: 10,
+                }}>
+                  <span style={{ color: tooltip.ms > LATENCY_WARN_MS ? "#ff535b" : "#22c55e", fontWeight: 700 }}>{tooltip.ms}ms</span>
+                  <span style={{ color: "rgba(228,190,188,0.5)", marginLeft: "0.5rem" }}>{tooltip.ts}</span>
+                </div>
+              )}
             </div>
             <div style={{ display: "flex", justifyContent: "space-between", marginTop: "0.75rem", fontFamily: "var(--font-geist-mono)", fontSize: "0.5625rem", color: "rgba(228,190,188,0.4)", textTransform: "uppercase" }}>
-              <span>T-60MIN</span>
-              <span>T-30MIN</span>
+              <span>{samples.length > 0 ? samples[0].ts.slice(0, 8) : "—"}</span>
+              <span>{samples.length > 1 ? samples[Math.floor(samples.length / 2)].ts.slice(0, 8) : ""}</span>
               <span>NOW</span>
             </div>
           </div>
@@ -193,15 +281,20 @@ export default function HealthPage() {
               Logging Level: Verbose
             </span>
           </div>
-          {LOG_LINES.map((line, i) => (
+          {logs.map((line, i) => (
             <div key={i} className={styles.healthLogLine}>
               <span className={styles.healthLogTs}>{line.ts}</span>
-              <span className={line.level === "WARN" ? styles.healthLogLevelWarn : styles.healthLogLevelInfo}>
+              <span className={line.level === "WARN" || line.level === "ERR" ? styles.healthLogLevelWarn : styles.healthLogLevelInfo}>
                 [{line.level}]
               </span>
               <span>{line.msg}</span>
             </div>
           ))}
+          {logs.length === 0 && (
+            <div className={styles.healthLogLine} style={{ opacity: 0.4 }}>
+              <span>Waiting for first health check…</span>
+            </div>
+          )}
         </div>
       </main>
     </div>

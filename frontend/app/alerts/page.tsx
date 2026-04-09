@@ -10,7 +10,7 @@ import { useCollectorStream, StreamStatus } from '../hooks/useCollectorStream';
 
 const PAGE_SIZE = 50;
 const SEVERITY_FILTER = 'critical,warning';
-const DISPLAY_COLUMNS = ['timestamp', 'severity', 'host', 'proc', 'src_ip', 'login', 'login_status', 'command'];
+const DISPLAY_COLUMNS = ['timestamp', 'severity', 'host', 'proc', 'src_ip', 'login', 'login_status', 'command', 'uri', 'status_code', 'bytes_sent'];
 
 function getSeverityClass(severity: string | undefined): string {
   switch (severity?.toLowerCase()) {
@@ -34,7 +34,7 @@ export default function AlertsPage() {
   const [events, setEvents] = useState<ParsedLog[]>([]);
   const [total, setTotal] = useState(0);
   const [offset, setOffset] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [streamStatus, setStreamStatus] = useState<StreamStatus>('connecting');
   const [pending, setPending] = useState(0);
@@ -67,7 +67,7 @@ export default function AlertsPage() {
     fetchAlerts(offset);
   }, [offset, fetchAlerts]);
 
-  // Handle incoming streamed events — only care about critical/warning
+  // Handle incoming streamed events: only care about critical/warning
   const handleNewEvents = useCallback((incoming: ParsedLog[]) => {
     const alertEvents = incoming.filter(
       (e) => e.severity === 'critical' || e.severity === 'warning'
@@ -110,7 +110,7 @@ export default function AlertsPage() {
       <main className={styles.main}>
         <h1 className={styles.pageTitle}>Alerts</h1>
         <p className={styles.pageSubtitle}>
-          Real-time threat monitoring — critical and warning events only.
+          Real-time threat monitoring: critical and warning events only.
         </p>
 
         {/* Stat Cards */}
@@ -178,7 +178,7 @@ export default function AlertsPage() {
           {pending > 0 && (
             <button className={styles.newEventsBanner} onClick={goToLatest}>
               <span className="material-symbols-outlined" style={{ fontSize: '0.875rem' }}>arrow_upward</span>
-              {pending} new alert{pending !== 1 ? 's' : ''} — go to latest
+              {pending} new alert{pending !== 1 ? 's' : ''}: go to latest
             </button>
           )}
 
