@@ -85,6 +85,9 @@ export default function SettingsPage() {
   const { staged, setSetting, save, reset } = useSettings();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<Tab>('connection');
+  const [email, setEmail] = useState('');
+  const [minSeverity, setMinSeverity] = useState<'critical' | 'warning' | 'info'>('warning');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const errors = validate(staged);
   const hasErrors = Object.keys(errors).length > 0;
@@ -102,6 +105,36 @@ export default function SettingsPage() {
   function handleReset() {
     reset();
     toast('info', 'Settings reset to defaults');
+  }
+
+  async function handleAddSubscription() {
+    if (!email || !email.includes('@')) {
+      toast('error', 'Enter a valid email address');
+      return;
+    }
+    if (!staged.apiBaseUrl || !/^https?:\/\//.test(staged.apiBaseUrl)) {
+      toast('error', 'Set a valid API Base URL first');
+      return;
+    }
+    setIsSubmitting(true);
+    try {
+      const res = await fetch(`${staged.apiBaseUrl}/api/add_subscription`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, min_severity: minSeverity }),
+      });
+      if (!res.ok) {
+        const msg = await res.text();
+        throw new Error(msg || 'Failed to add subscription');
+      }
+      toast('success', 'Notification subscription saved');
+      setEmail('');
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to add subscription';
+      toast('error', message);
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -212,6 +245,38 @@ export default function SettingsPage() {
                     checked={staged.alertOnCritical}
                     onChange={(v) => setSetting('alertOnCritical', v)}
                   />
+                </div>
+
+                <div className={styles.settingsRow}>
+                  <div>
+                    <div className={styles.settingsRowLabel}>Email Notifications</div>
+                    <div className={styles.settingsRowDesc}>Send alerts to an email address at or above a minimum severity</div>
+                  </div>
+                  <div className={styles.settingsRowRight}>
+                    <input
+                      className={styles.settingsInput}
+                      placeholder="you@example.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                    />
+                    <select
+                      className={styles.settingsSelect}
+                      value={minSeverity}
+                      onChange={(e) => setMinSeverity(e.target.value as 'critical' | 'warning' | 'info')}
+                    >
+                      <option value="critical">Critical</option>
+                      <option value="warning">Warning</option>
+                      <option value="info">Info</option>
+                    </select>
+                    <button
+                      className={styles.settingsBtnSave}
+                      onClick={handleAddSubscription}
+                      disabled={isSubmitting}
+                      type="button"
+                    >
+                      {isSubmitting ? 'Saving...' : 'Add'}
+                    </button>
+                  </div>
                 </div>
               </>
             )}
