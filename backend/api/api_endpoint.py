@@ -53,7 +53,11 @@ event_broadcaster = EventBroadcaster()
 # ── CORS ──────────────────────────────────────────────────────────────────────
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_origins=[
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "https://dw-q1sf2wt5d-zaynedocs-projects.vercel.app",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -140,6 +144,24 @@ async def upload_log_file(file: UploadFile = File(...)):
 
 
 # ── SQLite events ─────────────────────────────────────────────────────────────
+@app.post("/api/ingest")
+async def ingest_raw_logs(payload: StringPayload):
+    """Accept raw log text from a remote site, parse + classify + store + broadcast."""
+    try:
+        result = parse_and_sort(payload.content)
+        parsed_logs = result.get("logs", [])
+        if not parsed_logs:
+            return {"ok": True, "inserted": 0}
+        inserted = write_events(parsed_logs)
+        await event_broadcaster.broadcast({"type": "collector_events", "events": parsed_logs})
+        try:
+            send_alert_email(parsed_logs)
+        except Exception as exc:
+            print(f"[alerts] send_alert_email failed: {exc}")
+        return {"ok": True, "inserted": inserted}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to ingest logs: {str(e)}")
+
 @app.post("/api/collect")
 async def collect_events(events: list[dict]):
     """Receive parsed log events from the collector and store them in SQLite"""
