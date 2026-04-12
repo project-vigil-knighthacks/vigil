@@ -7,7 +7,7 @@ import httpx
 from fastapi import FastAPI, UploadFile, File, HTTPException, Query, WebSocket, WebSocketDisconnect, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from database import init_db, write_events, read_events, count_events
+from database import init_db, write_events, read_events, count_events, reset_events
 from classifier import parse_and_sort, grok_parse
 from emailer import router as emailer_router, send_alert_email
 from subscriptions import router as subscriptions_router
@@ -165,6 +165,16 @@ async def get_events(
     events = read_events(limit=limit, offset=offset, severity=severity)
     total = count_events(severity=severity)
     return {"events": events, "total": total, "limit": limit, "offset": offset}
+
+# database reset endpoint
+@app.delete("/api/events/reset")
+async def reset_all_events():
+    """Delete all events from the database."""
+    try:
+        deleted = reset_events()
+        return {"ok": True, "deleted": deleted}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to reset database: {str(e)}")
 
 
 # ── WebSockets ────────────────────────────────────────────────────────────────

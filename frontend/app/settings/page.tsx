@@ -6,12 +6,13 @@ import { useSettings, Settings } from '../contexts/SettingsContext';
 import { useToast } from '../components/Toast';
 import styles from '../siem.module.css';
 
-type Tab = 'connection' | 'notifications' | 'display';
+type Tab = 'connection' | 'notifications' | 'display' | 'danger';
 
 const TABS: { id: Tab; label: string; icon: string }[] = [
   { id: 'connection',    label: 'Connection',    icon: 'cable' },
   { id: 'notifications', label: 'Notifications', icon: 'notifications' },
   { id: 'display',       label: 'Display',       icon: 'display_settings' },
+  { id: 'danger',        label: 'Danger Zone',   icon: 'warning' },
 ];
 
 function validate(staged: Settings): Partial<Record<keyof Settings, string>> {
@@ -88,6 +89,8 @@ export default function SettingsPage() {
   const [email, setEmail] = useState('');
   const [minSeverity, setMinSeverity] = useState<'critical' | 'warning' | 'info'>('warning');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [resetArmed, setResetArmed] = useState(false);
+  const [isResetting, setIsResetting] = useState(false);
 
   const errors = validate(staged);
   const hasErrors = Object.keys(errors).length > 0;
@@ -134,6 +137,29 @@ export default function SettingsPage() {
       toast('error', message);
     } finally {
       setIsSubmitting(false);
+    }
+  }
+
+  async function handleResetDatabase() {
+    if (!resetArmed) {
+      setResetArmed(true);
+      return;
+    }
+    setIsResetting(true);
+    try {
+      const res = await fetch(`${staged.apiBaseUrl}/api/events/reset`, { method: 'DELETE' });
+      if (!res.ok) {
+        const msg = await res.text();
+        throw new Error(msg || 'Failed to reset database');
+      }
+      const data = await res.json();
+      toast('success', `Database reset — ${data.deleted} event(s) deleted`);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to reset database';
+      toast('error', message);
+    } finally {
+      setResetArmed(false);
+      setIsResetting(false);
     }
   }
 
@@ -310,6 +336,34 @@ export default function SettingsPage() {
                     <option value="relative">Relative</option>
                     <option value="local">Local</option>
                   </select>
+                </div>
+              </>
+            )}
+
+            {activeTab === 'danger' && (
+              <>
+                <div className={styles.settingsSectionTitle}>danger zone</div>
+
+                <div className={`${styles.settingsRow} ${styles.dangerRow}`}>
+                  <div>
+                    <div className={styles.settingsRowLabel}>Reset Database</div>
+                    <div className={styles.settingsRowDesc}>
+                      Permanently delete all events from the SQLite database. This cannot be undone.
+                    </div>
+                  </div>
+                  <button
+                    className={resetArmed ? styles.dangerBtnConfirm : styles.dangerBtn}
+                    onClick={handleResetDatabase}
+                    onBlur={() => setResetArmed(false)}
+                    disabled={isResetting}
+                    type="button"
+                  >
+                    {isResetting
+                      ? 'Resetting...'
+                      : resetArmed
+                        ? 'Confirm Reset'
+                        : 'Reset Database'}
+                  </button>
                 </div>
               </>
             )}

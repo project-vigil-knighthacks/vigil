@@ -100,6 +100,17 @@ def read_events(
         conn.close()
 
 
+def reset_events() -> int:
+    conn = get_connection()
+    try:
+        count = conn.execute("SELECT COUNT(*) FROM events").fetchone()[0]
+        conn.execute("DELETE FROM events")
+        conn.commit()
+        return count
+    finally:
+        conn.close()
+
+
 def count_events(severity: Optional[str] = None) -> int:
     conn = get_connection()
     try:

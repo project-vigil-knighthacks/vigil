@@ -2369,3 +2369,59 @@
   color: #e5e2e1;
   border-color: rgba(229, 226, 225, 0.3);
 }
+
+/* Danger zone */
+.dangerRow {
+  border: 1px solid rgba(230, 57, 70, 0.25);
+  border-radius: 4px;
+  padding: 1rem;
+}
+
+.dangerBtn {
+  background: none;
+  color: #e63946;
+  border: 1px solid rgba(230, 57, 70, 0.4);
+  padding: 0.5rem 1.25rem;
+  font-family: var(--font-geist-mono, monospace);
+  font-size: 0.625rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+
+.dangerBtn:hover {
+  border-color: #e63946;
+  background: rgba(230, 57, 70, 0.08);
+}
+
+.dangerBtnConfirm {
+  background: #e63946;
+  color: #fff;
+  border: 1px solid #e63946;
+  padding: 0.5rem 1.25rem;
+  font-family: var(--font-geist-mono, monospace);
+  font-size: 0.625rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  animation: dangerPulse 1s ease-in-out infinite;
+  white-space: nowrap;
+}
+
+.dangerBtnConfirm:hover {
+  background: #c8303c;
+}
+
+.dangerBtn:disabled,
+.dangerBtnConfirm:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  animation: none;
+}
+
+@keyframes dangerPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
