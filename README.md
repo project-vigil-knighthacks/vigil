@@ -196,6 +196,8 @@ None: Vigil runs with zero configuration out of the box.
 | `OLLAMA_URL` | Ollama instance URL — enables voice agent locally (no key needed) |
 | `ELEVENLABS_API_KEY` | ElevenLabs — enables text-to-speech for voice agent responses |
 | `VIGIL_DB_PATH` | Override SQLite database location (default: `backend/api/vigil.db`) |
+| `VIGIL_LOG_PATH` | Tell the collector which log file to watch (alternative to CLI arg) |
+| `VIGIL_CORS_ORIGINS` | Comma-separated additional origins allowed to call the API (e.g. `https://your-site.vercel.app`) |
 | `MAILGUN_API_KEY` | Email alert notifications via Mailgun |
 | `MAILGUN_DOMAIN` | Mailgun sending domain |
 | `MAILGUN_SENDER` | "From" address for alert emails |

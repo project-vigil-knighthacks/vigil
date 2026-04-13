@@ -180,13 +180,13 @@ If your website is deployed remotely (not on the same machine as Vigil), the bac
 
 For ngrok, set `VIGIL_API_URL=https://your-tunnel.ngrok-free.app` in your site's environment.
 
-**CORS**: Vigil's backend must allow your site's origin. Add it to the `allow_origins` list in `backend/api/api_endpoint.py`:
-```python
-allow_origins=[
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "https://your-site.vercel.app",  # add your deployed site
-],
+**CORS**: Vigil's backend must allow your site's origin. Set the `VIGIL_CORS_ORIGINS` environment variable (localhost is always allowed):
+```bash
+# In your .env file:
+VIGIL_CORS_ORIGINS=https://your-site.vercel.app
+
+# Multiple origins (comma-separated):
+VIGIL_CORS_ORIGINS=https://your-site.vercel.app,https://staging.your-site.vercel.app
 ```
 
 ---
@@ -232,6 +232,7 @@ What a website owner would configure in Vigil:
 |----------|-----|
 | `VIGIL_DB_PATH` | Store the SQLite database somewhere specific instead of next to the backend code |
 | `VIGIL_LOG_PATH` | Tell the collector which file to watch (alternative to CLI arg) |
+| `VIGIL_CORS_ORIGINS` | Comma-separated origins allowed to call the API (e.g. `https://your-site.vercel.app`) — localhost is always allowed |
 
 ---
 
