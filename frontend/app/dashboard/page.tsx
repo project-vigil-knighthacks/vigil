@@ -6,6 +6,8 @@ import styles from '../siem.module.css';
 import type { ParsedLog } from '../../types/logs';
 import { useCollectorStream, StreamStatus } from '../hooks/useCollectorStream';
 import { mergeUniqueEvents } from '../lib/streamEvents';
+import { useSettings } from '../contexts/SettingsContext';
+import { formatLogValue, getAttributeLabel, getVisibleDashboardAttributes } from '../lib/logDisplay';
 
 /* ── time-range buckets ── */
 type TimeRange = '1h' | '6h' | '24h' | '7d' | '30d';
@@ -42,6 +44,7 @@ const STATUS_DOT: Record<StreamStatus, { colour: string; label: string }> = {
 };
 
 export default function DashboardPage() {
+  const { settings } = useSettings();
   // API calls use relative URLs proxied through Next.js rewrites
 
   /* state */
@@ -132,6 +135,7 @@ export default function DashboardPage() {
 
   /* recent events for live feed (newest first, max 15) */
   const feedEvents = allEvents.slice(0, 15);
+  const feedExtraAttributes = getVisibleDashboardAttributes(allEvents, settings.hiddenLogAttributes);
 
   /* top source IPs */
   const ipMap = new Map<string, number>();
@@ -351,8 +355,19 @@ export default function DashboardPage() {
                     {(ev.severity || 'info').toUpperCase()}
                   </span>
                   <span className={styles.dashFeedIp}>{ev.src_ip || '—'}</span>
-                  <span className={styles.dashFeedUri}>{ev.uri || ev.command || ev.proc || '—'}</span>
-                  <span className={styles.dashFeedTs}>{ev.timestamp ? new Date(ev.timestamp).toLocaleTimeString() : '—'}</span>
+                  <div className={styles.dashFeedBody}>
+                    <span className={styles.dashFeedUri}>{ev.uri || ev.command || ev.proc || '—'}</span>
+                    {feedExtraAttributes.length > 0 && (
+                      <div className={styles.dashFeedAttrs}>
+                        {feedExtraAttributes.map((attribute) => (
+                          <span key={attribute} className={styles.dashFeedAttr}>
+                            <strong>{getAttributeLabel(attribute)}:</strong> {formatLogValue(attribute, ev[attribute], settings.timestampFormat)}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <span className={styles.dashFeedTs}>{formatLogValue('timestamp', ev.timestamp, settings.timestampFormat)}</span>
                 </div>
               ))}
             </div>

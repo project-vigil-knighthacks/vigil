@@ -1,10 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import { useSettings, Settings } from '../contexts/SettingsContext';
 import { useToast } from '../components/Toast';
 import styles from '../siem.module.css';
+import type { EventsResponse, ParsedLog } from '../../types/logs';
+import { getAttributeLabel, getAttributePickerOptions, REQUIRED_LOG_ATTRIBUTES } from '../lib/logDisplay';
 
 type Tab = 'connection' | 'notifications' | 'display' | 'danger';
 
@@ -88,9 +90,55 @@ export default function SettingsPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [resetArmed, setResetArmed] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
+  const [attributeEvents, setAttributeEvents] = useState<ParsedLog[]>([]);
+  const [attributesLoading, setAttributesLoading] = useState(false);
 
   const errors = validate(staged);
   const hasErrors = Object.keys(errors).length > 0;
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    async function loadAttributeEvents() {
+      setAttributesLoading(true);
+      try {
+        const res = await fetch('/api/events?limit=200&offset=0', {
+          signal: controller.signal,
+        });
+        if (!res.ok) throw new Error('Failed to detect log attributes');
+        const data: EventsResponse = await res.json();
+        setAttributeEvents(data.events);
+      } catch (err) {
+        if (controller.signal.aborted) return;
+        const message = err instanceof Error ? err.message : 'Failed to detect log attributes';
+        toast('error', message);
+      } finally {
+        if (!controller.signal.aborted) setAttributesLoading(false);
+      }
+    }
+
+    loadAttributeEvents();
+    return () => controller.abort();
+  }, [toast]);
+
+  const availableAttributeOptions = getAttributePickerOptions(attributeEvents);
+
+  function toggleHiddenAttribute(attribute: string) {
+    if (REQUIRED_LOG_ATTRIBUTES.includes(attribute as (typeof REQUIRED_LOG_ATTRIBUTES)[number])) return;
+
+    const hidden = new Set(staged.hiddenLogAttributes);
+    if (hidden.has(attribute)) {
+      hidden.delete(attribute);
+    } else {
+      hidden.add(attribute);
+    }
+
+    setSetting('hiddenLogAttributes', [...hidden].sort());
+  }
+
+  function setAllOptionalAttributesHidden(hidden: boolean) {
+    setSetting('hiddenLogAttributes', hidden ? availableAttributeOptions : []);
+  }
 
   function handleSave() {
     if (hasErrors) {
@@ -316,6 +364,62 @@ export default function SettingsPage() {
                     <option value="relative">Relative</option>
                     <option value="local">Local</option>
                   </select>
+                </div>
+
+                <div className={styles.settingsRow}>
+                  <div>
+                    <div className={styles.settingsRowLabel}>Log Attributes</div>
+                    <div className={styles.settingsRowDesc}>
+                      Detects attributes from recent logs and controls which optional fields appear on dashboard, events, and alerts. Timestamp, severity, source IP, and URI stay visible.
+                    </div>
+                  </div>
+                  <div className={styles.settingsAttrActions}>
+                    <button className={styles.settingsBtnReset} type="button" onClick={() => setAllOptionalAttributesHidden(false)}>
+                      Show All
+                    </button>
+                    <button className={styles.settingsBtnReset} type="button" onClick={() => setAllOptionalAttributesHidden(true)}>
+                      Hide Optional
+                    </button>
+                  </div>
+                </div>
+
+                <div className={styles.settingsAttrGrid}>
+                  {REQUIRED_LOG_ATTRIBUTES.map((attribute) => (
+                    <button
+                      key={attribute}
+                      type="button"
+                      className={`${styles.settingsAttrChip} ${styles.settingsAttrChipLocked}`}
+                      disabled
+                    >
+                      <span>{getAttributeLabel(attribute)}</span>
+                      <span className={styles.settingsAttrMeta}>required</span>
+                    </button>
+                  ))}
+
+                  {availableAttributeOptions.map((attribute) => {
+                    const visible = !staged.hiddenLogAttributes.includes(attribute);
+                    return (
+                      <button
+                        key={attribute}
+                        type="button"
+                        className={`${styles.settingsAttrChip} ${visible ? styles.settingsAttrChipActive : ''}`}
+                        onClick={() => toggleHiddenAttribute(attribute)}
+                      >
+                        <span>{getAttributeLabel(attribute)}</span>
+                        <span className={styles.settingsAttrMeta}>{visible ? 'visible' : 'hidden'}</span>
+                      </button>
+                    );
+                  })}
+
+                  {!attributesLoading && availableAttributeOptions.length === 0 && (
+                    <div className={styles.settingsAttrEmpty}>
+                      No optional attributes detected yet. Once logs include fields like HTTP method, login status, or user ID, they will appear here.
+                    </div>
+                  )}
+
+                  {attributesLoading && (
+                    <div className={styles.settingsAttrEmpty}>Scanning recent events for available attributes...</div>
+                  )}
                 </div>
               </>
             )}

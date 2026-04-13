@@ -1549,6 +1549,13 @@
   animation: rowFadeIn 0.3s ease;
 }
 
+.dashFeedBody {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
 .dashFeedSev {
   font-weight: 700;
   font-size: 0.5625rem;
@@ -1565,6 +1572,23 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.dashFeedAttrs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.5rem;
+}
+
+.dashFeedAttr {
+  color: rgba(229, 226, 225, 0.5);
+  font-size: 0.5625rem;
+  min-width: 0;
+}
+
+.dashFeedAttr strong {
+  color: rgba(228, 190, 188, 0.55);
+  font-weight: 600;
 }
 
 .dashFeedTs {
@@ -2368,6 +2392,64 @@
 .settingsBtnReset:hover {
   color: #e5e2e1;
   border-color: rgba(229, 226, 225, 0.3);
+}
+
+.settingsAttrActions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.settingsAttrGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding: 1rem 0 0.25rem;
+}
+
+.settingsAttrChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid rgba(53, 53, 52, 0.65);
+  background: #0e0e0e;
+  color: rgba(229, 226, 225, 0.65);
+  padding: 0.45rem 0.75rem;
+  font-family: var(--font-geist-mono, monospace);
+  font-size: 0.625rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+
+.settingsAttrChip:hover {
+  border-color: rgba(229, 226, 225, 0.25);
+}
+
+.settingsAttrChipActive {
+  border-color: rgba(230, 57, 70, 0.55);
+  background: rgba(230, 57, 70, 0.08);
+  color: #e5e2e1;
+}
+
+.settingsAttrChipLocked {
+  cursor: default;
+  opacity: 0.9;
+  border-color: rgba(34, 197, 94, 0.35);
+  background: rgba(34, 197, 94, 0.08);
+}
+
+.settingsAttrMeta {
+  color: rgba(229, 226, 225, 0.35);
+  font-size: 0.5625rem;
+}
+
+.settingsAttrEmpty {
+  width: 100%;
+  padding: 0.75rem 0;
+  font-family: var(--font-geist-mono, monospace);
+  font-size: 0.625rem;
+  color: rgba(229, 226, 225, 0.35);
 }
 
 /* Danger zone */

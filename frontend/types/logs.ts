@@ -31,11 +31,15 @@ export interface ParsedLog {
   pwd?: string;
 
   // HTTP fields
+  http_method?: string;
   uri?: string;
   url?: string;
   status_code?: string;
   bytes_sent?: string;
   bytes_recv?: string;
+
+  // Flexible extra fields from stored log attributes
+  user_id?: string;
 
   // Session fields
   session_id?: string;

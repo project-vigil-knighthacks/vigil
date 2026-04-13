@@ -13,6 +13,7 @@
 
 import os
 import sqlite3
+import json
 from typing import Optional
 from timestamps import normalize_event_timestamp
 
@@ -21,13 +22,15 @@ EVENT_COLUMNS = [
     "timestamp", "host", "proc", "pid", "severity", "facility",
     "login", "target_user", "auth_method", "login_status",
     "src_ip", "dst_ip", "src_port", "dst_port",
-    "url", "domain", "path", "uri",
+    "url", "domain", "path", "uri", "http_method",
     "hash", "hash_algo", "signature",
     "command", "args", "session_id",
     "request_id", "trace_id", "status_code",
     "bytes_sent", "bytes_recv", "duration",
     "tty", "pwd",
 ]
+EXTRA_ATTRS_COLUMN = "extra_attrs"
+INTERNAL_EVENT_KEYS = {"id", EXTRA_ATTRS_COLUMN}
 
 
 # Internal helpers
@@ -38,6 +41,52 @@ def get_connection() -> sqlite3.Connection:
     return conn
 
 
+# When we write an event, we want to split out known columns vs extra attributes
+def _ensure_events_schema(conn: sqlite3.Connection) -> None:
+    existing = {
+        row["name"]
+        for row in conn.execute("PRAGMA table_info(events)").fetchall()
+    }
+    if not existing:
+        return
+
+    for column in [*EVENT_COLUMNS, EXTRA_ATTRS_COLUMN]:
+        if column not in existing:
+            conn.execute(f"ALTER TABLE events ADD COLUMN {column} TEXT")
+
+
+# When we read an event, we want to restore the original event dict by merging
+def _split_event_columns(event: dict) -> dict:
+    normalized_event = normalize_event_timestamp(dict(event))
+    extra_attrs: dict[str, object] = {}
+
+    for key, value in normalized_event.items():
+        if key in INTERNAL_EVENT_KEYS or value is None:
+            continue
+        if key not in EVENT_COLUMNS:
+            extra_attrs[key] = value
+
+    row = {column: normalized_event.get(column) for column in EVENT_COLUMNS}
+    row[EXTRA_ATTRS_COLUMN] = json.dumps(extra_attrs) if extra_attrs else None
+    return row
+
+
+# When we read an event, we want to restore the original event dict by merging
+# the extra attributes back into the main event dictionary
+def _restore_event_columns(row: sqlite3.Row) -> dict:
+    event = dict(row)
+    extra_attrs_raw = event.pop(EXTRA_ATTRS_COLUMN, None)
+    if extra_attrs_raw:
+        try:
+            extra_attrs = json.loads(extra_attrs_raw)
+            if isinstance(extra_attrs, dict):
+                for key, value in extra_attrs.items():
+                    event.setdefault(key, value)
+        except json.JSONDecodeError:
+            event[EXTRA_ATTRS_COLUMN] = extra_attrs_raw
+    return normalize_event_timestamp(event)
+
+
 # Public API
 def init_db() -> None:
     conn = get_connection()
@@ -46,9 +95,11 @@ def init_db() -> None:
         conn.execute(f"""
             CREATE TABLE IF NOT EXISTS events (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                {cols}
+                {cols},
+                {EXTRA_ATTRS_COLUMN} TEXT
             )
         """)
+        _ensure_events_schema(conn)
         conn.commit()
     finally:
         conn.close()
@@ -60,14 +111,14 @@ def init_db() -> None:
 def write_events(events: list[dict]) -> int:
     conn = get_connection()
     try:
-        placeholders = ", ".join("?" for _ in EVENT_COLUMNS)
-        col_names = ", ".join(EVENT_COLUMNS)
+        write_columns = [*EVENT_COLUMNS, EXTRA_ATTRS_COLUMN]
+        placeholders = ", ".join("?" for _ in write_columns)
+        col_names = ", ".join(write_columns)
         for event in events:
-            normalized_event = normalize_event_timestamp(dict(event))
+            row = _split_event_columns(event)
             conn.execute(
                 f"INSERT INTO events ({col_names}) VALUES ({placeholders})",
-                # event.get(col) returns None (→ NULL) for any field not present
-                tuple(normalized_event.get(col) for col in EVENT_COLUMNS),
+                tuple(row.get(col) for col in write_columns),
             )
         conn.commit()
         return len(events)
@@ -97,7 +148,7 @@ def read_events(
         params.extend([limit, offset])
 
         rows = conn.execute(query, params).fetchall()
-        return [normalize_event_timestamp(dict(row)) for row in rows]
+        return [_restore_event_columns(row) for row in rows] # restore original event structure with extra attributes merged back in
     finally:
         conn.close()
 

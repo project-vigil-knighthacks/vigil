@@ -1,5 +1,5 @@
 {
     "patterns": [
-        "%{IP:src_ip} - (?:-|%{USERNAME:login}) \\[%{HTTPDATE:timestamp}\\] \"%{WORD} %{DATA:uri} HTTP/%{NUMBER}\" %{INT:status_code} %{INT:bytes_sent}"
+        "%{IP:src_ip} - (?:-|%{USERNAME:login}) \\[%{HTTPDATE:timestamp}\\] \"%{WORD:http_method} %{DATA:uri} HTTP/%{NUMBER}\" %{INT:status_code} %{INT:bytes_sent}"
     ]
 }

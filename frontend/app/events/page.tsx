@@ -6,10 +6,11 @@ import styles from '../siem.module.css';
 import type { ParsedLog, EventsResponse } from '../../types/logs';
 import { useCollectorStream, StreamStatus } from '../hooks/useCollectorStream';
 import { mergeUniqueEvents } from '../lib/streamEvents';
+import { useSettings } from '../contexts/SettingsContext';
+import { formatLogValue, getAttributeLabel, getVisibleLogAttributes } from '../lib/logDisplay';
 
 const PAGE_SIZE_OPTIONS = [25, 50, 100, 250, 'All'] as const;
 type PageSizeOption = typeof PAGE_SIZE_OPTIONS[number];
-const DISPLAY_COLUMNS = ['timestamp', 'severity', 'host', 'proc', 'src_ip', 'login', 'login_status', 'command', 'uri', 'status_code', 'bytes_sent'];
 
 function getSeverityClass(severity: string | undefined): string {
   switch (severity?.toLowerCase()) {
@@ -27,6 +28,7 @@ const STATUS_DOT: Record<StreamStatus, { core: string; label: string }> = {
 };
 
 export default function EventsPage() {
+  const { settings } = useSettings();
   // API calls use relative URLs proxied through Next.js rewrites
 
   const [pageSize, setPageSize] = useState<PageSizeOption>(50);
@@ -93,8 +95,7 @@ export default function EventsPage() {
     setOffset(0);
   };
 
-  const activeColumns = DISPLAY_COLUMNS.filter((col) => events.some((e) => e[col] != null));
-  const columns = activeColumns.length > 0 ? activeColumns : DISPLAY_COLUMNS;
+  const columns = getVisibleLogAttributes(events, settings.hiddenLogAttributes);
   const totalPages = Math.ceil(total / pageSizeNum);
   const currentPage = Math.floor(offset / pageSizeNum) + 1;
   const criticalCount = events.filter((e) => e.severity === 'critical').length;
@@ -209,7 +210,7 @@ export default function EventsPage() {
                   <thead>
                     <tr>
                       <th>#</th>
-                      {columns.map((col) => <th key={col}>{col.replace(/_/g, ' ')}</th>)}
+                      {columns.map((col) => <th key={col}>{getAttributeLabel(col)}</th>)}
                     </tr>
                   </thead>
                   <tbody>
@@ -226,7 +227,7 @@ export default function EventsPage() {
                                 {(event[col] as string) || 'info'}
                               </span>
                             ) : (
-                              String(event[col] ?? '-')
+                              formatLogValue(col, event[col], settings.timestampFormat)
                             )}
                           </td>
                         ))}

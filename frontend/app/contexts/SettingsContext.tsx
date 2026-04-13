@@ -20,6 +20,7 @@ export interface Settings {
   // Display
   rowSpacing: 'tight' | 'standard' | 'relaxed';
   timestampFormat: 'iso' | 'relative' | 'local';
+  hiddenLogAttributes: string[];
   // Profile
   username: string;
   role: 'administrator' | 'analyst' | 'readonly';
@@ -34,6 +35,7 @@ export const DEFAULT_SETTINGS: Settings = {
   alertOnCritical: true,
   rowSpacing: 'standard',
   timestampFormat: 'iso',
+  hiddenLogAttributes: [],
   username: 'admin',
   role: 'administrator',
 };
