@@ -14,7 +14,7 @@ from time import sleep
 import requests
 from classifier import parse_and_sort  # original didn't parse before sending
 
-WRITE_DB_URL_ENDPOINT = "http://localhost:8000/api/collect"  # was posting to /ws/parse (a WebSocket, not a REST endpoint)
+WRITE_DB_URL_ENDPOINT = "http://localhost:8000/api/events/store"  # was posting to /ws/parse (a WebSocket, not a REST endpoint)
 POLL_INTERVAL = 1
 
 

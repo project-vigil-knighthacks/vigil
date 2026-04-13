@@ -169,7 +169,7 @@ async def ingest_raw_logs(payload: StringPayload):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to ingest logs: {str(e)}")
 
-@app.post("/api/collect")
+@app.post("/api/events/store")
 async def collect_events(events: list[dict]):
     """Receive parsed log events from the collector and store them in SQLite"""
     try:
