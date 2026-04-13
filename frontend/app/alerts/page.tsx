@@ -7,6 +7,7 @@ import type { ParsedLog, EventsResponse } from '../../types/logs';
 import { useSettings } from '../contexts/SettingsContext';
 import { useToast } from '../components/Toast';
 import { useCollectorStream, StreamStatus } from '../hooks/useCollectorStream';
+import { mergeUniqueEvents } from '../lib/streamEvents';
 
 const PAGE_SIZE = 50;
 const SEVERITY_FILTER = 'critical,warning';
@@ -71,18 +72,28 @@ export default function AlertsPage() {
     );
     if (alertEvents.length === 0) return;
 
-    if (settings.alertOnCritical && alertEvents.some((e) => e.severity === 'critical')) {
-      const critCount = alertEvents.filter((e) => e.severity === 'critical').length;
+    const uniqueAlertEvents = mergeUniqueEvents([], alertEvents).events;
+    if (uniqueAlertEvents.length === 0) return;
+
+    if (settings.alertOnCritical && uniqueAlertEvents.some((e) => e.severity === 'critical')) {
+      const critCount = uniqueAlertEvents.filter((e) => e.severity === 'critical').length;
       toast('error', 'Critical events detected', `${critCount} new critical alert${critCount !== 1 ? 's' : ''}`);
     }
 
     if (offsetRef.current === 0) {
-      setEvents((prev) => [...alertEvents, ...prev].slice(0, PAGE_SIZE));
-      setTotal((prev) => prev + alertEvents.length);
+      let addedCount = 0;
+      setEvents((prev) => {
+        const merged = mergeUniqueEvents(prev, uniqueAlertEvents, PAGE_SIZE);
+        addedCount = merged.addedCount;
+        return merged.events;
+      });
+      if (addedCount > 0) {
+        setTotal((prev) => prev + addedCount);
+      }
       setPending(0);
     } else {
-      setPending((prev) => prev + alertEvents.length);
-      setTotal((prev) => prev + alertEvents.length);
+      setPending((prev) => prev + uniqueAlertEvents.length);
+      setTotal((prev) => prev + uniqueAlertEvents.length);
     }
   }, [settings.alertOnCritical, toast]);
 

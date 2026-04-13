@@ -5,6 +5,7 @@ import { Sidebar } from '../components/Sidebar';
 import styles from '../siem.module.css';
 import type { ParsedLog } from '../../types/logs';
 import { useCollectorStream, StreamStatus } from '../hooks/useCollectorStream';
+import { mergeUniqueEvents } from '../lib/streamEvents';
 
 /* ── time-range buckets ── */
 type TimeRange = '1h' | '6h' | '24h' | '7d' | '30d';
@@ -88,8 +89,15 @@ export default function DashboardPage() {
 
   /* live stream – prepend to allEvents */
   const handleNewEvents = useCallback((incoming: ParsedLog[]) => {
-    setAllEvents((prev) => [...incoming, ...prev].slice(0, 1000));
-    setTotal((prev) => prev + incoming.length);
+    let addedCount = 0;
+    setAllEvents((prev) => {
+      const merged = mergeUniqueEvents(prev, incoming, 1000);
+      addedCount = merged.addedCount;
+      return merged.events;
+    });
+    if (addedCount > 0) {
+      setTotal((prev) => prev + addedCount);
+    }
   }, []);
   useCollectorStream(handleNewEvents, setStreamStatus);
 

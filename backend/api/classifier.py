@@ -7,6 +7,7 @@ identify severity and such
 import os
 from grokmoment import Parse
 from datetime import datetime
+from timestamps import normalize_event_timestamp
 
 PATTERNS_FILE = os.path.join(os.path.dirname(__file__), 'data', 'patterns.json')
 grok_parse = Parse(patterns_file=PATTERNS_FILE)
@@ -36,6 +37,7 @@ def parse_and_sort(content) -> dict:
     for event in parsed_events:
         if event.get('unmatched'):
             continue
+        normalize_event_timestamp(event)
         if 'severity' not in event:
             login_status = str(event.get('login_status', '')).lower()
             proc = str(event.get('proc', '')).lower()

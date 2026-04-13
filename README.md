@@ -102,7 +102,7 @@ vigil/
 └── env.example                  Environment variable template
 ```
 
-## Quick Start
+## Quick Start in Terminals
 
 ### Prerequisites
 
@@ -179,7 +179,51 @@ python simulate.py --base http://127.0.0.1:5000  # target URL (default)
 
 > **Tip:** `--requests` sets the number of _iterations_, not individual HTTP requests. Some actions (e.g. a login flow) make 4–5 requests per iteration, so 30 iterations may produce ~75 log entries.
 
-## Environment Variables
+## Connect Your Website
+
+After the SIEM is running, there are only two supported ways to connect a real website:
+
+### Option A: Your site already has access logs
+
+If your site writes a normal access log file, point the collector at it:
+
+```bash
+cd backend/api
+python collector.py /path/to/your/access.log
+```
+
+That is the bare minimum for a self-hosted site.
+
+### Option B: Your site is deployed and does not expose log files
+
+If your site is on Vercel, Netlify, or another hosted platform, the site must send raw log lines to Vigil over HTTP.
+
+Bare minimum:
+1. Your site needs a small logger/proxy that POSTs to `POST /api/ingest`.
+2. Your site needs one website-side env var:
+
+```env
+VIGIL_API_URL=https://your-public-vigil-backend.example.com
+```
+
+`VIGIL_API_URL` is set on the monitored website, not in Vigil's backend `.env.local`.
+
+For the current `dw-ZS` deployment, that means:
+1. Keep the Vigil backend running locally.
+2. Expose port `8000` with a public tunnel or deploy the backend.
+3. Put that public backend URL into the website's environment as `VIGIL_API_URL`.
+4. Visit the website and confirm new events appear in Vigil `/events`.
+
+### What success looks like
+
+You are connected when:
+- the backend receives `POST /api/ingest`
+- the Events page shows new rows with recent timestamps
+- the dashboard counters increase without manual log upload
+
+## Optional Backend Config
+
+These are for `backend/.env.local` only.
 
 ### Required for basic operation
 
@@ -199,12 +243,11 @@ None: Vigil runs with zero configuration out of the box.
 | `VIGIL_DB_PATH` | Override SQLite database location (default: `backend/api/vigil.db`) |
 | `VIGIL_LOG_PATH` | Tell the collector which log file to watch (alternative to CLI arg) |
 | `VIGIL_CORS_ORIGINS` | Comma-separated additional origins allowed to call the API (e.g. `https://your-site.vercel.app`) |
-| `VIGIL_API_URL` | Website-side variable for deployed Next.js / Node sites that POST raw log lines to Vigil; set this on the monitored site, not in Vigil backend |
 | `MAILGUN_API_KEY` | Email alert notifications via Mailgun |
 | `MAILGUN_DOMAIN` | Mailgun sending domain |
 | `MAILGUN_SENDER` | "From" address for alert emails |
 
-See `env.example` for the full template.
+See `backend/env.example` for the full template.
 
 ### Frontend
 
@@ -215,17 +258,6 @@ VIGIL_BACKEND_URL=http://localhost:8000
 ```
 
 This is only needed if the Vigil frontend and backend are not running on the same host.
-
-### Monitored Website Integration
-
-For a separately deployed website like `dw-ZS`, set this in the website's own environment
-(for example Vercel Project Settings), not in Vigil's backend `.env`:
-
-```
-VIGIL_API_URL=https://your-public-vigil-backend.example.com
-```
-
-The monitored site uses this to POST raw access-style log lines to `POST /api/ingest`.
 
 ## API Endpoints
 
@@ -240,28 +272,3 @@ The monitored site uses this to POST raw access-style log lines to `POST /api/in
 | `POST` | `/api/create_env` | Write `.env` file (for API key setup) |
 | `WS` | `/ws/parse` | Stream log parsing results |
 | `WS` | `/ws/collector` | Live event stream from collector |
-
-## Planned Project Structure
-
-```
-vigil-siem/
-├── backend/          # FastAPI: ingestion, detection, auth, AI voice
-├── frontend/         # React: dashboard, log explorer, voice bot UI
-├── dummy-site/       # Flask: generates realistic security events
-├── elasticsearch/    # ES config
-├── filebeat/         # Log shipper config
-├── docs/             # Architecture, API docs, deployment guide
-└── docker-compose.yml
-```
-
-## Planned Detection Rules
-
-Sigma-format YAML rules mapped to MITRE ATT&CK:
-
-| Rule | Technique | ID |
-|------|-----------|----|
-| Brute Force Login | Credential Access | T1110 |
-| Privilege Escalation | Privilege Escalation | T1548 |
-| Port Scan Detection | Discovery | T1046 |
-| Suspicious Process Execution | Execution | T1059 |
-| Unusual Account Login | Initial Access | T1078 |

@@ -11,6 +11,7 @@ export function useCollectorStream(
 ) {
   const onEventsRef = useRef(onEvents);
   const onStatusRef = useRef(onStatusChange);
+  const socketRef = useRef<WebSocket | null>(null);
 
   useEffect(() => { onEventsRef.current = onEvents; });
   useEffect(() => { onStatusRef.current = onStatusChange; });
@@ -26,6 +27,7 @@ export function useCollectorStream(
       onStatusRef.current('connecting');
 
       const ws = new WebSocket(wsUrl);
+      socketRef.current = ws;
 
       ws.onopen = () => {
         if (!destroyed) onStatusRef.current('connected');
@@ -59,6 +61,8 @@ export function useCollectorStream(
     return () => {
       destroyed = true;
       clearTimeout(retryTimeout);
+      socketRef.current?.close();
+      socketRef.current = null;
     };
   }, []);
 }

@@ -14,6 +14,7 @@
 import os
 import sqlite3
 from typing import Optional
+from timestamps import normalize_event_timestamp
 
 DB_PATH = os.environ.get("VIGIL_DB_PATH", os.path.join(os.path.dirname(__file__), "vigil.db"))
 EVENT_COLUMNS = [
@@ -62,10 +63,11 @@ def write_events(events: list[dict]) -> int:
         placeholders = ", ".join("?" for _ in EVENT_COLUMNS)
         col_names = ", ".join(EVENT_COLUMNS)
         for event in events:
+            normalized_event = normalize_event_timestamp(dict(event))
             conn.execute(
                 f"INSERT INTO events ({col_names}) VALUES ({placeholders})",
                 # event.get(col) returns None (→ NULL) for any field not present
-                tuple(event.get(col) for col in EVENT_COLUMNS),
+                tuple(normalized_event.get(col) for col in EVENT_COLUMNS),
             )
         conn.commit()
         return len(events)
@@ -95,7 +97,7 @@ def read_events(
         params.extend([limit, offset])
 
         rows = conn.execute(query, params).fetchall()
-        return [dict(row) for row in rows]
+        return [normalize_event_timestamp(dict(row)) for row in rows]
     finally:
         conn.close()
 

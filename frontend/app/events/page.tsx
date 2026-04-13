@@ -5,6 +5,7 @@ import { Sidebar } from '../components/Sidebar';
 import styles from '../siem.module.css';
 import type { ParsedLog, EventsResponse } from '../../types/logs';
 import { useCollectorStream, StreamStatus } from '../hooks/useCollectorStream';
+import { mergeUniqueEvents } from '../lib/streamEvents';
 
 const PAGE_SIZE_OPTIONS = [25, 50, 100, 250, 'All'] as const;
 type PageSizeOption = typeof PAGE_SIZE_OPTIONS[number];
@@ -65,16 +66,25 @@ export default function EventsPage() {
   // Handle incoming streamed events
   const handleNewEvents = useCallback((incoming: ParsedLog[]) => {
     if (offsetRef.current === 0) {
-      // On page 1: prepend and cap at current page size
-      setEvents((prev) => [...incoming, ...prev].slice(0, pageSizeNum));
-      setTotal((prev) => prev + incoming.length);
+      let addedCount = 0;
+      setEvents((prev) => {
+        const merged = mergeUniqueEvents(prev, incoming, pageSizeNum);
+        addedCount = merged.addedCount;
+        return merged.events;
+      });
+      if (addedCount > 0) {
+        setTotal((prev) => prev + addedCount);
+      }
       setPending(0);
     } else {
       // On a deeper page: show banner
-      setPending((prev) => prev + incoming.length);
-      setTotal((prev) => prev + incoming.length);
+      const addedCount = mergeUniqueEvents([], incoming).addedCount;
+      if (addedCount > 0) {
+        setPending((prev) => prev + addedCount);
+        setTotal((prev) => prev + addedCount);
+      }
     }
-  }, []);
+  }, [pageSizeNum]);
 
   useCollectorStream(handleNewEvents, setStreamStatus);
 

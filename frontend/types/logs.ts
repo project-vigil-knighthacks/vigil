@@ -3,6 +3,8 @@
 export interface ParsedLog {
   [key: string]: unknown;
 
+  id?: number | string;
+
   // Core fields from grokmoment
   timestamp?: string;
   host?: string;
