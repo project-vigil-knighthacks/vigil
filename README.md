@@ -23,7 +23,7 @@ No cloud services, no external databases, no agents to install on your server. J
 │  (watchdog)  │                       │ (severity tagging) │
 └──────┬───────┘                       └────────┬───────────┘
        │                                        │
-       │ POST /api/collect                      │
+       │ POST /api/events/store                 │
        v                                        v
 ┌──────────────┐                      ┌───────────────────┐
 │   FastAPI    │<─── parsed events ───│   SQLite (WAL)    │
@@ -195,9 +195,11 @@ None: Vigil runs with zero configuration out of the box.
 | `GROQ_API_KEY` | Groq — enables voice agent (Llama 3) |
 | `OLLAMA_URL` | Ollama instance URL — enables voice agent locally (no key needed) |
 | `ELEVENLABS_API_KEY` | ElevenLabs — enables text-to-speech for voice agent responses |
+| `VIGIL_BACKEND_URL` | Where the Vigil frontend proxies API + WebSocket traffic when the backend runs on another host |
 | `VIGIL_DB_PATH` | Override SQLite database location (default: `backend/api/vigil.db`) |
 | `VIGIL_LOG_PATH` | Tell the collector which log file to watch (alternative to CLI arg) |
 | `VIGIL_CORS_ORIGINS` | Comma-separated additional origins allowed to call the API (e.g. `https://your-site.vercel.app`) |
+| `VIGIL_API_URL` | Website-side variable for deployed Next.js / Node sites that POST raw log lines to Vigil; set this on the monitored site, not in Vigil backend |
 | `MAILGUN_API_KEY` | Email alert notifications via Mailgun |
 | `MAILGUN_DOMAIN` | Mailgun sending domain |
 | `MAILGUN_SENDER` | "From" address for alert emails |
@@ -209,10 +211,21 @@ See `env.example` for the full template.
 Create `frontend/.env.local`:
 
 ```
-NEXT_PUBLIC_API_BASE_URL=http://localhost:8000
+VIGIL_BACKEND_URL=http://localhost:8000
 ```
 
-Or configure the API URL in the dashboard's Settings page.
+This is only needed if the Vigil frontend and backend are not running on the same host.
+
+### Monitored Website Integration
+
+For a separately deployed website like `dw-ZS`, set this in the website's own environment
+(for example Vercel Project Settings), not in Vigil's backend `.env`:
+
+```
+VIGIL_API_URL=https://your-public-vigil-backend.example.com
+```
+
+The monitored site uses this to POST raw access-style log lines to `POST /api/ingest`.
 
 ## API Endpoints
 
@@ -221,7 +234,8 @@ Or configure the API URL in the dashboard's Settings page.
 | `GET` | `/api/health` | Health check |
 | `POST` | `/api/logs/parse` | Parse log content (string body) |
 | `POST` | `/api/logs/upload` | Parse uploaded log file |
-| `POST` | `/api/collect` | Store parsed events in SQLite |
+| `POST` | `/api/ingest` | Accept raw log text from a remote site, then parse + store it |
+| `POST` | `/api/events/store` | Store parsed events in SQLite |
 | `GET` | `/api/events` | Query events (limit, offset, severity filter) |
 | `POST` | `/api/create_env` | Write `.env` file (for API key setup) |
 | `WS` | `/ws/parse` | Stream log parsing results |
