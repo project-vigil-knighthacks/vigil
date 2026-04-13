@@ -6,21 +6,24 @@ How to hook up a deployed website (or any web server) to Vigil for real-time mon
 
 ## The Core Requirement
 
-Vigil needs exactly **one thing** from your website: a text-based log file that it can read.
+Vigil needs **one thing** from your website: HTTP request logs in a text format it can parse.
+
+There are two ways to get them there:
 
 ```
-Your website  ──writes──▶  access.log  ◀──reads──  Vigil collector
+Option 1 (file-based):   Your website  ──writes──▶  access.log  ◀──reads──  Vigil collector
+Option 2 (HTTP ingest):  Your website  ──POSTs raw log lines──▶  Vigil /api/ingest
 ```
 
-That's it. Vigil **never touches your website code, database, or server configuration**. It only reads a log file.
+Vigil **never touches your website code, database, or server configuration**. It either reads a log file or receives log lines over HTTP.
 
 ---
 
 ## Bare Minimum: What Your Website Must Produce
 
-### 1. An HTTP Access Log File
+### 1. An HTTP Access Log Line
 
-Your web server (or hosting platform) must write access logs to a file that Vigil's collector can reach. Every major web server does this by default:
+Each request to your site should produce a log line. Every major web server does this by default:
 
 | Server | Default log location | Format |
 |--------|---------------------|--------|
@@ -28,6 +31,7 @@ Your web server (or hosting platform) must write access logs to a file that Vigi
 | **Apache** | `/var/log/apache2/access.log` | Combined or Common |
 | **Caddy** | Needs explicit config | JSON or Common |
 | **Node.js / Express** | None by default: needs `morgan` or similar middleware | Configurable |
+| **Next.js (Vercel)** | No file: use edge middleware to POST to `/api/ingest` | Apache format via middleware |
 | **IIS** | `C:\inetpub\logs\LogFiles\` | W3C Extended |
 
 **The log format Vigil already has a Grok pattern for:**
@@ -40,28 +44,35 @@ Apache Combined / Common:
 Pattern: `%{IP:src_ip} - - [%{HTTPDATE:timestamp}] "%{WORD} %{URIPATH:uri} HTTP/%{NUMBER}" %{INT:status_code} %{INT:bytes_sent}`
 
 If your logs are in a different format (JSON, W3C, custom), Vigil can still handle them:
-- **With `OPENAI_API_KEY`**: Grokmoment will auto-generate a new pattern from the first few unrecognized lines
-- **Without `OPENAI_API_KEY`**: You'd need to write a Grok pattern manually and add it to `backend/api/data/patterns.json`
+- **With an LLM API key** (`OPENAI_API_KEY`): Grokmoment will auto-generate a new pattern from the first few unrecognized lines
+- **Without an LLM key**: write a Grok pattern manually and add it to `backend/api/data/patterns.json`
 
-### 2. File Access
+### 2. A Way to Deliver Logs to Vigil
 
-The Vigil collector must be able to read the log file. This means one of:
-
-| Scenario | How it works |
-|----------|--------------|
-| **Same machine** | Collector reads the file directly (simplest) |
-| **Remote server** | Mount the log file locally via `sshfs`, `NFS`, `SMB`, or sync it with `rsync` / `scp` on a cron |
-| **Cloud hosting** | Download logs via API (Vercel, Cloudflare, AWS CloudWatch) and write them to a local file for the collector |
+| Scenario | Method | Complexity |
+|----------|--------|------------|
+| **Same machine** | Collector reads the log file directly | Easiest |
+| **Remote server** | Mount the log file locally via `sshfs`, `NFS`, `SMB`, or sync with `rsync` | Medium |
+| **Cloud / serverless (Vercel, Netlify, etc.)** | Site middleware POSTs raw log lines to `POST /api/ingest` | Easy (no collector needed) |
 
 ---
 
-## Your Situation: Website with No Logs or Backend
+## Integration Options
 
-If your deployed website currently produces **no logs and has no backend/database**, here's what you need to add:
+### Option A: File-Based — Web Server Logs (traditional servers)
 
-### Option A: Add Logging at the Web Server Level (Recommended)
+If your site is served by **Nginx, Apache, or Caddy**, it's already producing access logs. Point the collector at the file:
 
-If your site is served by **Nginx, Apache, or Caddy**, it's already producing access logs: you just need to find them or enable them.
+```bash
+# CLI argument
+python collector.py /var/log/nginx/access.log
+
+# Or set the env var
+export VIGIL_LOG_PATH=/var/log/nginx/access.log
+python collector.py
+```
+
+This requires **zero changes to your website code**. The web server logs every request automatically.
 
 **Nginx**: check `/etc/nginx/nginx.conf`:
 ```nginx
@@ -81,36 +92,66 @@ yourdomain.com {
     log {
         output file /var/log/caddy/access.log
     }
-    # ... rest of config
 }
 ```
 
-This requires **zero changes to your website code**. The web server logs every request automatically.
+### Option B: HTTP Ingestion — Cloud / Serverless Sites (Recommended for Vercel, Netlify, etc.)
 
-### Option B: Static Site / No Server Control (e.g., Vercel, Netlify, GitHub Pages)
+If your site runs on a serverless platform with no persistent filesystem, use Vigil's `POST /api/ingest` endpoint. Your site sends raw Apache-format log lines directly — no collector, no file, no sync scripts.
 
-If you have no access to the web server and it's a static frontend-only site:
+**How it works:**
+1. Add a small middleware/proxy to your site that formats each request as an Apache log line
+2. The middleware fire-and-forget POSTs it to your Vigil backend
+3. Vigil parses, classifies, stores, and broadcasts the event automatically
 
-1. **Check if your platform exposes logs:**
-   - **Vercel**: Runtime Logs API (`vercel logs --json`)
-   - **Cloudflare Pages**: Analytics API (not raw access logs)
-   - **Netlify**: Analytics add-on (limited)
-   - **AWS S3 + CloudFront**: Access logging to S3 bucket
+**Next.js example** (edge middleware / proxy):
+```ts
+// src/proxy.ts (or src/middleware.ts for Next.js <16)
+import { NextRequest, NextResponse } from "next/server";
 
-2. **Write a small sync script** that pulls logs from the platform API and writes them to a local file. Then point the collector at that file. Example concept:
-   ```bash
-   # Cron every minute:
-   vercel logs --json --since 1m >> /var/log/mysite/access.log
-   ```
+export function middleware(req: NextRequest) {
+  const res = NextResponse.next();
+  const vigilUrl = process.env.VIGIL_API_URL;
+  if (vigilUrl) {
+    const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "0.0.0.0";
+    const ts = formatHttpDate(new Date());
+    const logLine = `${ip} - - [${ts}] "${req.method} ${req.nextUrl.pathname} HTTP/1.1" 200 0`;
 
-3. **If no logs are available at all**, you could add a lightweight logging endpoint to a minimal backend (a single serverless function or tiny Express server) that your frontend pings on each page load. But at that point you're building a backend.
+    fetch(`${vigilUrl}/api/ingest`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ content: logLine }),
+    }).catch(() => {}); // Don't block the response if SIEM is down
+  }
+  return res;
+}
+```
 
-### Option C: Add Express/Node Middleware (if you add a backend)
+Set `VIGIL_API_URL` in your hosting platform's environment variables (e.g. Vercel Project Settings → Environment Variables). The URL should point to your Vigil backend — either a public deployment or an ngrok tunnel to `localhost:8000`.
 
-If you decide to add a backend to your website:
+**Express example:**
+```js
+const morgan = require('morgan');
+
+// POST each log line to Vigil instead of writing to a file
+app.use(morgan('combined', {
+  stream: {
+    write: (line) => {
+      fetch(`${process.env.VIGIL_API_URL}/api/ingest`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: line.trim() }),
+      }).catch(() => {});
+    }
+  }
+}));
+```
+
+### Option C: File + Express/Node Middleware (self-hosted Node.js)
+
+If you run your own Node.js server and prefer the file-based approach:
 
 ```js
-// Express example
 const morgan = require('morgan');
 const fs = require('fs');
 const path = require('path');
@@ -123,7 +164,30 @@ const accessLogStream = fs.createWriteStream(
 app.use(morgan('combined', { stream: accessLogStream }));
 ```
 
-This writes Apache Combined format that Vigil already understands.
+Then run the collector pointed at `logs/access.log`.
+
+---
+
+## Exposing the Vigil Backend
+
+If your website is deployed remotely (not on the same machine as Vigil), the backend needs to be reachable:
+
+| Method | Use case |
+|--------|----------|
+| **ngrok** (`ngrok http 8000`) | Quick testing — gives a public URL that tunnels to your local backend |
+| **Deploy backend** (Railway, Fly.io, etc.) | Persistent — no tunnel needed |
+| **VPN / Tailscale** | Private — site and SIEM on same network |
+
+For ngrok, set `VIGIL_API_URL=https://your-tunnel.ngrok-free.app` in your site's environment.
+
+**CORS**: Vigil's backend must allow your site's origin. Add it to the `allow_origins` list in `backend/api/api_endpoint.py`:
+```python
+allow_origins=[
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "https://your-site.vercel.app",  # add your deployed site
+],
+```
 
 ---
 
@@ -143,6 +207,17 @@ What a website owner would configure in Vigil:
 |----------|-----|
 | `OPENAI_API_KEY` | If your logs are in a format Vigil hasn't seen, this lets it auto-generate Grok patterns. Without it, you'll need to write patterns manually or use a known format (Apache Combined, syslog, auth.log) |
 
+### For the Voice Agent
+
+| Variable | Why |
+|----------|-----|
+| `AI_PROVIDER` | Which LLM to use: `openai` (default), `anthropic`, `groq`, or `ollama` |
+| `OPENAI_API_KEY` | OpenAI — voice agent + auto pattern generation |
+| `ANTHROPIC_API_KEY` | Anthropic — voice agent (Claude) |
+| `GROQ_API_KEY` | Groq — voice agent (Llama 3) |
+| `OLLAMA_URL` | Ollama instance URL — voice agent locally, no key needed |
+| `ELEVENLABS_API_KEY` | ElevenLabs — text-to-speech for voice agent responses |
+
 ### For Email Alerts
 
 | Variable | Why |
@@ -156,33 +231,18 @@ What a website owner would configure in Vigil:
 | Variable | Why |
 |----------|-----|
 | `VIGIL_DB_PATH` | Store the SQLite database somewhere specific instead of next to the backend code |
-| `VIGIL_LOG_PATH` | *(not yet implemented)*: Tell the collector which file to watch without editing code |
-
----
-
-## What Needs to Be Built in Vigil First
-
-Before a real website's logs will flow end-to-end through the dashboard, these items from [constraints.md](constraints.md) must be resolved:
-
-1. **Collector accepts a file path argument**: so you can run `python collector.py /var/log/nginx/access.log`
-2. **Collector parses locally and POSTs structured events**: not raw text
-3. **`patterns.json` is seeded with the Apache pattern**: or you have `OPENAI_API_KEY` set
-4. **HTTP-aware severity classification**: so 404s, 500s, and `/etc/passwd` probes get flagged properly
-5. **Frontend event columns include `uri` and `status_code`**: so you can actually see what URLs are being hit
-
-Items 1–3 are required. Items 4–5 are required for the dashboard to be useful (otherwise events just show dashes).
+| `VIGIL_LOG_PATH` | Tell the collector which file to watch (alternative to CLI arg) |
 
 ---
 
 ## Testing Checklist
 
-Once the above Vigil changes are made:
-
 ```
-[ ] Web server writing access.log (verify with tail -f)
 [ ] Vigil backend running (http://localhost:8000/api/health returns {"ok": true})
 [ ] Vigil frontend running (http://localhost:3000 loads)
-[ ] Collector pointed at access.log and running
+[ ] Log delivery working (one of):
+    [ ] File-based: collector running and pointed at your log file
+    [ ] HTTP ingest: site middleware POSTing to /api/ingest (check backend terminal for output)
 [ ] Visit your website in a browser: check that events appear in /events
 [ ] Check /alerts for any warning/critical entries
 [ ] Run the dummy-site simulator against your real site URL to generate attack traffic:

@@ -1,25 +1,37 @@
 # Vigil SIEM: Architecture Q&A
 
-General quetsions for the architecture of Vigil SIEM!
+General questions for the architecture of Vigil SIEM!
 
-## 1. How does the dummy website connect to the SIEM dashboard?
+## 1. How does a website connect to the SIEM dashboard?
 
-**FastAPI is the bridge, but the dummy website never talks to the dashboard directly.**
+**FastAPI is the bridge. The monitored website never talks to the dashboard directly.**
+
+There are two ingestion paths:
+
+### Path A: File-based (local sites / traditional servers)
 
 ```
-Dummy Website → *writes log files* → Collector (watchdog) → *parses* → SQLite
-                                                                         ↓
-                                        FastAPI ← Dashboard (Next.js) queries
+Website → *writes log files* → Collector (watchdog) → *parses* → SQLite
+                                                                    ↓
+                                     FastAPI ← Dashboard (Next.js) queries
+```
+
+### Path B: HTTP ingestion (cloud / serverless sites like Vercel, Netlify)
+
+```
+Website middleware → POST raw log line → /api/ingest → *parses* → SQLite
+                                                                    ↓
+                                     FastAPI ← Dashboard (Next.js) queries
 ```
 
 | Layer | Role |
 |---|---|
-| Dummy website | Writes standard log files (access.log, auth.log) |
-| Collector (`log_collector.py`) | Watches log files via `watchdog`, parses with `grokmoment`, stores in SQLite, POSTs to FastAPI |
-| FastAPI (`api_endpoint.py`) | Receives events from collector (`POST /api/collect`), serves events to dashboard (`GET /api/events`) |
-| Dashboard (Next.js) | Queries FastAPI to display events, alerts, stats |
+| Monitored website | Writes access logs to file (Path A) or POSTs raw log lines to `/api/ingest` (Path B) |
+| Collector (`collector.py`) | *Path A only:* Watches log files via `watchdog`, calls `parse_and_sort()` locally, POSTs parsed events to FastAPI |
+| FastAPI (`api_endpoint.py`) | Receives events (`POST /api/collect` for pre-parsed, `POST /api/ingest` for raw text), stores in SQLite, broadcasts via WebSocket, serves events to dashboard (`GET /api/events`) |
+| Dashboard (Next.js) | Queries FastAPI and subscribes to WebSocket `/ws/collector` for real-time events |
 
-This is the standard SIEM data flow (Splunk, Wazuh, ELK all work this way). The monitored app never needs to know the SIEM exists.
+This is the standard SIEM data flow (Splunk, Wazuh, ELK all work this way). The monitored app never needs to know the SIEM exists — it only needs to produce logs.
 
 ---
 

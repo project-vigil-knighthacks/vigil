@@ -4,6 +4,7 @@ import asyncio
 import os
 import base64
 import httpx
+from dotenv import load_dotenv
 from fastapi import FastAPI, UploadFile, File, HTTPException, Query, WebSocket, WebSocketDisconnect, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -12,6 +13,9 @@ from classifier import parse_and_sort, grok_parse
 from emailer import router as emailer_router, send_alert_email
 from subscriptions import router as subscriptions_router
 import database
+
+load_dotenv()
+load_dotenv(os.path.join(os.path.dirname(__file__), '..', '.env.local'), override=True)
 
 
 # ── Startup ───────────────────────────────────────────────────────────────────
@@ -53,11 +57,7 @@ event_broadcaster = EventBroadcaster()
 # ── CORS ──────────────────────────────────────────────────────────────────────
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-        "https://dw-q1sf2wt5d-zaynedocs-projects.vercel.app",
-    ],
+    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

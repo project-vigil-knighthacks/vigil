@@ -189,7 +189,12 @@ None: Vigil runs with zero configuration out of the box.
 
 | Variable | Purpose |
 |----------|---------|
-| `OPENAI_API_KEY` | Enables auto Grok pattern generation for unrecognized log formats |
+| `AI_PROVIDER` | LLM backend for the voice agent: `openai` (default), `anthropic`, `groq`, or `ollama` |
+| `OPENAI_API_KEY` | OpenAI — enables voice agent + auto Grok pattern generation |
+| `ANTHROPIC_API_KEY` | Anthropic — enables voice agent (Claude) |
+| `GROQ_API_KEY` | Groq — enables voice agent (Llama 3) |
+| `OLLAMA_URL` | Ollama instance URL — enables voice agent locally (no key needed) |
+| `ELEVENLABS_API_KEY` | ElevenLabs — enables text-to-speech for voice agent responses |
 | `VIGIL_DB_PATH` | Override SQLite database location (default: `backend/api/vigil.db`) |
 | `MAILGUN_API_KEY` | Email alert notifications via Mailgun |
 | `MAILGUN_DOMAIN` | Mailgun sending domain |
