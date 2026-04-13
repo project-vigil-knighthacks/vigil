@@ -141,15 +141,24 @@ def create_subscriptions_table() -> None:
     finally:
         conn.close()
 
-def add_subscription(email: str, min_severity: str) -> None:
+def add_subscription(email: str, min_severity: str) -> bool:
     conn = get_connection()
     try:
-        conn.execute("""
-            INSERT INTO alert_subscriptions (email, min_severity)
+        cursor = conn.execute("""
+            INSERT OR IGNORE INTO alert_subscriptions (email, min_severity)
             VALUES (?, ?)
-            ON CONFLICT(email) DO UPDATE SET min_severity=excluded.min_severity
         """, (email, min_severity))
+        inserted = cursor.rowcount == 1
+
+        if not inserted:
+            conn.execute("""
+                UPDATE alert_subscriptions
+                SET min_severity = ?
+                WHERE email = ?
+            """, (min_severity, email))
+
         conn.commit()
+        return inserted
     finally:
         conn.close()
 

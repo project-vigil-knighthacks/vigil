@@ -27,16 +27,17 @@ def list_subscriptions():
     return database.get_subscriptions()
 
 
-def opt_in_email(payload):
+def opt_in_email(email: str):
     cfg = mailGun_Config()
     
-    resp =  requests.post( 
+    resp = requests.post( 
         f"https://api.mailgun.net/v3/{cfg['domain']}/messages",
-        auth=("api", cfg.get("api_key")),
-        data={"from": cfg.get("sender"),
-            "to": payload["email"],
+        auth=("api", cfg["api_key"]),
+        data={"from": cfg["sender"],
+            "to": email,
             "subject": "Welcome to Vigil",
-            "text": "You are now opted in to recieve alerts"
+            "text": "You are now opted in to receive alerts."
         },
           timeout=10
     )
+    return {"status_code": resp.status_code, "text": resp.text}
