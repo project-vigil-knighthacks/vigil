@@ -26,7 +26,7 @@ export interface Settings {
 }
 
 export const DEFAULT_SETTINGS: Settings = {
-  apiBaseUrl: 'http://localhost:8000',
+  apiBaseUrl: '',
   pollingInterval: 30,
   autoReconnect: true,
   connectionTimeout: 5000,

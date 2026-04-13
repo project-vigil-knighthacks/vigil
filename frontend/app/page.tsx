@@ -7,8 +7,6 @@ import { LogOutput } from './components/LogOutput';
 import type { LogParseResult } from '../types/logs';
 import styles from './siem.module.css';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8000';
-
 export default function Home() {
   const [result, setResult] = useState<LogParseResult | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -21,7 +19,7 @@ export default function Home() {
     setError(null);
 
     try {
-      const response = await fetch(`${API_BASE}/api/logs/parse`, {
+      const response = await fetch('/api/logs/parse', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content }),
@@ -48,7 +46,7 @@ export default function Home() {
     if (!result) return;
     setSaving(true);
     try {
-      const res = await fetch(`${API_BASE}/api/collect`, {
+      const res = await fetch('/api/collect', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(result.logs),

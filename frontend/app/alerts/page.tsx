@@ -29,7 +29,7 @@ const STATUS_DOT: Record<StreamStatus, { core: string; label: string }> = {
 export default function AlertsPage() {
   const { settings } = useSettings();
   const { toast } = useToast();
-  const API_BASE = settings.apiBaseUrl;
+  // API calls use relative URLs proxied through Next.js rewrites
 
   const [events, setEvents] = useState<ParsedLog[]>([]);
   const [total, setTotal] = useState(0);
@@ -47,7 +47,7 @@ export default function AlertsPage() {
     setError(null);
     try {
       const res = await fetch(
-        `${API_BASE}/api/events?limit=${PAGE_SIZE}&offset=${currentOffset}&severity=${SEVERITY_FILTER}`
+        `/api/events?limit=${PAGE_SIZE}&offset=${currentOffset}&severity=${SEVERITY_FILTER}`
       );
       if (!res.ok) throw new Error('Failed to fetch alerts');
       const data: EventsResponse = await res.json();
@@ -58,7 +58,7 @@ export default function AlertsPage() {
     } finally {
       setLoading(false);
     }
-  }, [API_BASE]);
+  }, []);
 
   useEffect(() => {
     fetchAlerts(offset);
@@ -86,7 +86,7 @@ export default function AlertsPage() {
     }
   }, [settings.alertOnCritical, toast]);
 
-  useCollectorStream(API_BASE, handleNewEvents, setStreamStatus);
+  useCollectorStream(handleNewEvents, setStreamStatus);
 
   const goToLatest = () => {
     setPending(0);

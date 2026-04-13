@@ -5,7 +5,6 @@ import { Sidebar } from '../components/Sidebar';
 import styles from '../siem.module.css';
 import type { ParsedLog } from '../../types/logs';
 import { useCollectorStream, StreamStatus } from '../hooks/useCollectorStream';
-import { useSettings } from '../contexts/SettingsContext';
 
 /* ── time-range buckets ── */
 type TimeRange = '1h' | '6h' | '24h' | '7d' | '30d';
@@ -42,8 +41,7 @@ const STATUS_DOT: Record<StreamStatus, { colour: string; label: string }> = {
 };
 
 export default function DashboardPage() {
-  const { settings } = useSettings();
-  const API_BASE = settings.apiBaseUrl;
+  // API calls use relative URLs proxied through Next.js rewrites
 
   /* state */
   const [allEvents, setAllEvents] = useState<ParsedLog[]>([]);
@@ -58,7 +56,7 @@ export default function DashboardPage() {
   const fetchEvents = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/api/events?limit=1000&offset=0`);
+      const res = await fetch('/api/events?limit=1000&offset=0');
       if (!res.ok) throw new Error('fetch failed');
       const data = await res.json();
       setAllEvents(data.events as ParsedLog[]);
@@ -66,7 +64,7 @@ export default function DashboardPage() {
     } catch { /* silent */ } finally {
       setLoading(false);
     }
-  }, [API_BASE]);
+  }, []);
 
   useEffect(() => { fetchEvents(); }, [fetchEvents]);
 
@@ -75,7 +73,7 @@ export default function DashboardPage() {
     const ping = async () => {
       const t0 = performance.now();
       try {
-        const r = await fetch(`${API_BASE}/api/health`);
+        const r = await fetch('/api/health');
         setLatencyMs(Math.round(performance.now() - t0));
         setHealthOk((await r.json()).ok === true);
       } catch {
@@ -86,14 +84,14 @@ export default function DashboardPage() {
     ping();
     const id = setInterval(ping, 5000);
     return () => clearInterval(id);
-  }, [API_BASE]);
+  }, []);
 
   /* live stream – prepend to allEvents */
   const handleNewEvents = useCallback((incoming: ParsedLog[]) => {
     setAllEvents((prev) => [...incoming, ...prev].slice(0, 1000));
     setTotal((prev) => prev + incoming.length);
   }, []);
-  useCollectorStream(API_BASE, handleNewEvents, setStreamStatus);
+  useCollectorStream(handleNewEvents, setStreamStatus);
 
   /* ── derived stats ── */
   const criticalTotal = allEvents.filter((e) => e.severity === 'critical').length;

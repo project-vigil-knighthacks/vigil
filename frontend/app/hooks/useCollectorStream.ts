@@ -6,7 +6,6 @@ import type { ParsedLog } from '../../types/logs';
 export type StreamStatus = 'connecting' | 'connected' | 'disconnected';
 
 export function useCollectorStream(
-  apiBase: string,
   onEvents: (events: ParsedLog[]) => void,
   onStatusChange: (status: StreamStatus) => void,
 ) {
@@ -22,7 +21,8 @@ export function useCollectorStream(
 
     function connect() {
       if (destroyed) return;
-      const wsUrl = apiBase.replace(/^https?/, (m) => m === 'https' ? 'wss' : 'ws') + '/ws/collector';
+      const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const wsUrl = `${proto}//${window.location.host}/ws/collector`;
       onStatusRef.current('connecting');
 
       const ws = new WebSocket(wsUrl);
@@ -60,5 +60,5 @@ export function useCollectorStream(
       destroyed = true;
       clearTimeout(retryTimeout);
     };
-  }, [apiBase]);
+  }, []);
 }

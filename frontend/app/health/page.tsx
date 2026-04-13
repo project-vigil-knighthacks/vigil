@@ -3,7 +3,6 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { Sidebar } from "../components/Sidebar";
 import styles from "../siem.module.css";
-import { useSettings } from "../contexts/SettingsContext";
 
 interface HealthResponse {
   ok: boolean;
@@ -25,8 +24,7 @@ const POLL_MS  = 3000;
 const LATENCY_WARN_MS = 40;   // bar turns red above this
 
 export default function HealthPage() {
-  const { settings } = useSettings();
-  const API_BASE = settings.apiBaseUrl;
+  // API calls use relative URLs proxied through Next.js rewrites
 
   const [data, setData] = useState<HealthResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -50,7 +48,7 @@ export default function HealthPage() {
     const poll = async () => {
       const t0 = performance.now();
       try {
-        const res = await fetch(`${API_BASE}/api/health`);
+        const res = await fetch('/api/health');
         const ms = Math.round(performance.now() - t0);
         const now = new Date();
         const ts = now.toTimeString().slice(0, 8) + "." + String(now.getMilliseconds()).padStart(3, "0");
@@ -74,11 +72,11 @@ export default function HealthPage() {
       }
     };
 
-    pushLog("INFO", `Starting health monitor — polling ${API_BASE}/api/health every ${POLL_MS / 1000}s`);
+    pushLog("INFO", `Starting health monitor — polling /api/health every ${POLL_MS / 1000}s`);
     poll();
     const id = setInterval(poll, POLL_MS);
     return () => { cancelled = true; clearInterval(id); };
-  }, [API_BASE, pushLog]);
+  }, [pushLog]);
 
   // Derived stats
   const latencies = samples.map((s) => s.ms);
@@ -143,7 +141,7 @@ export default function HealthPage() {
           <div className={styles.healthCard}>
             <span className={styles.healthCardLabel}>API Entrypoint</span>
             <div>
-              <div className={styles.healthApiBox}>{API_BASE}</div>
+              <div className={styles.healthApiBox}>/api</div>
               <div style={{ display: "flex", alignItems: "center", gap: "0.375rem", marginTop: "0.5rem", opacity: 0.4 }}>
                 <span className="material-symbols-outlined" style={{ fontSize: "0.875rem", color: "#e5e2e1" }}>lock</span>
                 <span style={{ fontFamily: "var(--font-geist-mono)", fontSize: "0.5625rem", color: "#e5e2e1" }}>

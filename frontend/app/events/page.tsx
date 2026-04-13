@@ -5,7 +5,6 @@ import { Sidebar } from '../components/Sidebar';
 import styles from '../siem.module.css';
 import type { ParsedLog, EventsResponse } from '../../types/logs';
 import { useCollectorStream, StreamStatus } from '../hooks/useCollectorStream';
-import { useSettings } from '../contexts/SettingsContext';
 
 const PAGE_SIZE_OPTIONS = [25, 50, 100, 250, 'All'] as const;
 type PageSizeOption = typeof PAGE_SIZE_OPTIONS[number];
@@ -27,8 +26,7 @@ const STATUS_DOT: Record<StreamStatus, { core: string; label: string }> = {
 };
 
 export default function EventsPage() {
-  const { settings } = useSettings();
-  const API_BASE = settings.apiBaseUrl;
+  // API calls use relative URLs proxied through Next.js rewrites
 
   const [pageSize, setPageSize] = useState<PageSizeOption>(50);
   const pageSizeNum = pageSize === 'All' ? 1000 : pageSize;
@@ -48,7 +46,7 @@ export default function EventsPage() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`${API_BASE}/api/events?limit=${pageSizeNum}&offset=${currentOffset}`);
+      const res = await fetch(`/api/events?limit=${pageSizeNum}&offset=${currentOffset}`);
       if (!res.ok) throw new Error('Failed to fetch events');
       const data: EventsResponse = await res.json();
       setEvents(data.events);
@@ -58,7 +56,7 @@ export default function EventsPage() {
     } finally {
       setLoading(false);
     }
-  }, [API_BASE, pageSizeNum]);
+  }, [pageSizeNum]);
 
   useEffect(() => {
     fetchEvents(offset);
@@ -78,7 +76,7 @@ export default function EventsPage() {
     }
   }, []);
 
-  useCollectorStream(API_BASE, handleNewEvents, setStreamStatus);
+  useCollectorStream(handleNewEvents, setStreamStatus);
 
   const goToLatest = () => {
     setPending(0);

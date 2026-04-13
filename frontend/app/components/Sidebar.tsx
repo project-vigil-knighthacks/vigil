@@ -7,8 +7,6 @@ import { usePathname, useRouter } from 'next/navigation';
 import styles from '../siem.module.css';
 import { useToast } from './Toast';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8000';
-
 const navItems = [
   { href: '/dashboard', label: 'Dashboard',  icon: 'dashboard' },
   { href: '/',          label: 'Log Parser',  icon: 'terminal' },
@@ -35,7 +33,7 @@ export function Sidebar() {
   const router = useRouter();
 
   useEffect(() => {
-    fetch(`${API_BASE}/api/health`)
+    fetch('/api/health')
       .then((res) => res.json())
       .then((data) => { if (data.ok) setBackendStatus('connected'); })
       .catch(() => setBackendStatus('disconnected'));

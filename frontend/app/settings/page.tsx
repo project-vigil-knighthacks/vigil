@@ -17,9 +17,6 @@ const TABS: { id: Tab; label: string; icon: string }[] = [
 
 function validate(staged: Settings): Partial<Record<keyof Settings, string>> {
   const errors: Partial<Record<keyof Settings, string>> = {};
-  if (!staged.apiBaseUrl || !/^https?:\/\//.test(staged.apiBaseUrl)) {
-    errors.apiBaseUrl = 'Must be a valid URL starting with http:// or https://';
-  }
   if (!Number.isInteger(staged.pollingInterval) || staged.pollingInterval < 5 || staged.pollingInterval > 300) {
     errors.pollingInterval = 'Must be an integer between 5 and 300';
   }
@@ -115,13 +112,9 @@ export default function SettingsPage() {
       toast('error', 'Enter a valid email address');
       return;
     }
-    if (!staged.apiBaseUrl || !/^https?:\/\//.test(staged.apiBaseUrl)) {
-      toast('error', 'Set a valid API Base URL first');
-      return;
-    }
     setIsSubmitting(true);
     try {
-      const res = await fetch(`${staged.apiBaseUrl}/api/add_subscription`, {
+      const res = await fetch('/api/add_subscription', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, min_severity: minSeverity }),
@@ -147,7 +140,7 @@ export default function SettingsPage() {
     }
     setIsResetting(true);
     try {
-      const res = await fetch(`${staged.apiBaseUrl}/api/events/reset`, { method: 'DELETE' });
+      const res = await fetch('/api/events/reset', { method: 'DELETE' });
       if (!res.ok) {
         const msg = await res.text();
         throw new Error(msg || 'Failed to reset database');
@@ -190,19 +183,6 @@ export default function SettingsPage() {
             {activeTab === 'connection' && (
               <>
                 <div className={styles.settingsSectionTitle}>connection</div>
-
-                <div className={styles.settingsRow}>
-                  <div>
-                    <div className={styles.settingsRowLabel}>API Base URL</div>
-                    <div className={styles.settingsRowDesc}>Backend endpoint for all API requests</div>
-                    {errors.apiBaseUrl && <div style={errorStyle}>{errors.apiBaseUrl}</div>}
-                  </div>
-                  <input
-                    className={`${styles.settingsInput} ${errors.apiBaseUrl ? styles.settingsInputError : ''}`}
-                    value={staged.apiBaseUrl}
-                    onChange={(e) => setSetting('apiBaseUrl', e.target.value)}
-                  />
-                </div>
 
                 <div className={styles.settingsRow}>
                   <div>
