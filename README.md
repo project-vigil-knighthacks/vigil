@@ -9,33 +9,51 @@ An open-source, self-hosted SIEM (Security Information and Event Management) sys
 
 No cloud services, no external databases, no agents to install on your server. Just your logs and Vigil.
 
+## Table of Contents
+
+- [Architecture](#architecture)
+- [Project Structure](#project-structure)
+- [Quick Start in Terminals](#quick-start-in-terminals)
+- [Optional Terminals for Testing w/ Dummy-Site](#optional-terminals-for-testing-w-dummy-site)
+- [Connect Your Website](#connect-your-website)
+- [Optional Backend Config](#optional-backend-config)
+- [API Endpoints](#api-endpoints)
+
 ## Architecture
 
 ```
-┌──────────────┐
-│  Log Source  │ Any text-based log file (Apache, syslog, auth.log, etc.)
-│  (your site) │
-└──────┬───────┘
-       │ file tailed in real time
-       v
-┌──────────────┐    Grok patterns;     ┌────────────────────┐
-│   Collector  │── parse each line ──> │    Classifier      │
-│  (watchdog)  │                       │ (severity tagging) │
-└──────┬───────┘                       └────────┬───────────┘
-       │                                        │
-       │ POST /api/events/store                 │
-       v                                        v
-┌──────────────┐                      ┌───────────────────┐
-│   FastAPI    │<─── parsed events ───│   SQLite (WAL)    │
-│   Backend    │─────────────────────>│   vigil.db        │
-└──────┬───────┘                      └───────────────────┘
-       │  WebSocket /ws/collector
-       v
-┌──────────────┐
-│   Next.js    │  Dashboard, Events, Alerts, Settings
-│   Frontend   │  http://localhost:3000
-└──────────────┘
+                         ┌────────────────────────────────────────┐
+                         │              LOCAL MACHINE             │
+                         │                                        │
+┌──────────────┐         │  ┌──────────────┐     ┌─────────────┐  │
+│  Log Source  │ local   │  │   Collector  │     │  Classifier │  │
+│  (log file)  │─────────┼─>│  (watchdog)  │────>│ (severity)  │  │
+└──────────────┘  tail   │  └──────┬───────┘     └──────┬──────┘  │
+                         │         │ POST /api/events/store │     │
+                         │         v                        v     │
+┌──────────────┐         │  ┌──────────────┐     ┌─────────────┐  │
+│  Deployed    │  POST   │  │   FastAPI    │<────│  SQLite     │  │
+│  Website     │─────────┼─>│   Backend    │────>│  vigil.db   │  │
+│  (Vercel)    │ /ingest │  │  :8000       │     └─────────────┘  │
+└──────────────┘         │  └──────┬───────┘                      │
+       │                 │         │  WebSocket /ws/collector     │
+       │  VIGIL_API_URL  │         v                              │
+       │  points here    │  ┌──────────────┐                      │
+       │       │         │  │   Next.js    │  Dashboard, Events,  │
+       │       │         │  │   Frontend   │  Alerts, Settings    │
+       │       │         │  │  :3000       │                      │
+       │       │         │  └──────────────┘                      │
+       │       │         └────────────────────────────────────────┘
+       v       v
+  ┌─────────────────┐
+  │  localtunnel    │  Public URL → localhost:8000
+  │  (loca.lt)      │  npx localtunnel --port 8000
+  └─────────────────┘
 ```
+
+**Two ingestion paths:**
+- **Local logs** (Option A): Collector tails a file on disk → parses → stores events
+- **Deployed site** (Option B): Site POSTs raw log lines to `POST /api/ingest` via a public tunnel
 
 ### Core Components
 
@@ -50,7 +68,7 @@ No cloud services, no external databases, no agents to install on your server. J
 | **Email Alerts** | Mailgun (optional) | `backend/api/emailer.py` |
 | **Dummy Site** | Flask test target + traffic simulator | `dummy-site/` |
 
-### Key Features (current)
+### Key Features
 
 - **Grok pattern matching**: 19 built-in patterns for syslog, auth.log, and Apache access logs
 - **Auto pattern learning**: unrecognized log lines are sent to an LLM (OpenAI) to generate new Grok patterns automatically (optional, requires API key)
@@ -79,7 +97,8 @@ vigil/
 │   ├── dummy-logs/              Synthetic log generators
 │   ├── models/                  (placeholder)
 │   ├── services/                (placeholder)
-│   └── tests/                   (placeholder)
+│   ├── tests/                   (placeholder)
+│   └── env.example              Environment variable template
 ├── frontend/
 │   ├── app/
 │   │   ├── page.tsx             Log Parser (upload / paste)
@@ -97,9 +116,7 @@ vigil/
 │   ├── config.py                Ports, log path, credentials
 │   ├── templates/               HTML pages
 │   └── static/                  CSS
-├── docs/                        Architecture notes
-├── pyproject.toml               Python dependencies
-└── env.example                  Environment variable template
+└── pyproject.toml               Python dependencies
 ```
 
 ## Quick Start in Terminals
@@ -198,7 +215,7 @@ That is the bare minimum for a self-hosted site.
 
 If your site is on Vercel, Netlify, or another hosted platform, the site must send raw log lines to Vigil over HTTP.
 
-Bare minimum:
+Requirements:
 1. Your site needs a small logger/proxy that POSTs to `POST /api/ingest`.
 2. Your site needs one website-side env var:
 
@@ -208,18 +225,21 @@ VIGIL_API_URL=https://your-public-vigil-backend.example.com
 
 `VIGIL_API_URL` is set on the monitored website, not in Vigil's backend `.env.local`.
 
-For the current `dw-ZS` deployment, that means:
-1. Keep the Vigil backend running locally.
-2. Expose port `8000` with a public tunnel or deploy the backend.
-3. Put that public backend URL into the website's environment as `VIGIL_API_URL`.
-4. Visit the website and confirm new events appear in Vigil `/events`.
+Since the Vigil backend runs on your local machine, deployed sites can't reach `localhost:8000`. You need a **tunnel** to give your local backend a public URL.
 
-### What success looks like
+### Initialize a localtunnel Instance
 
-You are connected when:
-- the backend receives `POST /api/ingest`
-- the Events page shows new rows with recent timestamps
-- the dashboard counters increase without manual log upload
+[localtunnel](https://github.com/localtunnel/localtunnel) is an npm package that creates a temporary public URL (e.g. `https://dry-doors-rescue.loca.lt`) which forwards traffic to a port on your machine.
+
+```bash
+npx localtunnel --port 8000
+# your url is: https://some-random-words.loca.lt
+# on your hosting website, save this under env vars as "VIGIL_API_URL=..."
+```
+
+> **Note:** The URL changes every time localtunnel restarts. You must update your site's `VIGIL_API_URL` env var in Vercel (or wherever it's hosted) each time the URL changes, then redeploy.
+
+> **Alternatives:** [ngrok](https://ngrok.com/) (free tier gives a stable URL with an account), [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/), or deploy the backend to a server with a real domain.
 
 ## Optional Backend Config
 
