@@ -88,6 +88,9 @@ export default function SettingsPage() {
   const [email, setEmail] = useState('');
   const [minSeverity, setMinSeverity] = useState<'critical' | 'warning' | 'info'>('warning');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isFlushing, setIsFlushing] = useState(false);
+  const [flushCooldownEnd, setFlushCooldownEnd] = useState(0);
+  const [pendingCount, setPendingCount] = useState(0);
   const [resetArmed, setResetArmed] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
   const [attributeEvents, setAttributeEvents] = useState<ParsedLog[]>([]);
@@ -120,6 +123,57 @@ export default function SettingsPage() {
     loadAttributeEvents();
     return () => controller.abort();
   }, [toast]);
+
+  // Poll pending alert count when notifications tab is active
+  useEffect(() => {
+    if (activeTab !== 'notifications') return;
+    let cancelled = false;
+    async function poll() {
+      try {
+        const res = await fetch('/api/alerts/pending');
+        if (res.ok) {
+          const data = await res.json();
+          const total = Object.values(data.pending as Record<string, number>).reduce((a: number, b: number) => a + b, 0);
+          if (!cancelled) setPendingCount(total);
+        }
+      } catch { /* ignore */ }
+    }
+    poll();
+    const id = setInterval(poll, 15_000);
+    return () => { cancelled = true; clearInterval(id); };
+  }, [activeTab]);
+
+  // Countdown timer for flush cooldown
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    if (flushCooldownEnd <= Date.now()) return;
+    const id = setInterval(() => setTick((n) => n + 1), 1000);
+    return () => clearInterval(id);
+  }, [flushCooldownEnd]);
+
+  const flushCooldownRemaining = Math.max(0, Math.ceil((flushCooldownEnd - Date.now()) / 1000));
+  const flushOnCooldown = flushCooldownRemaining > 0;
+
+  async function handleFlushAlerts() {
+    setIsFlushing(true);
+    try {
+      const res = await fetch('/api/alerts/flush', { method: 'POST' });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || 'Flush failed');
+      if (data.sent === 0) {
+        toast('info', 'No pending alerts to send');
+      } else {
+        toast('success', `Digest sent to ${data.sent} recipient${data.sent !== 1 ? 's' : ''}`);
+      }
+      setPendingCount(0);
+      setFlushCooldownEnd(Date.now() + 5 * 60 * 1000);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to flush alerts';
+      toast('error', message);
+    } finally {
+      setIsFlushing(false);
+    }
+  }
 
   const availableAttributeOptions = getAttributePickerOptions(attributeEvents);
 
@@ -329,6 +383,30 @@ export default function SettingsPage() {
                       type="button"
                     >
                       {isSubmitting ? 'Saving...' : 'Add'}
+                    </button>
+                  </div>
+                </div>
+
+                <div className={styles.settingsRow}>
+                  <div>
+                    <div className={styles.settingsRowLabel}>Force Email Digest</div>
+                    <div className={styles.settingsRowDesc}>
+                      Send all queued alerts now{pendingCount > 0 ? ` (${pendingCount} pending)` : ''}
+                    </div>
+                  </div>
+                  <div className={styles.settingsRowRight}>
+                    <button
+                      className={styles.settingsBtnSave}
+                      onClick={handleFlushAlerts}
+                      disabled={isFlushing || flushOnCooldown}
+                      type="button"
+                      style={{ minWidth: '8rem' }}
+                    >
+                      {isFlushing
+                        ? 'Sending...'
+                        : flushOnCooldown
+                          ? `${Math.floor(flushCooldownRemaining / 60)}:${String(flushCooldownRemaining % 60).padStart(2, '0')}`
+                          : 'Send Now'}
                     </button>
                   </div>
                 </div>

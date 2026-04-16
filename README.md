@@ -290,5 +290,7 @@ This is only needed if the Vigil frontend and backend are not running on the sam
 | `POST` | `/api/events/store` | Store parsed events in SQLite |
 | `GET` | `/api/events` | Query events (limit, offset, severity filter) |
 | `POST` | `/api/create_env` | Write `.env` file (for API key setup) |
+| `POST` | `/api/alerts/flush` | Force-send all pending alert digests immediately |
+| `GET` | `/api/alerts/pending` | Check queued alert count per recipient |
 | `WS` | `/ws/parse` | Stream log parsing results |
 | `WS` | `/ws/collector` | Live event stream from collector |
