@@ -55,16 +55,9 @@ event_broadcaster = EventBroadcaster()
 
 
 # ── CORS ──────────────────────────────────────────────────────────────────────
-_default_origins = ["http://localhost:3000", "http://127.0.0.1:3000"]
-_extra_origins = [
-    o.strip()
-    for o in os.environ.get("VIGIL_CORS_ORIGINS", "").split(",")
-    if o.strip()
-]
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=_default_origins + _extra_origins,
+    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -169,7 +162,7 @@ async def ingest_raw_logs(payload: StringPayload):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to ingest logs: {str(e)}")
 
-@app.post("/api/events/store")
+@app.post("/api/collect")
 async def collect_events(events: list[dict]):
     """Receive parsed log events from the collector and store them in SQLite"""
     try:
