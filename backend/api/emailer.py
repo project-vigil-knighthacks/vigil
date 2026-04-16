@@ -1,9 +1,17 @@
 import os
+import time
+import threading
 import requests
 from fastapi import FastAPI, HTTPException, APIRouter
 import database
 
 router = APIRouter()
+
+# ── Digest state ──────────────────────────────────────────────────────────────
+_digest_lock = threading.Lock()
+_pending_alerts: dict[str, list[dict]] = {}   # email → [events]
+_last_sent: dict[str, float] = {}             # email → timestamp
+_DIGEST_COOLDOWN = 600  # seconds (10 min) between digest emails per recipient
 
 
 @router.post("/emailer_router")
@@ -51,38 +59,141 @@ def should_alert(event: dict, min_severity: str) -> bool:
 
 @router.post("/alertEmail")
 def send_alert_email(events: list[dict]):
+    """Queue alertable events and send a count-based digest per subscriber (10-min window)."""
+    try:
+        cfg = mailGun_Config()
+    except Exception:
+        return  # Mailgun not configured — skip silently
+
     users = database.get_subscriptions()
+    if not users:
+        return
 
-    for event in events:
-        for user in users:
-            if should_alert(event, user["min_severity"]):
-                send_event_alert(event, user["email"])
+    now = time.time()
 
-def send_event_alert(event: dict, user: dict):
-	cfg = mailGun_Config()
+    with _digest_lock:
+        for event in events:
+            for user in users:
+                if should_alert(event, user["min_severity"]):
+                    email = user["email"]
+                    _pending_alerts.setdefault(email, []).append(event)
 
-	resp =  requests.post(
-		f"https://api.mailgun.net/v3/{cfg['domain']}/messages",
-		auth=("api", cfg.get("api_key")),
-		dat={f"from": cfg.get("sender"),
-			f"to": user["email"],
-			f"subject": "Vigil Alert "+ event.get("severity", "unknown"),
-			f"text": "Vigil SIEM Alert\n"
-			"-----------------\n"
-			f"Severity: {event.get('severity', 'unknown')}\n"
-			f"Timestamp: {event.get('timestamp', 'n/a')}\n"
-			f"Host: {event.get('host', 'n/a')}\n"
-			f"Process: {event.get('proc', 'n/a')}\n"
-			f"Source IP: {event.get('src_ip', 'n/a')}\n"
-			f"User: {event.get('login', 'n/a')}\n"
-			"\n"
-			"Raw Event:\n"
-			f"{event.get('raw', 'n/a')}\n"
-		},
-          timeout=10
-	)	
-	return{
-		"status_code": resp.status_code,
-		"text": resp.text,
-	}
+        # Flush any recipients whose cooldown has elapsed
+        emails_to_flush = [
+            email for email, pending in _pending_alerts.items()
+            if pending and (now - _last_sent.get(email, 0)) >= _DIGEST_COOLDOWN
+        ]
+
+        batches: dict[str, list[dict]] = {}
+        for email in emails_to_flush:
+            batches[email] = _pending_alerts.pop(email)
+            _last_sent[email] = now
+
+    # Send outside the lock
+    for email, batch in batches.items():
+        _send_digest(cfg, email, batch)
+
+
+@router.post("/alerts/flush")
+def force_flush_alerts():
+    """Force-send all pending alert digests immediately, ignoring cooldown."""
+    try:
+        cfg = mailGun_Config()
+    except Exception:
+        raise HTTPException(status_code=503, detail="Mailgun not configured")
+
+    with _digest_lock:
+        batches = dict(_pending_alerts)
+        _pending_alerts.clear()
+        now = time.time()
+        for email in batches:
+            _last_sent[email] = now
+
+    if not batches:
+        return {"ok": True, "sent": 0, "message": "No pending alerts to flush"}
+
+    sent = 0
+    for email, batch in batches.items():
+        _send_digest(cfg, email, batch)
+        sent += 1
+
+    return {"ok": True, "sent": sent, "recipients": list(batches.keys())}
+
+
+@router.get("/alerts/pending")
+def get_pending_alerts():
+    """Check how many alerts are queued per recipient."""
+    with _digest_lock:
+        summary = {email: len(events) for email, events in _pending_alerts.items()}
+    return {"pending": summary, "cooldown_seconds": _DIGEST_COOLDOWN}
+
+
+def _send_digest(cfg: dict, email: str, events: list[dict]):
+    """Send a single count-based digest email summarising alert events."""
+    by_sev: dict[str, int] = {}
+    for ev in events:
+        sev = ev.get("severity", "unknown")
+        by_sev[sev] = by_sev.get(sev, 0) + 1
+
+    highest = max(by_sev.keys(), key=severity_rank)
+    total = len(events)
+    subject = f"Vigil Alert Digest — {total} event{'s' if total != 1 else ''} ({highest})"
+
+    lines = [
+        "Vigil SIEM — Alert Digest",
+        "=" * 40,
+        "",
+        f"  Total events in this window:  {total}",
+        "",
+    ]
+
+    for sev in ("critical", "warning", "info", "unknown"):
+        count = by_sev.get(sev, 0)
+        if count:
+            lines.append(f"    {sev.upper():10s}  {count}")
+    lines.append("")
+
+    # Top 5 most recent events as a preview
+    recent = events[-5:]
+    lines.append("── Recent events (up to 5) ──")
+    for ev in recent:
+        lines.append(
+            f"  [{ev.get('severity', '?'):8s}]  "
+            f"{ev.get('timestamp', 'n/a')}  "
+            f"src={ev.get('src_ip', 'n/a')}  "
+            f"uri={ev.get('uri', 'n/a')}  "
+            f"status={ev.get('status_code', 'n/a')}"
+        )
+    lines.append("")
+
+    # Top source IPs
+    ip_counts: dict[str, int] = {}
+    for ev in events:
+        ip = ev.get("src_ip", "unknown")
+        ip_counts[ip] = ip_counts.get(ip, 0) + 1
+    top_ips = sorted(ip_counts.items(), key=lambda x: x[1], reverse=True)[:5]
+    if top_ips:
+        lines.append("── Top source IPs ──")
+        for ip, cnt in top_ips:
+            lines.append(f"  {ip:20s}  {cnt} events")
+        lines.append("")
+
+    lines.append("View full details on your Vigil dashboard.")
+
+    body = "\n".join(lines)
+
+    try:
+        requests.post(
+            f"https://api.mailgun.net/v3/{cfg['domain']}/messages",
+            auth=("api", cfg["api_key"]),
+            data={
+                "from": cfg["sender"],
+                "to": email,
+                "subject": subject,
+                "text": body,
+            },
+            timeout=10,
+        )
+    except Exception as exc:
+        print(f"[emailer] digest send failed for {email}: {exc}")
 
